@@ -11,11 +11,10 @@ use OpenApi\Annotations\Parameter;
 interface RoutingAdapterInterface
 {
     /**
-     * Register a route
+     * Register a route.
      *
-     * @param  Operation $operation The route URI pattern
-     * @param  Parameter[] $parameters URI path parameters
+     * @param Operation   $operation  The route URI pattern
+     * @param Parameter[] $parameters URI path parameters
      */
     public function register(Operation $operation, array $parameters);
-
 }

@@ -35,10 +35,9 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
             }
 
             if (\OpenApi\UNDEFINED !== $parameter->schema) {
-                $schema =$parameter->schema;
+                $schema = $parameter->schema;
 
                 if (\OpenApi\UNDEFINED !== $schema->pattern) {
-
                 }
             }
         }

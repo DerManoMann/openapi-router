@@ -16,8 +16,9 @@ class OpenApiRouter
 
     /**
      * Create new routes.
-     * @param array $sources Mixed list of either controller paths or instances of `OpenApi\Annotations\OpenApi`
-     * @param RoutingAdapterInterface $routingAdapter The framework adapter.
+     *
+     * @param array                   $sources        Mixed list of either controller paths or instances of `OpenApi\Annotations\OpenApi`
+     * @param RoutingAdapterInterface $routingAdapter the framework adapter
      */
     public function __construct(array $sources, RoutingAdapterInterface $routingAdapter)
     {
