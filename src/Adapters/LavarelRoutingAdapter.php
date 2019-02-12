@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Radebatz\OpenApi\Routing\Adapters;
 
@@ -15,7 +15,7 @@ class LavarelRoutingAdapter implements RoutingAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function register(Operation $operation, array $parameters)
+    public function register(Operation $operation, array $parameters, array $custom)
     {
         $path = $operation->path;
         $operationId = str_replace('::__invoke', '', $operation->operationId);

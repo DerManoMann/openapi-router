@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Radebatz\OpenApi\Routing\Adapters;
 
@@ -22,7 +22,7 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function register(Operation $operation, array $parameters)
+    public function register(Operation $operation, array $parameters, array $custom)
     {
         $path = $operation->path;
 
@@ -38,10 +38,14 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
                 $schema = $parameter->schema;
 
                 if (\OpenApi\UNDEFINED !== $schema->pattern) {
+                    // TODO
                 }
             }
         }
 
-        $this->app->map([strtoupper($operation->method)], $path, $operation->operationId);
+        $route = $this->app->map([strtoupper($operation->method)], $path, $operation->operationId);
+        if ($custom['name']) {
+            $route->setName($custom['name']);
+        }
     }
 }

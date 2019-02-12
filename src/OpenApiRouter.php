@@ -1,7 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Radebatz\OpenApi\Routing;
 
+use OpenApi\Analysis;
+use OpenApi\Annotations\Info;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
@@ -30,8 +32,13 @@ class OpenApiRouter
 
     protected function registerRoutes()
     {
+        // provide default @OA\Info in case we need to do some scanning
+        $analysis = new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])]);
+        $options = [
+            'analysis' => $analysis,
+        ];
         foreach ($this->sources as $source) {
-            $openapi = is_string($source) ? \OpenApi\scan($source) : $source;
+            $openapi = is_string($source) ? \OpenApi\scan($source, $options) : $source;
 
             if (!($openapi instanceof OpenApi)) {
                 throw new \InvalidArgumentException(sprintf('Invalid source. Expecting path (string) or "OpenApi\Annotations\OpenApi"'));
@@ -44,6 +51,7 @@ class OpenApiRouter
     protected function registerOpenApi(OpenApi $openapi)
     {
         $methods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
+        $xKeys = ['name'];
 
         foreach ($openapi->paths as $path) {
             $operation = null;
@@ -68,7 +76,18 @@ class OpenApiRouter
             }
 
             if ($operation) {
-                $this->routingAdapter->register($operation, $parameters);
+                $custom = [
+                    'name' => null,
+                ];
+                if (\OpenApi\UNDEFINED !== $operation->x) {
+                    foreach ($xKeys as $xKey) {
+                        if (array_key_exists($xKey, $operation->x)) {
+                            $custom[$xKey] = $operation->x[$xKey];
+                        }
+                    }
+                }
+
+                $this->routingAdapter->register($operation, $parameters, $custom);
             }
         }
     }
