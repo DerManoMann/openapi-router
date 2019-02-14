@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Symfony\Component\HttpFoundation\Response;
 
-class DefaultController extends Controller
+class NamedRouteController extends Controller
 {
 
     /**

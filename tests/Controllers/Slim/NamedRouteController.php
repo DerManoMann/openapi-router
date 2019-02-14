@@ -2,7 +2,7 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Controllers\Slim;
 
-class DefaultController
+class NamedRouteController
 {
 
     /**

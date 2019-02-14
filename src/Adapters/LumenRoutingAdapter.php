@@ -2,16 +2,16 @@
 
 namespace Radebatz\OpenApi\Routing\Adapters;
 
-use Illuminate\Foundation\Application;
-use Illuminate\Routing\Router;
+use Laravel\Lumen\Application;
+use Laravel\Lumen\Routing\Router;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 
 /**
- * Laravel routing adapter.
+ * Lumen routing adapter.
  */
-class LaravelRoutingAdapter implements RoutingAdapterInterface
+class LumenRoutingAdapter implements RoutingAdapterInterface
 {
     /** @var Application $app */
     protected $app;
@@ -37,7 +37,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         }
 
         /** @var Router $router */
-        $router = $this->app->get('router');
+        $router = $this->app->router;
 
         $action = [
             'uses' => $operationId

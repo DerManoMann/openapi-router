@@ -13,7 +13,7 @@ class LaravelTest extends TestCase
 {
     protected function getApp(): Application
     {
-        $app = new Application(dirname(__DIR__));
+        $app = new Application();
         Facade::setFacadeApplication($app);
 
         return $app;
@@ -21,11 +21,11 @@ class LaravelTest extends TestCase
 
     public function testNamedRoute()
     {
-        $app = $this->getApp();
-        new OpenApiRouter([__DIR__ . '/Controllers/Laravel'], new LaravelRoutingAdapter());
+        new OpenApiRouter([__DIR__ . '/Controllers/Laravel'], new LaravelRoutingAdapter($app = $this->getApp()));
 
         /** @var Router $router */
         $router = $app['router'];
-        $this->assertNotNull($router->has('getya'));
+        //var_dump($router);
+        $this->assertNotNull($router->getRoutes()->getByName('getya'));
     }
 }

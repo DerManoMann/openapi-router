@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Controllers\Silex;
+namespace Radebatz\OpenApi\Routing\Tests\Controllers\Laravel;
 
-use Silex\Application;
-use Symfony\Component\HttpFoundation\Request;
+use Illuminate\Http\Request;
+use Laravel\Lumen\Routing\Controller;
 use Symfony\Component\HttpFoundation\Response;
 
-class DefaultController
+class NamedRouteController extends Controller
 {
 
     /**
@@ -18,7 +18,8 @@ class DefaultController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function getya(Application $app, Request $request) {
-        return new Response('Get ya');
+    public function __invoke(Request $request, $name)
+    {
+        return new Response('getya');
     }
 }
