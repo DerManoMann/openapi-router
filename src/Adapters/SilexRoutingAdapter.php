@@ -5,17 +5,18 @@ namespace Radebatz\OpenApi\Routing\Adapters;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
-use Slim\App;
+use Silex\Application;
+use Silex\ControllerCollection;
 
 /**
- * Slim routing adapter.
+ * Silex routing adapter.
  */
-class SlimRoutingAdapter implements RoutingAdapterInterface
+class SilexRoutingAdapter implements RoutingAdapterInterface
 {
-    /** @var App $app */
+    /** @var Application $app */
     protected $app;
 
-    public function __construct(App $app)
+    public function __construct(Application $app)
     {
         $this->app = $app;
     }
@@ -27,12 +28,15 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
     {
         $path = $operation->path;
 
+        /** @var ControllerCollection $controllers */
+        $controllers = $this->app['controllers'];
+
         /** @var Parameter $parameter */
         foreach ($parameters as $parameter) {
             $name = $parameter->name;
 
             if (!$parameter->required) {
-                $path = str_replace("/{{$name}}", "[/{{$name}}]", $path);
+                // TODO
             }
 
             if (\OpenApi\UNDEFINED !== $parameter->schema) {
@@ -44,9 +48,9 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
             }
         }
 
-        $route = $this->app->map([strtoupper($operation->method)], $path, $operation->operationId);
+        $controller = $controllers->match($path, $operation->operationId)->method(strtoupper($operation->method));
         if ($custom['name']) {
-            $route->setName($custom['name']);
+            $controller->bind($custom['name']);
         }
     }
 }

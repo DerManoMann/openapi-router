@@ -10,7 +10,7 @@ use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 /**
  * Lavarel routing adapter.
  */
-class LavarelRoutingAdapter implements RoutingAdapterInterface
+class LaravelRoutingAdapter implements RoutingAdapterInterface
 {
     /**
      * {@inheritdoc}

@@ -36,7 +36,9 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.11",
+        "laravel/laravel": "^5.7",
         "phpunit/phpunit": "^7.0",
+        "silex/silex": "^2.3",
         "slim/slim": "^3.12"
     }
 }
