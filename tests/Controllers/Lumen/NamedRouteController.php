@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class NamedRouteController extends Controller
 {
-
     /**
      * @OA\Get(
      *     path="/getya",

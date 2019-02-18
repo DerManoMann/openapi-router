@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class NamedRouteController
 {
-
     /**
      * @OA\Get(
      *     path="/getya",
@@ -18,7 +17,8 @@ class NamedRouteController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function getya(Application $app, Request $request) {
+    public function getya(Application $app, Request $request)
+    {
         return new Response('Get ya');
     }
 }

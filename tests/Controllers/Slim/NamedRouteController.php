@@ -4,7 +4,6 @@ namespace Radebatz\OpenApi\Routing\Tests\Controllers\Slim;
 
 class NamedRouteController
 {
-
     /**
      * @OA\Get(
      *     path="/getya",
@@ -14,7 +13,8 @@ class NamedRouteController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function getya($request, $response) {
+    public function getya($request, $response)
+    {
         return $response->write('Get ya');
     }
 }
