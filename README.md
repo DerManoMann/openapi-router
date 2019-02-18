@@ -1,5 +1,7 @@
 # openapi-router
 
+[![Build Status](https://travis-ci.org/DerManoMann/openapi-router.png)](https://travis-ci.org/DerManoMann/openapi-router)
+
 ## Usage ##
 
 Example usage using `Slim`.
