@@ -31,6 +31,8 @@ class SilexRoutingAdapter implements RoutingAdapterInterface
         /** @var ControllerCollection $controllers */
         $controllers = $this->app['controllers'];
 
+        $controller = $controllers->match($path, $operation->operationId)->method(strtoupper($operation->method));
+
         /** @var Parameter $parameter */
         foreach ($parameters as $parameter) {
             $name = $parameter->name;
@@ -41,14 +43,19 @@ class SilexRoutingAdapter implements RoutingAdapterInterface
 
             if (\OpenApi\UNDEFINED !== $parameter->schema) {
                 $schema = $parameter->schema;
-
-                if (\OpenApi\UNDEFINED !== $schema->pattern) {
-                    // TODO
+                switch ($schema->type) {
+                    case 'string':
+                        if (\OpenApi\UNDEFINED !== ($pattern = $schema->pattern)) {
+                            $controller->assert($name, $pattern);
+                        }
+                        break;
+                    case 'integer':
+                        $controller->assert($name, '[0-9]+');
+                        break;
                 }
             }
         }
 
-        $controller = $controllers->match($path, $operation->operationId)->method(strtoupper($operation->method));
         if ($custom['name']) {
             $controller->bind($custom['name']);
         }
