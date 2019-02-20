@@ -32,14 +32,25 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
             $name = $parameter->name;
 
             if (!$parameter->required) {
-                $path = str_replace("/{{$name}}", "[/{{$name}}]", $path);
+                if (false !== strpos($path, $needle = "/{{$name}}[/{")) {
+                    // multiple optional parameters
+                    $path = preg_replace("#/{{$name}}(\[?.*}\])#", "[/{{$name}}$1]", $path);
+                } else {
+                    $path = str_replace("/{{$name}}", "[/{{$name}}]", $path);
+                }
             }
 
             if (\OpenApi\UNDEFINED !== $parameter->schema) {
                 $schema = $parameter->schema;
-
-                if (\OpenApi\UNDEFINED !== $schema->pattern) {
-                    // TODO
+                switch ($schema->type) {
+                    case 'string':
+                        if (\OpenApi\UNDEFINED !== ($pattern = $schema->pattern)) {
+                            $path = str_replace("{{$name}}", "{{$name}:$pattern}", $path);
+                        }
+                        break;
+                    case 'integer':
+                        $path = str_replace("{{$name}}", "{{$name}:[0-9]+}", $path);
+                        break;
                 }
             }
         }
@@ -47,6 +58,9 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
         $route = $this->app->map([strtoupper($operation->method)], $path, $operation->operationId);
         if ($custom['name']) {
             $route->setName($custom['name']);
+        }
+        foreach ($custom['middleware'] as $middleware) {
+            $route->add($middleware);
         }
     }
 }

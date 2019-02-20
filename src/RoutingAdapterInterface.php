@@ -14,7 +14,7 @@ interface RoutingAdapterInterface
      * Register a route.
      *
      * @param Operation   $operation  The route URI pattern
-     * @param Parameter[] $parameters URI path parameters
+     * @param Parameter[] $parameters URI path parameters in reverse order
      * @param array       $custom     Custom properties `x={}`
      */
     public function register(Operation $operation, array $parameters, array $custom);

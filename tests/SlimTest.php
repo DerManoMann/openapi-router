@@ -15,12 +15,57 @@ class SlimTest extends TestCase
         return new App();
     }
 
-    public function testNamedRoute()
+    protected function getRouter(?App $app = null): RouterInterface
     {
-        new OpenApiRouter([__DIR__ . '/Controllers/Slim'], new SlimRoutingAdapter($app = $this->getApp()));
+        $app = $app ?: $this->getApp();
+        new OpenApiRouter([__DIR__ . '/Controllers/Slim'], new SlimRoutingAdapter($app));
 
         /** @var RouterInterface $router */
         $router = $app->getContainer()->get('router');
-        $this->assertNotNull($router->getNamedRoute('getya'));
+
+        return $router;
+    }
+
+    public function testNamedRoute()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('getya'));
+        $this->assertEquals('/getya', $route->getPattern());
+    }
+
+    public function testParameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('hey'));
+        $this->assertEquals('/hey/{name}', $route->getPattern());
+    }
+
+    public function testOptionalParameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('oi'));
+        $this->assertEquals('/oi[/{name}]', $route->getPattern());
+    }
+
+    public function testMultiOptionalParameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('multi'));
+        $this->assertEquals('/multi[/{foo}[/{bar}]]', $route->getPattern());
+    }
+
+    public function testTypedParameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('id'));
+        $this->assertEquals('/id/{id:[0-9]+}', $route->getPattern());
+    }
+
+    public function testRegexParameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('hid'));
+        $this->assertEquals('/hid/{hid:[0-9a-f]+}', $route->getPattern());
+    }
+
+    public function testMiddlewares()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('mw'));
+        $this->assertEquals('/mw', $route->getPattern());
+        $this->assertCount(2, $route->getMiddleware());
     }
 }

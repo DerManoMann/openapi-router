@@ -51,7 +51,6 @@ class OpenApiRouter
     protected function registerOpenApi(OpenApi $openapi)
     {
         $methods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
-        $xKeys = ['name'];
 
         foreach ($openapi->paths as $path) {
             $operation = null;
@@ -78,16 +77,17 @@ class OpenApiRouter
             if ($operation) {
                 $custom = [
                     'name' => null,
+                    'middleware' => [],
                 ];
                 if (\OpenApi\UNDEFINED !== $operation->x) {
-                    foreach ($xKeys as $xKey) {
+                    foreach (array_keys($custom) as $xKey) {
                         if (array_key_exists($xKey, $operation->x)) {
                             $custom[$xKey] = $operation->x[$xKey];
                         }
                     }
                 }
 
-                $this->routingAdapter->register($operation, $parameters, $custom);
+                $this->routingAdapter->register($operation, array_reverse($parameters), $custom);
             }
         }
     }
