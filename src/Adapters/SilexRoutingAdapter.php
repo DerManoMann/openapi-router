@@ -56,8 +56,8 @@ class SilexRoutingAdapter implements RoutingAdapterInterface
             }
         }
 
-        if ($custom['name']) {
-            $controller->bind($custom['name']);
+        if ($custom[static::X_NAME]) {
+            $controller->bind($custom[static::X_NAME]);
         }
     }
 }

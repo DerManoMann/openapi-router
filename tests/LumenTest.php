@@ -19,7 +19,8 @@ class LumenTest extends TestCase
 
     public function testNamedRoute()
     {
-        new OpenApiRouter([__DIR__ . '/Controllers/Lumen'], new LumenRoutingAdapter($app = $this->getApp()));
+        (new OpenApiRouter([__DIR__ . '/Controllers/Lumen'], new LumenRoutingAdapter($app = $this->getApp())))
+            ->registerRoutes();
 
         /** @var Router $router */
         $router = $app->router;

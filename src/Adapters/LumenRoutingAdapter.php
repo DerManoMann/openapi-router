@@ -42,8 +42,8 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
         $action = [
             'uses' => $operationId
         ];
-        if ($custom['name']) {
-            $action['as'] = $custom['name'];
+        if ($custom[static::X_NAME]) {
+            $action['as'] = $custom[static::X_NAME];
         }
 
         $router->addRoute(strtoupper($operation->method), $path, $action);

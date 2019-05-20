@@ -2,6 +2,25 @@
 
 [![Build Status](https://travis-ci.org/DerManoMann/openapi-router.png)](https://travis-ci.org/DerManoMann/openapi-router)
 
+## Requirements ##
+* [PHP 7.1 or higher](http://www.php.net/)
+
+## Installation ##
+
+You can use **Composer** or simply **Download the Release**
+
+### Composer ###
+
+The preferred method is via [composer](https://getcomposer.org). Follow the
+[installation instructions](https://getcomposer.org/doc/00-intro.md) if you do not already have
+composer installed.
+
+Once composer is installed, execute the following command in your project root to install this library:
+
+```sh
+composer require radebatz/openapi-router
+```
+
 ## Usage ##
 
 Example usage using `Slim`.
@@ -17,7 +36,8 @@ use Slim\App;
 require '../vendor/autoload.php';
 
 $app = new App();
-new OpenApiRouter([__DIR__ . '/../src/controllers'], new SlimRoutingAdapter($app));
+(new OpenApiRouter([__DIR__ . '/../src/controllers'], new SlimRoutingAdapter($app)))
+    ->registerRoutes();
 
 $app->run();
 ```

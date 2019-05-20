@@ -56,10 +56,10 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
         }
 
         $route = $this->app->map([strtoupper($operation->method)], $path, $operation->operationId);
-        if ($custom['name']) {
-            $route->setName($custom['name']);
+        if ($custom[static::X_NAME]) {
+            $route->setName($custom[static::X_NAME]);
         }
-        foreach ($custom['middleware'] as $middleware) {
+        foreach ($custom[static::X_MIDDLEWARE] as $middleware) {
             $route->add($middleware);
         }
     }

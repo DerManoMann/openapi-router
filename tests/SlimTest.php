@@ -18,7 +18,9 @@ class SlimTest extends TestCase
     protected function getRouter(?App $app = null): RouterInterface
     {
         $app = $app ?: $this->getApp();
-        new OpenApiRouter([__DIR__ . '/Controllers/Slim'], new SlimRoutingAdapter($app));
+
+        (new OpenApiRouter([__DIR__ . '/Controllers/Slim'], new SlimRoutingAdapter($app)))
+            ->registerRoutes();
 
         /** @var RouterInterface $router */
         $router = $app->getContainer()->get('router');

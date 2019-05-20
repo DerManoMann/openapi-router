@@ -21,7 +21,8 @@ class LaravelTest extends TestCase
 
     public function testNamedRoute()
     {
-        new OpenApiRouter([__DIR__ . '/Controllers/Laravel'], new LaravelRoutingAdapter($app = $this->getApp()));
+        (new OpenApiRouter([__DIR__ . '/Controllers/Laravel'], new LaravelRoutingAdapter($app = $this->getApp())))
+            ->registerRoutes();
 
         /** @var Router $router */
         $router = $app['router'];

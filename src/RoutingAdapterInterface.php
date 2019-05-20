@@ -10,6 +10,9 @@ use OpenApi\Annotations\Parameter;
  */
 interface RoutingAdapterInterface
 {
+    public const X_NAME = 'name';
+    public const X_MIDDLEWARE = 'middleware';
+
     /**
      * Register a route.
      *

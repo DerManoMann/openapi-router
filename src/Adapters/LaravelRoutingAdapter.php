@@ -42,11 +42,11 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         $action = [
             'uses' => str_replace('::', '@', $operationId),
         ];
-        if ($custom['name']) {
-            $action['as'] = $custom['name'];
+        if ($custom[static::X_NAME]) {
+            $action['as'] = $custom[static::X_NAME];
         }
 
         $route = $router->addRoute(strtoupper($operation->method), $path, $action);
-        $route->middleware($custom['middleware']);
+        $route->middleware($custom[static::X_MIDDLEWARE]);
     }
 }

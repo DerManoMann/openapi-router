@@ -26,26 +26,25 @@ class OpenApiRouter
     {
         $this->sources = $sources;
         $this->routingAdapter = $routingAdapter;
-
-        $this->registerRoutes();
     }
 
-    protected function registerRoutes()
+    public function registerRoutes()
+    {
+        array_map(function ($openapi) {
+            $this->registerOpenApi($openapi);
+        }, $this->scan());
+    }
+
+    public function scan()
     {
         // provide default @OA\Info in case we need to do some scanning
-        $analysis = new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])]);
         $options = [
-            'analysis' => $analysis,
+            'analysis' => new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])]),
         ];
-        foreach ($this->sources as $source) {
-            $openapi = is_string($source) ? \OpenApi\scan($source, $options) : $source;
 
-            if (!($openapi instanceof OpenApi)) {
-                throw new \InvalidArgumentException(sprintf('Invalid source. Expecting path (string) or "OpenApi\Annotations\OpenApi"'));
-            }
-
-            $this->registerOpenApi($openapi);
-        }
+        return array_map(function ($source) use ($options) {
+            return is_string($source) ? \OpenApi\scan($source, $options) : $source;
+        }, $this->sources);
     }
 
     protected function registerOpenApi(OpenApi $openapi)
@@ -58,7 +57,10 @@ class OpenApiRouter
             $parameters = [];
 
             foreach ($methods as $method) {
-                if (\OpenApi\UNDEFINED !== $path->{$method}) {
+                if (\OpenApi\UNDEFINED !== $path->
+                    {
+                    $method
+                    }) {
                     /** @var Operation $operation */
                     $operation = $path->{$method};
 
@@ -76,8 +78,8 @@ class OpenApiRouter
 
             if ($operation) {
                 $custom = [
-                    'name' => null,
-                    'middleware' => [],
+                    RoutingAdapterInterface::X_NAME => null,
+                    RoutingAdapterInterface::X_MIDDLEWARE => [],
                 ];
                 if (\OpenApi\UNDEFINED !== $operation->x) {
                     foreach (array_keys($custom) as $xKey) {

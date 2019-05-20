@@ -21,7 +21,9 @@ class SilexTest extends TestCase
     {
         $app = $app ?: $this->getApp();
 
-        new OpenApiRouter([__DIR__ . '/Controllers/Silex'], new SilexRoutingAdapter($app));
+        (new OpenApiRouter([__DIR__ . '/Controllers/Silex'], new SilexRoutingAdapter($app)))
+            ->registerRoutes();
+
         $app->boot();
         $app->flush();
 
