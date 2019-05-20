@@ -35,32 +35,17 @@ class OpenApiRouter
         }, $this->scan());
     }
 
-    public function scan()
-    {
-        // provide default @OA\Info in case we need to do some scanning
-        $options = [
-            'analysis' => new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])]),
-        ];
-
-        return array_map(function ($source) use ($options) {
-            return is_string($source) ? \OpenApi\scan($source, $options) : $source;
-        }, $this->sources);
-    }
-
     protected function registerOpenApi(OpenApi $openapi)
     {
         $methods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
 
         foreach ($openapi->paths as $path) {
-            $operation = null;
-            /** @var Parameter[] $parameters */
-            $parameters = [];
-
             foreach ($methods as $method) {
-                if (\OpenApi\UNDEFINED !== $path->
-                    {
-                    $method
-                    }) {
+                $operation = null;
+                /** @var Parameter[] $parameters */
+                $parameters = [];
+
+                if (\OpenApi\UNDEFINED !== $path->{$method}) {
                     /** @var Operation $operation */
                     $operation = $path->{$method};
 
@@ -72,25 +57,35 @@ class OpenApiRouter
                         }
                     }
 
-                    break;
-                }
-            }
-
-            if ($operation) {
-                $custom = [
-                    RoutingAdapterInterface::X_NAME => null,
-                    RoutingAdapterInterface::X_MIDDLEWARE => [],
-                ];
-                if (\OpenApi\UNDEFINED !== $operation->x) {
-                    foreach (array_keys($custom) as $xKey) {
-                        if (array_key_exists($xKey, $operation->x)) {
-                            $custom[$xKey] = $operation->x[$xKey];
+                    if ($operation) {
+                        $custom = [
+                            RoutingAdapterInterface::X_NAME => null,
+                            RoutingAdapterInterface::X_MIDDLEWARE => [],
+                        ];
+                        if (\OpenApi\UNDEFINED !== $operation->x) {
+                            foreach (array_keys($custom) as $xKey) {
+                                if (array_key_exists($xKey, $operation->x)) {
+                                    $custom[$xKey] = $operation->x[$xKey];
+                                }
+                            }
                         }
+
+                        $this->routingAdapter->register($operation, array_reverse($parameters), $custom);
                     }
                 }
-
-                $this->routingAdapter->register($operation, array_reverse($parameters), $custom);
             }
         }
+    }
+
+    public function scan()
+    {
+        // provide default @OA\Info in case we need to do some scanning
+        $options = [
+            'analysis' => new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])]),
+        ];
+
+        return array_map(function ($source) use ($options) {
+            return is_string($source) ? \OpenApi\scan($source, $options) : $source;
+        }, $this->sources);
     }
 }
