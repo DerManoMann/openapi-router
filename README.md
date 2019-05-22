@@ -33,9 +33,9 @@ composer require radebatz/openapi-router
 The `OpenApiRouter` class takes an array (map) as optional third constructor argument which allows to customise the behaviour.
 All option names (keys) are defined as class constants.
 
-**`OPTION_REVALIDATE`**
+**`OPTION_RELOAD`**
 ---
-Enforces reparsing of route annotations on each load.
+Enforces loading of route annotations on each request.
 
 Typically you want this turned off on production. Requires a cache confgured (annotation caching) or caching support implemented by the used adapter. 
 
@@ -45,7 +45,7 @@ Default: `true`
 ---
 Instance of a PSR-16 simple cache.
 
-Used for caching of parsed OpenApi annotations if the `revalidate` option is disabled.
+Used for caching of parsed OpenApi annotations if the `reload` option is disabled.
 
 Default: `null`
 

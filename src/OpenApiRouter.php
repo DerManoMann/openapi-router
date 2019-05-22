@@ -11,15 +11,10 @@ use Psr\SimpleCache\CacheInterface;
 
 /**
  * OpenApi router.
- *
- * Supported options:
- * * revalidate: `bool`
- *   If set to false the best available caching strategy will be used and any annotation changes will be ignored
- * * cache: `CacheInterface`
  */
 class OpenApiRouter
 {
-    public const OPTION_REVALIDATE = 'revalidate';
+    public const OPTION_RELOAD = 'relaod';
     public const OPTION_CACHE = 'cache';
 
     public const CACHE_KEY_OPENAPI = 'openapi-router.openapi';
@@ -39,18 +34,18 @@ class OpenApiRouter
     {
         $this->sources = $sources;
         $this->routingAdapter = $routingAdapter;
-        $this->options = $options + ['revalidate' => true, 'cache' => null];
+        $this->options = $options + [self::OPTION_RELOAD => true, self::OPTION_CACHE => null];
     }
 
     public function registerRoutes()
     {
-        if (!$this->options['revalidate'] && $this->routingAdapter->registerCached()) {
+        if (!$this->options[self::OPTION_RELOAD] && $this->routingAdapter->registerCached()) {
             return;
         }
 
         $openapis = null;
         /** @var CacheInterface $cache */
-        if (($cache = $this->options['cache']) && !$this->options['revalidate']) {
+        if (($cache = $this->options[self::OPTION_CACHE]) && !$this->options[self::OPTION_RELOAD]) {
             // try cache
             $openapis = $cache->get(self::CACHE_KEY_OPENAPI);
         }
@@ -59,7 +54,7 @@ class OpenApiRouter
             $this->registerOpenApi($openapi);
         }, $openapis ?: ($openapis = $this->scan()));
 
-        if ($cache && !$this->options['revalidate']) {
+        if ($cache && !$this->options[self::OPTION_RELOAD]) {
             $cache->set(self::CACHE_KEY_OPENAPI, $openapis);
         }
     }

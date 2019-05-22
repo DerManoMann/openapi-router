@@ -12,7 +12,7 @@ use Symfony\Component\Cache\Simple\ArrayCache;
 
 class CachingTest extends TestCase
 {
-    public function revalidateTests()
+    public function reloadTests()
     {
         return [
             [null, true, false],
@@ -23,13 +23,13 @@ class CachingTest extends TestCase
     }
 
     /**
-     * @dataProvider revalidateTests
+     * @dataProvider reloadTests
      */
-    public function testRevalidate($cache, $revalidate, $openapisCached)
+    public function testReload($cache, $reload, $openapisCached)
     {
         $options = [
-            'revalidate' => $revalidate,
-            'cache' => $cache,
+            OpenApiRouter::OPTION_RELOAD => $reload,
+            OpenApiRouter::OPTION_CACHE => $cache,
         ];
 
         (new OpenApiRouter([__DIR__ . '/Controllers/Laravel'], new LaravelRoutingAdapter($app = $this->getApp()), $options))
