@@ -24,7 +24,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function register(Operation $operation, array $parameters, array $custom)
+    public function register(Operation $operation, array $parameters, array $custom): void
     {
         $path = $operation->path;
         $operationId = str_replace('::__invoke', '', $operation->operationId);
@@ -48,5 +48,13 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
 
         $route = $router->addRoute(strtoupper($operation->method), $path, $action);
         $route->middleware($custom[static::X_MIDDLEWARE]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerCached(): bool
+    {
+        return false;
     }
 }

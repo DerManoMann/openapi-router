@@ -26,7 +26,6 @@ class LaravelTest extends TestCase
 
         /** @var Router $router */
         $router = $app['router'];
-        //var_dump($router);
         $this->assertNotNull($router->getRoutes()->getByName('getya'));
     }
 }

@@ -7,32 +7,61 @@ use OpenApi\Annotations\Info;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * OpenApi router.
+ *
+ * Supported options:
+ * * revalidate: `bool`
+ *   If set to false the best available caching strategy will be used and any annotation changes will be ignored
+ * * cache: `CacheInterface`
  */
 class OpenApiRouter
 {
+    public const OPTION_REVALIDATE = 'revalidate';
+    public const OPTION_CACHE = 'cache';
+
+    public const CACHE_KEY_OPENAPI = 'openapi-router.openapi';
+
     protected $sources = [];
     protected $routingAdapter;
+    protected $options = [];
 
     /**
      * Create new routes.
      *
      * @param array                   $sources        Mixed list of either controller paths or instances of `OpenApi\Annotations\OpenApi`
      * @param RoutingAdapterInterface $routingAdapter the framework adapter
+     * @param array                   $options        Optional configuration options
      */
-    public function __construct(array $sources, RoutingAdapterInterface $routingAdapter)
+    public function __construct(array $sources, RoutingAdapterInterface $routingAdapter, array $options = [])
     {
         $this->sources = $sources;
         $this->routingAdapter = $routingAdapter;
+        $this->options = $options + ['revalidate' => true, 'cache' => null];
     }
 
     public function registerRoutes()
     {
+        if (!$this->options['revalidate'] && $this->routingAdapter->registerCached()) {
+            return;
+        }
+
+        $openapis = null;
+        /** @var CacheInterface $cache */
+        if (($cache = $this->options['cache']) && !$this->options['revalidate']) {
+            // try cache
+            $openapis = $cache->get(self::CACHE_KEY_OPENAPI);
+        }
+
         array_map(function ($openapi) {
             $this->registerOpenApi($openapi);
-        }, $this->scan());
+        }, $openapis ?: ($openapis = $this->scan()));
+
+        if ($cache && !$this->options['revalidate']) {
+            $cache->set(self::CACHE_KEY_OPENAPI, $openapis);
+        }
     }
 
     protected function registerOpenApi(OpenApi $openapi)
@@ -77,7 +106,7 @@ class OpenApiRouter
         }
     }
 
-    public function scan()
+    public function scan(): array
     {
         // provide default @OA\Info in case we need to do some scanning
         $options = [

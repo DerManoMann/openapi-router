@@ -24,7 +24,7 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function register(Operation $operation, array $parameters, array $custom)
+    public function register(Operation $operation, array $parameters, array $custom): void
     {
         $path = $operation->path;
         $operationId = str_replace('::__invoke', '', $operation->operationId);
@@ -47,5 +47,13 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
         }
 
         $router->addRoute(strtoupper($operation->method), $path, $action);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerCached(): bool
+    {
+        return false;
     }
 }

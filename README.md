@@ -2,6 +2,14 @@
 
 [![Build Status](https://travis-ci.org/DerManoMann/openapi-router.png)](https://travis-ci.org/DerManoMann/openapi-router)
 
+## Introduction ##
+Allows to re-use [Swagger-PHP](https://github.com/zircote/swagger-php) annotations for configuring routes in the following frameworks:
+* [Laravel](https://github.com/laravel/laravel)
+* [Lumen](https://github.com/laravel/lumen)
+* [Slim](https://github.com/slimphp/Slim)
+* [Silex](https://github.com/silexphp/Silex) (Deprecated)
+
+
 ## Requirements ##
 * [PHP 7.1 or higher](http://www.php.net/)
 
@@ -20,6 +28,27 @@ Once composer is installed, execute the following command in your project root t
 ```sh
 composer require radebatz/openapi-router
 ```
+
+# Configuration ##
+The `OpenApiRouter` class takes an array (map) as optional third constructor argument which allows to customise the behaviour.
+All option names (keys) are defined as class constants.
+
+**`OPTION_REVALIDATE`**
+---
+Enforces reparsing of route annotations on each load.
+
+Typically you want this turned off on production. Requires a cache confgured (annotation caching) or caching support implemented by the used adapter. 
+
+Default: `true`
+
+**`OPTION_CACHE`**
+---
+Instance of a PSR-16 simple cache.
+
+Used for caching of parsed OpenApi annotations if the `revalidate` option is disabled.
+
+Default: `null`
+
 
 ## Usage ##
 

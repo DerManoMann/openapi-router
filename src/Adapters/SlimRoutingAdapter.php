@@ -23,7 +23,7 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function register(Operation $operation, array $parameters, array $custom)
+    public function register(Operation $operation, array $parameters, array $custom): void
     {
         $path = $operation->path;
 
@@ -62,5 +62,13 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
         foreach ($custom[static::X_MIDDLEWARE] as $middleware) {
             $route->add($middleware);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerCached(): bool
+    {
+        return false;
     }
 }
