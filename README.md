@@ -49,6 +49,14 @@ Used for caching of parsed OpenApi annotations if the `reload` option is disable
 
 Default: `null`
 
+**`OPTION_OA_INFO_INJECT`**
+---
+Controls whether to inject a default `@OA\Info` instance while scanning.
+
+This can be useful if your top level OpenApi annotation is inside the scanned folder hierarchy.
+
+Default: `true`
+
 
 ## Usage ##
 
