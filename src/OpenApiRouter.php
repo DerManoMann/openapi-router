@@ -16,6 +16,7 @@ class OpenApiRouter
 {
     public const OPTION_RELOAD = 'relaod';
     public const OPTION_CACHE = 'cache';
+    public const OPTION_OA_INFO_INJECT = 'oa_info_inject';
 
     public const CACHE_KEY_OPENAPI = 'openapi-router.openapi';
 
@@ -34,7 +35,7 @@ class OpenApiRouter
     {
         $this->sources = $sources;
         $this->routingAdapter = $routingAdapter;
-        $this->options = $options + [self::OPTION_RELOAD => true, self::OPTION_CACHE => null];
+        $this->options = $options + [self::OPTION_RELOAD => true, self::OPTION_CACHE => null, self::OPTION_OA_INFO_INJECT => true];
     }
 
     public function registerRoutes()
@@ -109,7 +110,7 @@ class OpenApiRouter
         ];
 
         return array_map(function ($source) use ($options) {
-            return is_string($source) ? \OpenApi\scan($source, $options) : $source;
+            return is_string($source) ? \OpenApi\scan($source, $this->options[self::OPTION_OA_INFO_INJECT] ? $options : []) : $source;
         }, $this->sources);
     }
 }
