@@ -15,7 +15,10 @@ class LaravelTest extends TestCase
     {
         $app = require __DIR__ . '/../vendor/laravel/laravel/bootstrap/app.php';
         $app->make(Kernel::class)->bootstrap();
-        config(['app.environment' => 'local', 'app.debug' => true]);
+        config([
+            'app.environment' => 'local',
+            'app.debug' => true,
+        ]);
         Facade::setFacadeApplication($app);
 
         (new OpenApiRouter([__DIR__ . '/Controllers/Laravel'], new LaravelRoutingAdapter($app)))

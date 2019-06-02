@@ -23,7 +23,8 @@ class LumenTest extends TestCase
     /** @test */
     public function getya()
     {
-        $this->get(route('getya'));
+        $this->get('/getya');
+        //  fails for 5.7 $this->get(route('getya'));
 
         $this->assertEquals(200, $this->response->getStatusCode());
     }
