@@ -6,21 +6,74 @@ use PHPUnit\Framework\TestCase;
 use Radebatz\OpenApi\Routing\Adapters\SlimRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
 use Slim\App;
+use Slim\Http\Environment;
+use Slim\Http\Request;
+use Slim\Http\Response;
 use Slim\Interfaces\RouterInterface;
 
 class SlimTest extends TestCase
 {
-    protected function getApp(): App
+    /** @test */
+    public function namedRoute()
     {
-        return new App();
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('getya'));
+        $this->assertEquals('/getya', $route->getPattern());
+    }
+
+    /** @test */
+    public function Parameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('hey'));
+        $this->assertEquals('/hey/{name}', $route->getPattern());
+    }
+
+    /** @test */
+    public function optionalParameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('oi'));
+        $this->assertEquals('/oi[/{name}]', $route->getPattern());
+    }
+
+    /** @test */
+    public function multiOptionalParameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('multi'));
+        $this->assertEquals('/multi[/{foo}[/{bar}]]', $route->getPattern());
+    }
+
+    /** @test */
+    public function typedParameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('id'));
+        $this->assertEquals('/id/{id:[0-9]+}', $route->getPattern());
+    }
+
+    /** @test */
+    public function regexParameter()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('hid'));
+        $this->assertEquals('/hid/{hid:[0-9a-f]+}', $route->getPattern());
+    }
+
+    /** @test */
+    public function middlewares()
+    {
+        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('mw'));
+        $this->assertEquals('/mw', $route->getPattern());
+        $this->assertCount(2, $route->getMiddleware());
+    }
+
+    /** @test */
+    public function request()
+    {
+        $response = $this->call('/getya');
+
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     protected function getRouter(?App $app = null): RouterInterface
     {
         $app = $app ?: $this->getApp();
-
-        (new OpenApiRouter([__DIR__ . '/Controllers/Slim'], new SlimRoutingAdapter($app)))
-            ->registerRoutes();
 
         /** @var RouterInterface $router */
         $router = $app->getContainer()->get('router');
@@ -28,46 +81,26 @@ class SlimTest extends TestCase
         return $router;
     }
 
-    public function testNamedRoute()
+    protected function getApp(): App
     {
-        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('getya'));
-        $this->assertEquals('/getya', $route->getPattern());
+        $app = new App();
+
+        (new OpenApiRouter([__DIR__ . '/Controllers/Slim'], new SlimRoutingAdapter($app)))
+            ->registerRoutes();
+
+        return $app;
     }
 
-    public function testParameter()
+    protected function call($path, $method = 'GET'): Response
     {
-        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('hey'));
-        $this->assertEquals('/hey/{name}', $route->getPattern());
-    }
+        $environment = Environment::mock([
+            'REQUEST_METHOD' => strtoupper($method),
+            'REQUEST_URI' => $path,
+        ]);
 
-    public function testOptionalParameter()
-    {
-        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('oi'));
-        $this->assertEquals('/oi[/{name}]', $route->getPattern());
-    }
+        $app = $this->getApp();
+        $app->getContainer()['request'] = Request::createFromEnvironment($environment);
 
-    public function testMultiOptionalParameter()
-    {
-        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('multi'));
-        $this->assertEquals('/multi[/{foo}[/{bar}]]', $route->getPattern());
-    }
-
-    public function testTypedParameter()
-    {
-        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('id'));
-        $this->assertEquals('/id/{id:[0-9]+}', $route->getPattern());
-    }
-
-    public function testRegexParameter()
-    {
-        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('hid'));
-        $this->assertEquals('/hid/{hid:[0-9a-f]+}', $route->getPattern());
-    }
-
-    public function testMiddlewares()
-    {
-        $this->assertNotNull($route = $this->getRouter()->getNamedRoute('mw'));
-        $this->assertEquals('/mw', $route->getPattern());
-        $this->assertCount(2, $route->getMiddleware());
+        return $app->run(true);
     }
 }

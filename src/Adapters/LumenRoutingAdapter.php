@@ -16,9 +16,13 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
     /** @var Application $app */
     protected $app;
 
-    public function __construct(Application $app)
+    /** @var array */
+    protected $options = [];
+
+    public function __construct(Application $app, array $options = [])
     {
         $this->app = $app;
+        $this->options = $options + [self::OPTIONS_NAMESPACE => 'App\\Http\\Controllers\\'];
     }
 
     /**
@@ -28,7 +32,9 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
     {
         $path = $operation->path;
         $operationId = str_replace('::__invoke', '', $operation->operationId);
-        $operationId = str_replace('App\\Http\\Controllers\\', '', $operationId);
+        if ($namespace = $this->options[self::OPTIONS_NAMESPACE]) {
+            $operationId = str_replace($namespace, '', $operationId);
+        }
 
         /** @var Parameter $parameter */
         foreach ($parameters as $parameter) {

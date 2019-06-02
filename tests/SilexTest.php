@@ -45,16 +45,6 @@ class SilexTest extends TestCase
         $this->assertEquals('/hey/{name}', $route->getPath());
     }
 
-    public function testOptionalParameter()
-    {
-        $this->markTestSkipped('N/A');
-    }
-
-    public function testMultiOptionalParameter()
-    {
-        $this->markTestSkipped('N/A');
-    }
-
     public function testTypedParameter()
     {
         $this->assertNotNull($route = $this->getRouter()->get('id'));
@@ -65,10 +55,5 @@ class SilexTest extends TestCase
     {
         $this->assertNotNull($route = $this->getRouter()->get('hid'));
         $this->assertEquals(['hid' => '[0-9a-f]+'], $route->getRequirements());
-    }
-
-    public function testMiddlewares()
-    {
-        $this->markTestSkipped('N/A');
     }
 }

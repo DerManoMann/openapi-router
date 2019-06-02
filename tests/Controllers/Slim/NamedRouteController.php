@@ -13,7 +13,7 @@ class NamedRouteController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function getya($request, $response)
+    public static function getya($request, $response)
     {
         return $response->write('Get ya');
     }

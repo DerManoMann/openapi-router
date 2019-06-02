@@ -4,7 +4,6 @@ namespace Radebatz\OpenApi\Routing\Tests\Controllers\Laravel;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Symfony\Component\HttpFoundation\Response;
 
 class NamedRouteController extends Controller
 {
@@ -17,8 +16,8 @@ class NamedRouteController extends Controller
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function __invoke(Request $request, $name)
+    public function __invoke(Request $request)
     {
-        return new Response('getya');
+        return 'getya';
     }
 }

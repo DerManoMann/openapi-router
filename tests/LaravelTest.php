@@ -2,30 +2,44 @@
 
 namespace Radebatz\OpenApi\Routing\Tests;
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Testing\TestCase;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Facade;
-use PHPUnit\Framework\TestCase;
 use Radebatz\OpenApi\Routing\Adapters\LaravelRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
 
 class LaravelTest extends TestCase
 {
-    protected function getApp(): Application
+    public function createApplication()
     {
-        $app = new Application();
+        $app = require __DIR__ . '/../vendor/laravel/laravel/bootstrap/app.php';
+        $app->make(Kernel::class)->bootstrap();
+        config(['app.environment' => 'local', 'app.debug' => true]);
         Facade::setFacadeApplication($app);
+
+        (new OpenApiRouter([__DIR__ . '/Controllers/Laravel'], new LaravelRoutingAdapter($app)))
+            ->registerRoutes();
 
         return $app;
     }
 
-    public function testNamedRoute()
+    /** @test */
+    public function namedRoute()
     {
-        (new OpenApiRouter([__DIR__ . '/Controllers/Laravel'], new LaravelRoutingAdapter($app = $this->getApp())))
-            ->registerRoutes();
+        $app = $this->createApplication();
 
         /** @var Router $router */
         $router = $app['router'];
+
         $this->assertNotNull($router->getRoutes()->getByName('getya'));
+    }
+
+    /** @test */
+    public function getya()
+    {
+        $response = $this->get(route('getya'));
+
+        $response->assertStatus(200);
     }
 }

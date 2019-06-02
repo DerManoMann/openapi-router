@@ -4,26 +4,37 @@ namespace Radebatz\OpenApi\Routing\Tests;
 
 use Laravel\Lumen\Application;
 use Laravel\Lumen\Routing\Router;
-use PHPUnit\Framework\TestCase;
+use Laravel\Lumen\Testing\TestCase;
 use Radebatz\OpenApi\Routing\Adapters\LumenRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
 
 class LumenTest extends TestCase
 {
-    protected function getApp(): Application
+    /** @test */
+    public function namedRoute()
     {
-        $app = new Application();
-
-        return $app;
-    }
-
-    public function testNamedRoute()
-    {
-        (new OpenApiRouter([__DIR__ . '/Controllers/Lumen'], new LumenRoutingAdapter($app = $this->getApp())))
-            ->registerRoutes();
+        $app = $this->createApplication();
 
         /** @var Router $router */
         $router = $app->router;
         $this->assertTrue(array_key_exists('getya', $router->namedRoutes));
+    }
+
+    /** @test */
+    public function getya()
+    {
+        $this->get(route('getya'));
+
+        $this->assertEquals(200, $this->response->getStatusCode());
+    }
+
+    public function createApplication()
+    {
+        $app = new Application();
+
+        (new OpenApiRouter([__DIR__ . '/Controllers/Lumen'], new LumenRoutingAdapter($app)))
+            ->registerRoutes();
+
+        return $app;
     }
 }

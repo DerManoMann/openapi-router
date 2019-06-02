@@ -19,6 +19,6 @@ class NamedRouteController extends Controller
      */
     public function __invoke(Request $request, $name)
     {
-        return new Response('getya');
+        return response('getya');
     }
 }
