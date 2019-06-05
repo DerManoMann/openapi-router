@@ -24,14 +24,14 @@ class SilexRoutingAdapter implements RoutingAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function register(Operation $operation, array $parameters, array $custom): void
+    public function register(Operation $operation, string $controller, array $parameters, array $custom): void
     {
         $path = $operation->path;
 
         /** @var ControllerCollection $controllers */
         $controllers = $this->app['controllers'];
 
-        $controller = $controllers->match($path, $operation->operationId)->method(strtoupper($operation->method));
+        $controller = $controllers->match($path, $controller)->method(strtoupper($operation->method));
 
         /** @var Parameter $parameter */
         foreach ($parameters as $parameter) {

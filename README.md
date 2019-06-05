@@ -57,6 +57,16 @@ This can be useful if your top level OpenApi annotation is inside the scanned fo
 
 Default: `true`
 
+**`OPTION_OA_OPERATION_ID_AS_NAME`**
+---
+Controls whether to default the custom (x-) name property to the `operationId`.
+
+Allows to set the route name via the standard `operationId` rather than `x-name`.
+By default the `operationId` is populated with the controller (class/method) for the route, so enabling this only
+makes sense if all routes explicitly set `operaiontId`.  
+
+Default: `false`
+
 
 ## Usage ##
 

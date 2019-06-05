@@ -22,7 +22,7 @@ interface RoutingAdapterInterface
      * @param Parameter[] $parameters URI path parameters in reverse order
      * @param array       $custom     Custom properties `x={}`
      */
-    public function register(Operation $operation, array $parameters, array $custom): void;
+    public function register(Operation $operation, string $controller, array $parameters, array $custom): void;
 
     /**
      * Register routes cached on framework level (optional).

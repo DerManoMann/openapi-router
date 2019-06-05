@@ -17,6 +17,7 @@ class OpenApiRouter
     public const OPTION_RELOAD = 'relaod';
     public const OPTION_CACHE = 'cache';
     public const OPTION_OA_INFO_INJECT = 'oa_info_inject';
+    public const OPTION_OA_OPERATION_ID_AS_NAME = 'oa_operation_id_as_name';
 
     public const CACHE_KEY_OPENAPI = 'openapi-router.openapi';
 
@@ -35,7 +36,12 @@ class OpenApiRouter
     {
         $this->sources = $sources;
         $this->routingAdapter = $routingAdapter;
-        $this->options = $options + [self::OPTION_RELOAD => true, self::OPTION_CACHE => null, self::OPTION_OA_INFO_INJECT => true];
+        $this->options = $options + [
+                self::OPTION_RELOAD => true,
+                self::OPTION_CACHE => null,
+                self::OPTION_OA_INFO_INJECT => true,
+                self::OPTION_OA_OPERATION_ID_AS_NAME => false,
+            ];
     }
 
     public function registerRoutes()
@@ -83,8 +89,23 @@ class OpenApiRouter
                     }
 
                     if ($operation) {
+                        $controller = null;
+                        $context = $operation->_context;
+                        // as per \OpenApi\Processors\OperationId
+                        if ($context && $context->method) {
+                            if ($context->class) {
+                                if ($context->namespace) {
+                                    $controller = $context->namespace . '\\' . $context->class . '::' . $context->method;
+                                } else {
+                                    $controller = $context->class . '::' . $context->method;
+                                }
+                            } else {
+                                $controller = $context->method;
+                            }
+                        }
+
                         $custom = [
-                            RoutingAdapterInterface::X_NAME => null,
+                            RoutingAdapterInterface::X_NAME => $this->options[self::OPTION_OA_OPERATION_ID_AS_NAME] ? $operation->operationId : null,
                             RoutingAdapterInterface::X_MIDDLEWARE => [],
                         ];
                         if (\OpenApi\UNDEFINED !== $operation->x) {
@@ -95,7 +116,7 @@ class OpenApiRouter
                             }
                         }
 
-                        $this->routingAdapter->register($operation, array_reverse($parameters), $custom);
+                        $this->routingAdapter->register($operation, $controller, array_reverse($parameters), $custom);
                     }
                 }
             }

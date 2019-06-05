@@ -11,9 +11,7 @@ class NamedRouteController extends Controller
     /**
      * @OA\Get(
      *     path="/getya",
-     *     x={
-     *       "name": "getya"
-     *     },
+     *     operationId="getya",
      *     @OA\Response(response="200", description="All good")
      * )
      */

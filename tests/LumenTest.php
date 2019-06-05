@@ -33,7 +33,12 @@ class LumenTest extends TestCase
     {
         $app = new Application();
 
-        (new OpenApiRouter([__DIR__ . '/Controllers/Lumen'], new LumenRoutingAdapter($app)))
+        $options = [
+            OpenApiRouter::OPTION_OA_INFO_INJECT => true,
+            OpenApiRouter::OPTION_OA_OPERATION_ID_AS_NAME => true,
+        ];
+
+        (new OpenApiRouter([__DIR__ . '/Controllers/Lumen'], new LumenRoutingAdapter($app), $options))
             ->registerRoutes();
 
         return $app;

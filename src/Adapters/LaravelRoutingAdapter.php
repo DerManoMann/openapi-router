@@ -28,12 +28,12 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function register(Operation $operation, array $parameters, array $custom): void
+    public function register(Operation $operation, string $controller, array $parameters, array $custom): void
     {
         $path = $operation->path;
-        $operationId = str_replace('::__invoke', '', $operation->operationId);
+        $controller = str_replace('::__invoke', '', $controller);
         if ($namespace = $this->options[self::OPTIONS_NAMESPACE]) {
-            $operationId = str_replace($namespace, '', $operationId);
+            $controller = str_replace($namespace, '', $controller);
         }
 
         /** @var Parameter $parameter */
@@ -46,7 +46,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         $router = $this->app->get('router');
 
         $action = [
-            'uses' => str_replace('::', '@', $operationId),
+            'uses' => str_replace('::', '@', $controller),
         ];
         if ($custom[static::X_NAME]) {
             $action['as'] = $custom[static::X_NAME];

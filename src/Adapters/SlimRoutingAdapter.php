@@ -23,7 +23,7 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
     /**
      * {@inheritdoc}
      */
-    public function register(Operation $operation, array $parameters, array $custom): void
+    public function register(Operation $operation, string $controller, array $parameters, array $custom): void
     {
         $path = $operation->path;
 
@@ -55,7 +55,7 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
             }
         }
 
-        $route = $this->app->map([strtoupper($operation->method)], $path, $operation->operationId);
+        $route = $this->app->map([strtoupper($operation->method)], $path, $controller);
         if ($custom[static::X_NAME]) {
             $route->setName($custom[static::X_NAME]);
         }
