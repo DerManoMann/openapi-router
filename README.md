@@ -1,6 +1,7 @@
 # openapi-router
 
 [![Build Status](https://travis-ci.org/DerManoMann/openapi-router.png)](https://travis-ci.org/DerManoMann/openapi-router)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Introduction ##
 Allows to re-use [Swagger-PHP](https://github.com/zircote/swagger-php) annotations for configuring routes in the following frameworks:
@@ -112,3 +113,7 @@ class GetController
     }
 }
 ```
+
+## License ##
+
+The openapi-router project is released under the [MIT license](LICENSE).
