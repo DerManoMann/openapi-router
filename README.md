@@ -69,7 +69,7 @@ makes sense if all routes explicitly set `operaiontId`.
 Default: `false`
 
 
-## Usage ##
+## Basic usage ##
 
 Example usage using `Slim`.
 
