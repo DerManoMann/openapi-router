@@ -1,15 +1,16 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Radebatz\OpenApi\Routing\Tests\Controllers\Slim;
+namespace Radebatz\OpenApi\Routing\Tests\Fixtures;
 
-class NamedRouteController
+use Illuminate\Routing\Controller;
+
+class SimpleController extends Controller
 {
     /**
      * @OA\Get(
      *     path="/getya",
-     *     x={
-     *       "name": "getya"
-     *     },
+     *     operationId="getya",
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */

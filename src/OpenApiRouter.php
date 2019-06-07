@@ -2,12 +2,15 @@
 
 namespace Radebatz\OpenApi\Routing;
 
+use OpenApi\Analyser;
 use OpenApi\Analysis;
 use OpenApi\Annotations\Info;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use Psr\SimpleCache\CacheInterface;
+use Radebatz\OpenApi\Routing\Processors\ControllerProcessor;
+use Symfony\Component\Finder\Finder;
 
 /**
  * OpenApi router.
@@ -22,17 +25,18 @@ class OpenApiRouter
     public const CACHE_KEY_OPENAPI = 'openapi-router.openapi';
 
     protected $sources = [];
+    protected $openapi = null;
     protected $routingAdapter;
     protected $options = [];
 
     /**
      * Create new routes.
      *
-     * @param array                   $sources        Mixed list of either controller paths or instances of `OpenApi\Annotations\OpenApi`
+     * @param string|array|Finder     $sources        The directory(s) or filename(s)
      * @param RoutingAdapterInterface $routingAdapter the framework adapter
      * @param array                   $options        Optional configuration options
      */
-    public function __construct(array $sources, RoutingAdapterInterface $routingAdapter, array $options = [])
+    public function __construct($sources, RoutingAdapterInterface $routingAdapter, array $options = [])
     {
         $this->sources = $sources;
         $this->routingAdapter = $routingAdapter;
@@ -44,41 +48,41 @@ class OpenApiRouter
             ];
     }
 
-    public function registerRoutes()
+    public function registerRoutes(): ?OpenApi
     {
         if (!$this->options[self::OPTION_RELOAD] && $this->routingAdapter->registerCached()) {
-            return;
+            return null;
         }
 
-        $openapis = null;
+        $openapi = null;
         /** @var CacheInterface $cache */
         if (($cache = $this->options[self::OPTION_CACHE]) && !$this->options[self::OPTION_RELOAD]) {
             // try cache
-            $openapis = $cache->get(self::CACHE_KEY_OPENAPI);
+            $openapi = $cache->get(self::CACHE_KEY_OPENAPI);
         }
 
-        array_map(function ($openapi) {
-            $this->registerOpenApi($openapi);
-        }, $openapis ?: ($openapis = $this->scan()));
+        $this->registerOpenApi($openapi ? : ($openapi = $this->scan()));
 
         if ($cache && !$this->options[self::OPTION_RELOAD]) {
-            $cache->set(self::CACHE_KEY_OPENAPI, $openapis);
+            $cache->set(self::CACHE_KEY_OPENAPI, $openapi);
         }
+
+        return $openapi;
     }
 
     protected function registerOpenApi(OpenApi $openapi)
     {
         $methods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
 
-        foreach ($openapi->paths as $path) {
+        foreach ($openapi->paths as $pathItem) {
             foreach ($methods as $method) {
                 $operation = null;
                 /** @var Parameter[] $parameters */
                 $parameters = [];
 
-                if (\OpenApi\UNDEFINED !== $path->{$method}) {
+                if (\OpenApi\UNDEFINED !== $pathItem->{$method}) {
                     /** @var Operation $operation */
-                    $operation = $path->{$method};
+                    $operation = $pathItem->{$method};
 
                     if (\OpenApi\UNDEFINED !== $operation->parameters) {
                         foreach ($operation->parameters as $parameter) {
@@ -123,15 +127,25 @@ class OpenApiRouter
         }
     }
 
-    public function scan(): array
+    public function scan(): OpenApi
     {
         // provide default @OA\Info in case we need to do some scanning
         $options = [
             'analysis' => new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])]),
         ];
 
-        return array_map(function ($source) use ($options) {
-            return is_string($source) ? \OpenApi\scan($source, $this->options[self::OPTION_OA_INFO_INJECT] ? $options : []) : $source;
-        }, $this->sources);
+        Analyser::$whitelist[] = $ns = 'Radebatz\OpenApi\Routing\Annotations';
+        Analyser::$defaultImports['oax'] = $ns;
+        Analysis::registerProcessor($controllerProcessor = new ControllerProcessor());
+
+        $openapi = \OpenApi\scan($this->sources, $this->options[self::OPTION_OA_INFO_INJECT] ? $options : []);
+
+        Analysis::unregisterProcessor($controllerProcessor);
+        unset(Analyser::$defaultImports['oax']);
+        Analyser::$whitelist = array_filter(Analyser::$whitelist, function ($value) use ($ns) {
+            return $value !== $ns;
+        });
+
+        return $openapi;
     }
 }
