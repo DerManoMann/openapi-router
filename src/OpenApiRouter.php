@@ -2,12 +2,18 @@
 
 namespace Radebatz\OpenApi\Routing;
 
+use OpenApi\Analyser;
 use OpenApi\Analysis;
 use OpenApi\Annotations\Info;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use Psr\SimpleCache\CacheInterface;
+use Radebatz\OpenApi\Routing\Annotations as OAX;
+use Radebatz\OpenApi\Routing\Annotations\MiddlewareProperty;
+use Radebatz\OpenApi\Routing\Processors\ControllerProcessor;
+use Symfony\Component\Finder\Finder;
+use const OpenApi\Annotations\UNDEFINED;
 
 /**
  * OpenApi router.
@@ -22,17 +28,35 @@ class OpenApiRouter
     public const CACHE_KEY_OPENAPI = 'openapi-router.openapi';
 
     protected $sources = [];
+    protected $openapi = null;
     protected $routingAdapter;
     protected $options = [];
 
     /**
+     * Prepare OpenApi.
+     */
+    public static function register()
+    {
+        if (!in_array($controllerProcessor = new ControllerProcessor(), Analysis::processors())) {
+            Analyser::$whitelist[] = $ns = 'Radebatz\OpenApi\Routing\Annotations';
+            Analyser::$defaultImports['oax'] = $ns;
+            Analysis::registerProcessor($controllerProcessor);
+
+            $operations = [OAX\Get::class, OAX\Post::class, OAX\Put::class, OAX\Patch::class, OAX\Delete::class, OAX\Options::class, OAX\Head::class];
+            foreach ($operations as $operation) {
+                $operation::$_blacklist[] = 'middleware';
+            }
+        }
+    }
+
+    /**
      * Create new routes.
      *
-     * @param array                   $sources        Mixed list of either controller paths or instances of `OpenApi\Annotations\OpenApi`
+     * @param string|array|Finder     $sources        The directory(s) or filename(s)
      * @param RoutingAdapterInterface $routingAdapter the framework adapter
      * @param array                   $options        Optional configuration options
      */
-    public function __construct(array $sources, RoutingAdapterInterface $routingAdapter, array $options = [])
+    public function __construct($sources, RoutingAdapterInterface $routingAdapter, array $options = [])
     {
         $this->sources = $sources;
         $this->routingAdapter = $routingAdapter;
@@ -40,45 +64,45 @@ class OpenApiRouter
                 self::OPTION_RELOAD => true,
                 self::OPTION_CACHE => null,
                 self::OPTION_OA_INFO_INJECT => true,
-                self::OPTION_OA_OPERATION_ID_AS_NAME => false,
+                self::OPTION_OA_OPERATION_ID_AS_NAME => true,
             ];
     }
 
-    public function registerRoutes()
+    public function registerRoutes(): ?OpenApi
     {
         if (!$this->options[self::OPTION_RELOAD] && $this->routingAdapter->registerCached()) {
-            return;
+            return null;
         }
 
-        $openapis = null;
+        $openapi = null;
         /** @var CacheInterface $cache */
         if (($cache = $this->options[self::OPTION_CACHE]) && !$this->options[self::OPTION_RELOAD]) {
             // try cache
-            $openapis = $cache->get(self::CACHE_KEY_OPENAPI);
+            $openapi = $cache->get(self::CACHE_KEY_OPENAPI);
         }
 
-        array_map(function ($openapi) {
-            $this->registerOpenApi($openapi);
-        }, $openapis ?: ($openapis = $this->scan()));
+        $this->registerOpenApi($openapi ?: ($openapi = $this->scan()));
 
         if ($cache && !$this->options[self::OPTION_RELOAD]) {
-            $cache->set(self::CACHE_KEY_OPENAPI, $openapis);
+            $cache->set(self::CACHE_KEY_OPENAPI, $openapi);
         }
+
+        return $openapi;
     }
 
     protected function registerOpenApi(OpenApi $openapi)
     {
         $methods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
 
-        foreach ($openapi->paths as $path) {
+        foreach ($openapi->paths as $pathItem) {
             foreach ($methods as $method) {
                 $operation = null;
                 /** @var Parameter[] $parameters */
                 $parameters = [];
 
-                if (\OpenApi\UNDEFINED !== $path->{$method}) {
+                if (\OpenApi\UNDEFINED !== $pathItem->{$method}) {
                     /** @var Operation $operation */
-                    $operation = $path->{$method};
+                    $operation = $pathItem->{$method};
 
                     if (\OpenApi\UNDEFINED !== $operation->parameters) {
                         foreach ($operation->parameters as $parameter) {
@@ -104,14 +128,26 @@ class OpenApiRouter
                             }
                         }
 
+                        $middleware = [];
+                        $uses = array_flip(class_uses_recursive($operation));
+                        if (array_key_exists(MiddlewareProperty::class, $uses)) {
+                            if (UNDEFINED !== $operation->middleware && is_array($operation->middleware)) {
+                                $middleware = $operation->middleware;
+                            }
+                        }
+
                         $custom = [
                             RoutingAdapterInterface::X_NAME => $this->options[self::OPTION_OA_OPERATION_ID_AS_NAME] ? $operation->operationId : null,
-                            RoutingAdapterInterface::X_MIDDLEWARE => [],
+                            RoutingAdapterInterface::X_MIDDLEWARE => $middleware,
                         ];
                         if (\OpenApi\UNDEFINED !== $operation->x) {
                             foreach (array_keys($custom) as $xKey) {
                                 if (array_key_exists($xKey, $operation->x)) {
-                                    $custom[$xKey] = $operation->x[$xKey];
+                                    if (is_array($custom[$xKey])) {
+                                        $custom[$xKey] = array_merge($custom[$xKey], $operation->x[$xKey]);
+                                    } else {
+                                        $custom[$xKey] = $operation->x[$xKey];
+                                    }
                                 }
                             }
                         }
@@ -123,15 +159,17 @@ class OpenApiRouter
         }
     }
 
-    public function scan(): array
+    public function scan(): OpenApi
     {
         // provide default @OA\Info in case we need to do some scanning
         $options = [
             'analysis' => new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])]),
         ];
 
-        return array_map(function ($source) use ($options) {
-            return is_string($source) ? \OpenApi\scan($source, $this->options[self::OPTION_OA_INFO_INJECT] ? $options : []) : $source;
-        }, $this->sources);
+        static::register();
+
+        $openapi = \OpenApi\scan($this->sources, $this->options[self::OPTION_OA_INFO_INJECT] ? $options : []);
+
+        return $openapi;
     }
 }

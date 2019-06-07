@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Controllers\Slim;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\Slim;
 
 class MiddlewareController
 {

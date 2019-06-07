@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks;
 
 use PHPUnit\Framework\TestCase;
 use Radebatz\OpenApi\Routing\Adapters\SilexRoutingAdapter;
@@ -21,7 +21,7 @@ class SilexTest extends TestCase
     {
         $app = $app ?: $this->getApp();
 
-        (new OpenApiRouter([__DIR__ . '/Controllers/Silex'], new SilexRoutingAdapter($app)))
+        (new OpenApiRouter([__DIR__ . '/Fixtures/Silex'], new SilexRoutingAdapter($app)))
             ->registerRoutes();
 
         $app->boot();

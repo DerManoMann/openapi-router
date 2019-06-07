@@ -16,7 +16,7 @@ class SilexRoutingAdapter implements RoutingAdapterInterface
     /** @var Application $app */
     protected $app;
 
-    public function __construct(Application $app)
+    public function __construct(Application $app, array $options = [])
     {
         $this->app = $app;
     }

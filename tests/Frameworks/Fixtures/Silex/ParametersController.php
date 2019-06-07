@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Controllers\Silex;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\Silex;
 
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;

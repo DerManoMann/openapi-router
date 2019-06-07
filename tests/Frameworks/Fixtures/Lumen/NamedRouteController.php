@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Controllers\Laravel;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\Lumen;
 
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller;
@@ -10,13 +10,13 @@ class NamedRouteController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/getya",
+     *     path="/getya/{name}",
      *     operationId="getya",
      *     @OA\Response(response="200", description="All good")
      * )
      */
     public function __invoke(Request $request, $name)
     {
-        return response('getya');
+        return 'getya: ' . $name;
     }
 }

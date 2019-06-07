@@ -24,7 +24,10 @@
     "autoload": {
         "psr-4": {
             "Radebatz\\OpenApi\\Routing\\": "src"
-        }
+        },
+        "files": [
+            "src/autoloader.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -32,7 +32,7 @@ class CachingTest extends TestCase
             OpenApiRouter::OPTION_CACHE => $cache,
         ];
 
-        (new OpenApiRouter([__DIR__ . '/Controllers/Laravel'], new LaravelRoutingAdapter($app = $this->getApp()), $options))
+        (new OpenApiRouter([__DIR__ . '/Fixtures'], new LaravelRoutingAdapter($app = $this->getApp()), $options))
             ->registerRoutes();
 
         /** @var Router $router */

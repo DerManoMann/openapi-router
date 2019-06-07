@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks;
 
 use PHPUnit\Framework\TestCase;
 use Radebatz\OpenApi\Routing\Adapters\SlimRoutingAdapter;
@@ -56,7 +56,7 @@ class SlimTest extends TestCase
     }
 
     /** @test */
-    public function middlewares()
+    public function middleware()
     {
         $this->assertNotNull($route = $this->getRouter()->getNamedRoute('mw'));
         $this->assertEquals('/mw', $route->getPattern());
@@ -85,7 +85,7 @@ class SlimTest extends TestCase
     {
         $app = new App();
 
-        (new OpenApiRouter([__DIR__ . '/Controllers/Slim'], new SlimRoutingAdapter($app)))
+        (new OpenApiRouter([__DIR__ . '/Fixtures/Slim'], new SlimRoutingAdapter($app)))
             ->registerRoutes();
 
         return $app;
