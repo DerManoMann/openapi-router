@@ -15,7 +15,7 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
     /** @var App $app */
     protected $app;
 
-    public function __construct(App $app)
+    public function __construct(App $app, array $options = [])
     {
         $this->app = $app;
     }

@@ -25,11 +25,7 @@ class ControllerTest extends TestCase
         ]);
         Facade::setFacadeApplication($app);
 
-        $options = [
-            OpenApiRouter::OPTION_OA_OPERATION_ID_AS_NAME => true,
-        ];
-
-        $this->openapi = (new OpenApiRouter(__DIR__ . '/../Fixtures', new LaravelRoutingAdapter($app), $options))
+        $this->openapi = (new OpenApiRouter(__DIR__ . '/../Fixtures', new LaravelRoutingAdapter($app)))
             ->registerRoutes();
 
         return $app;

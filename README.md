@@ -3,22 +3,23 @@
 [![Build Status](https://travis-ci.org/DerManoMann/openapi-router.png)](https://travis-ci.org/DerManoMann/openapi-router)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Introduction ##
-Allows to re-use [Swagger-PHP](https://github.com/zircote/swagger-php) annotations for configuring routes in the following frameworks:
+## Introduction
+Allows to (re-)use [Swagger-PHP](https://github.com/zircote/swagger-php) annotations to configure routes in the
+following frameworks:
 * [Laravel](https://github.com/laravel/laravel)
 * [Lumen](https://github.com/laravel/lumen)
 * [Slim](https://github.com/slimphp/Slim)
 * [Silex](https://github.com/silexphp/Silex) (Deprecated)
 
 
-## Requirements ##
+## Requirements
 * [PHP 7.1 or higher](http://www.php.net/)
 
-## Installation ##
+## Installation
 
-You can use **Composer** or simply **Download the Release**
+You can use **composer** or simply **download the release**.
 
-### Composer ###
+**Composer**
 
 The preferred method is via [composer](https://getcomposer.org). Follow the
 [installation instructions](https://getcomposer.org/doc/00-intro.md) if you do not already have
@@ -30,49 +31,11 @@ Once composer is installed, execute the following command in your project root t
 composer require radebatz/openapi-router
 ```
 
-# Configuration ##
-The `OpenApiRouter` class takes an array (map) as optional third constructor argument which allows to customise the behaviour.
-All option names (keys) are defined as class constants.
+## Basic usage
 
-**`OPTION_RELOAD`**
----
-Enforces loading of route annotations on each request.
+Example using the `Slim` framework adapter and standard [OpenApi annotations](https://github.com/zircote/swagger-php/tree/master/src/Annotations) only.
 
-Typically you want this turned off on production. Requires a cache confgured (annotation caching) or caching support implemented by the used adapter. 
-
-Default: `true`
-
-**`OPTION_CACHE`**
----
-Instance of a PSR-16 simple cache.
-
-Used for caching of parsed OpenApi annotations if the `reload` option is disabled.
-
-Default: `null`
-
-**`OPTION_OA_INFO_INJECT`**
----
-Controls whether to inject a default `@OA\Info` instance while scanning.
-
-This can be useful if your top level OpenApi annotation is inside the scanned folder hierarchy.
-
-Default: `true`
-
-**`OPTION_OA_OPERATION_ID_AS_NAME`**
----
-Controls whether to default the custom (x-) name property to the `operationId`.
-
-Allows to set the route name via the standard `operationId` rather than `x-name`.
-By default the `operationId` is populated with the controller (class/method) for the route.  
-
-Default: `true`
-
-
-## Basic usage ##
-
-Example usage using `Slim`.
-
-### index.php ###
+**index.php**
 ```php
 <?php
 
@@ -89,7 +52,7 @@ $app = new App();
 $app->run();
 ```
 
-### Controller ###
+**Controller**
 ```php
 <?php
 
@@ -113,6 +76,10 @@ class GetController
 }
 ```
 
-## License ##
+## Documentation
+* [Configuration](docs/Configuration.md)
+* [Annotation extensions](docs/AnnotationExtensions.md)
+
+## License
 
 The openapi-router project is released under the [MIT license](LICENSE).
