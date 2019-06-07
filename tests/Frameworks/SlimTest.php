@@ -56,7 +56,7 @@ class SlimTest extends TestCase
     }
 
     /** @test */
-    public function middlewares()
+    public function middleware()
     {
         $this->assertNotNull($route = $this->getRouter()->getNamedRoute('mw'));
         $this->assertEquals('/mw', $route->getPattern());

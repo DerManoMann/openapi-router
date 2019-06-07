@@ -10,6 +10,9 @@ class SimpleController extends Controller
      * @OA\Get(
      *     path="/getya",
      *     operationId="getya",
+     *     x={
+     *         "middleware"={"foo"},
+     *     },
      *
      *     @OA\Response(response="200", description="All good")
      * )

@@ -6,9 +6,11 @@ use OpenApi\Analysis;
 use OpenApi\Annotations\AbstractAnnotation;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\PathItem;
-use const OpenApi\Annotations\UNDEFINED;
 use OpenApi\Context;
 use Radebatz\OpenApi\Routing\Annotations\Controller;
+use Radebatz\OpenApi\Routing\Annotations\MiddlewareProperty;
+use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
+use const OpenApi\Annotations\UNDEFINED;
 
 /**
  * Merge shared controller properties.
@@ -41,6 +43,23 @@ class ControllerProcessor
                                 // update path here too!
                                 $operation->path = $pathItem->path;
 
+                                if (UNDEFINED !== $controller->middleware) {
+                                    $uses = array_flip(class_uses_recursive($operation));
+                                    if (array_key_exists(MiddlewareProperty::class, $uses)) {
+                                        $operation->middleware = UNDEFINED !== $operation->middleware ? $operation->middleware : [];
+                                        $operation->middleware = array_merge($operation->middleware, $controller->middleware);
+                                    } else {
+                                        // add as X property
+                                        $operation->x = UNDEFINED !== $operation->x ? $operation->x : [];
+                                        $operation->x[RoutingAdapterInterface::X_MIDDLEWARE] =
+                                            array_key_exists(RoutingAdapterInterface::X_MIDDLEWARE, $operation->x)
+                                                ? $operation->x[RoutingAdapterInterface::X_MIDDLEWARE]
+                                                : [];
+                                        $operation->x[RoutingAdapterInterface::X_MIDDLEWARE] =
+                                            array_merge($operation->x[RoutingAdapterInterface::X_MIDDLEWARE], $controller->middleware);
+                                    }
+                                }
+
                                 if (UNDEFINED !== $controller->responses) {
                                     $operation->merge($controller->responses, true);
                                 }
@@ -58,7 +77,7 @@ class ControllerProcessor
     protected function needsProcessing(Controller $controller)
     {
         return UNDEFINED !== $controller->prefix
-            || UNDEFINED !== $controller->middlewares
+            || UNDEFINED !== $controller->middleware
             || UNDEFINED !== $controller->responses;
     }
 

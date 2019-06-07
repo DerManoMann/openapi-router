@@ -10,19 +10,14 @@ use const OpenApi\Annotations\UNDEFINED;
  */
 class Controller extends AbstractAnnotation
 {
+    use MiddlewareProperty;
+
     /**
      * A shared path prefix for all uris in this controller.
      *
      * @var string
      */
     public $prefix = UNDEFINED;
-
-    /**
-     * Shared middlewares.
-     *
-     * @var string[]
-     */
-    public $middlewares = UNDEFINED;
 
     /**
      * The list of possible responses as they are returned from executing this operation.

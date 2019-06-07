@@ -63,10 +63,9 @@ Default: `true`
 Controls whether to default the custom (x-) name property to the `operationId`.
 
 Allows to set the route name via the standard `operationId` rather than `x-name`.
-By default the `operationId` is populated with the controller (class/method) for the route, so enabling this only
-makes sense if all routes explicitly set `operaiontId`.  
+By default the `operationId` is populated with the controller (class/method) for the route.  
 
-Default: `false`
+Default: `true`
 
 
 ## Basic usage ##

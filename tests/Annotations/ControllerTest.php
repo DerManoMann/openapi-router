@@ -48,6 +48,32 @@ class ControllerTest extends TestCase
         $this->assertEquals('getya', $getyaRoute->uri);
     }
 
+    public function middlewareTests()
+    {
+        return [
+            ['bar', 1],
+            ['barx', 1],
+            ['getya', 1],
+            ['barxx', 2],
+        ];
+    }
+
+    /**
+     * @test
+     * @dataProvider middlewareTests
+     */
+    public function middleware($name, $expected)
+    {
+        /** @var Router $router */
+        $router = $this->app->get('router');
+
+        $route = $router->getRoutes()->getByName($name);
+
+        $this->assertNotNull($route);
+        $this->assertCount($expected, $route->middleware());
+        $this->assertNotContains(' middleware', $this->openapi->toYaml());
+    }
+
     /** @test */
     public function responses()
     {
