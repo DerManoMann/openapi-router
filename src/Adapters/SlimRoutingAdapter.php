@@ -28,10 +28,8 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
         $path = $operation->path;
 
         /** @var Parameter $parameter */
-        foreach ($parameters as $parameter) {
-            $name = $parameter->name;
-
-            if (!$parameter->required) {
+        foreach ($parameters as $name => $parameter) {
+            if (!$parameter['required']) {
                 if (false !== strpos($path, $needle = "/{{$name}}[/{")) {
                     // multiple optional parameters
                     $path = preg_replace("#/{{$name}}(\[?.*}\])#", "[/{{$name}}$1]", $path);
@@ -40,18 +38,16 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
                 }
             }
 
-            if (\OpenApi\UNDEFINED !== $parameter->schema) {
-                $schema = $parameter->schema;
-                switch ($schema->type) {
-                    case 'string':
-                        if (\OpenApi\UNDEFINED !== ($pattern = $schema->pattern)) {
-                            $path = str_replace("{{$name}}", "{{$name}:$pattern}", $path);
-                        }
-                        break;
-                    case 'integer':
-                        $path = str_replace("{{$name}}", "{{$name}:[0-9]+}", $path);
-                        break;
-                }
+            switch ($parameter['type']) {
+                case 'regex':
+                    if ($pattern = $parameter['pattern']) {
+                        $path = str_replace("{{$name}}", "{{$name}:$pattern}", $path);
+                    }
+                    break;
+
+                case 'integer':
+                    $path = str_replace("{{$name}}", "{{$name}:[0-9]+}", $path);
+                    break;
             }
         }
 
@@ -59,6 +55,7 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
         if ($custom[static::X_NAME]) {
             $route->setName($custom[static::X_NAME]);
         }
+
         foreach ($custom[static::X_MIDDLEWARE] as $middleware) {
             $route->add($middleware);
         }

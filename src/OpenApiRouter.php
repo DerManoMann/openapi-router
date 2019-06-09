@@ -152,7 +152,12 @@ class OpenApiRouter
                             }
                         }
 
-                        $this->routingAdapter->register($operation, $controller, array_reverse($parameters), $custom);
+                        $this->routingAdapter->register(
+                            $operation,
+                            $controller,
+                            $this->parameterMetadata(array_reverse($parameters)),
+                            $custom
+                        );
                     }
                 }
             }
@@ -171,5 +176,44 @@ class OpenApiRouter
         $openapi = \OpenApi\scan($this->sources, $this->options[self::OPTION_OA_INFO_INJECT] ? $options : []);
 
         return $openapi;
+    }
+
+    /**
+     * Extract (uri) parameter meta data.
+     *
+     * @param Parameter[] $parameters
+     */
+    protected function parameterMetadata($parameters): array
+    {
+        $metadata = [];
+
+        /** @var Parameter $parameter */
+        foreach ($parameters as $parameter) {
+            $name = $parameter->name;
+
+            $metadata[$name] = [
+                'required' => \OpenApi\UNDEFINED !== $parameter->required ? $parameter->required : false,
+                'type' => null,
+                'pattern' => null,
+            ];
+
+            if (\OpenApi\UNDEFINED !== $parameter->schema) {
+                $schema = $parameter->schema;
+                switch ($schema->type) {
+                    case 'string':
+                        $metadata[$name]['type'] = $schema->type;
+                        if (\OpenApi\UNDEFINED !== ($pattern = $schema->pattern)) {
+                            $metadata[$name]['type'] = 'regex';
+                            $metadata[$name]['pattern'] = $schema->pattern;
+                        }
+                        break;
+                    case 'integer':
+                        $metadata[$name]['type'] = $schema->type;
+                        break;
+                }
+            }
+        }
+
+        return $metadata;
     }
 }
