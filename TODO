@@ -1,7 +1,4 @@
 * Add support for:
   * scheme
-  * groups
-  * prefix
   * parameter requirements (regex, etc)
 * Wrap as service provider / middleware?
-* document supported x={} attributes
