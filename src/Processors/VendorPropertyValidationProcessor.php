@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Middleware;
+namespace Radebatz\OpenApi\Routing\Processors;
 
 use OpenApi\Analysis;
 use OpenApi\Annotations\Operation;
