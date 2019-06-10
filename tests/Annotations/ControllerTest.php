@@ -101,4 +101,12 @@ class ControllerTest extends TestCase
         $getya = $router->getRoutes()->getByName('foo.getya');
         $this->assertEquals('foo/getya', $getya->uri());
     }
+
+    /** @test */
+    public function multiParameter()
+    {
+        $response = $this->get(route('dingdong', ['ding', 'dong']));
+
+        $this->assertEquals('ding the dong', $response->content());
+    }
 }
