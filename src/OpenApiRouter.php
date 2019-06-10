@@ -13,8 +13,7 @@ use Psr\SimpleCache\CacheInterface;
 use Radebatz\OpenApi\Routing\Annotations as OAX;
 use Radebatz\OpenApi\Routing\Annotations\MiddlewareProperty;
 use Radebatz\OpenApi\Routing\Processors\ControllerCleanup;
-use Radebatz\OpenApi\Routing\Processors\MergeControllerPrefix;
-use Radebatz\OpenApi\Routing\Processors\MergeSharedProperties;
+use Radebatz\OpenApi\Routing\Processors\MergeController;
 use Symfony\Component\Finder\Finder;
 use const OpenApi\Annotations\UNDEFINED;
 
@@ -208,13 +207,11 @@ class OpenApiRouter
      */
     public static function register()
     {
-        if (!in_array($mergeControllerPrefix = new MergeControllerPrefix(), Analysis::processors())) {
+        if (!in_array($mergeController = new MergeController(), Analysis::processors())) {
             Analyser::$whitelist[] = $ns = 'Radebatz\OpenApi\Routing\Annotations';
             Analyser::$defaultImports['oax'] = $ns;
 
-            // register $mergeControllerPrefix before Operation(s) get merged
-            static::registerProcessorBefore($mergeControllerPrefix, BuildPaths::class);
-            Analysis::registerProcessor(new MergeSharedProperties());
+            static::registerProcessorBefore($mergeController, BuildPaths::class);
             Analysis::registerProcessor(new ControllerCleanup());
 
             $operations = [OAX\Get::class, OAX\Post::class, OAX\Put::class, OAX\Patch::class, OAX\Delete::class, OAX\Options::class, OAX\Head::class];

@@ -3,20 +3,19 @@
 namespace Radebatz\OpenApi\Routing\Processors;
 
 use OpenApi\Analysis;
+use OpenApi\Annotations\AbstractAnnotation;
 use OpenApi\Annotations\Operation;
-use OpenApi\Annotations\PathItem;
+use OpenApi\Context;
 use Radebatz\OpenApi\Routing\Annotations\Controller;
+use const OpenApi\Annotations\UNDEFINED;
 use Radebatz\OpenApi\Routing\Annotations\MiddlewareProperty;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
-use const OpenApi\Annotations\UNDEFINED;
 
 /**
- * Merge shared controller properties.
+ * Update operation path if controller prefix given.
  */
-class MergeSharedProperties
+class MergeController
 {
-    use AnalysisTools;
-
     public function __invoke(Analysis $analysis)
     {
         $controllers = $analysis->getAnnotationsOfType(Controller::class);
@@ -25,9 +24,15 @@ class MergeSharedProperties
         /** @var Controller $controller */
         foreach ($controllers as $controller) {
             if ($this->needsProcessing($controller)) {
-                /** @var PathItem $operation */
+                /** @var Operation $operation */
                 foreach ($operations as $operation) {
                     if ($this->contextMatch($operation, $controller->_context)) {
+                        // update path
+                        if (UNDEFINED !== $controller->prefix) {
+                            $path = $controller->prefix . '/' . $operation->path;
+                            $operation->path = str_replace('//', '/', $path);
+                        }
+
                         if (UNDEFINED !== $controller->middleware) {
                             $uses = array_flip(class_uses_recursive($operation));
                             if (array_key_exists(MiddlewareProperty::class, $uses)) {
@@ -52,5 +57,18 @@ class MergeSharedProperties
                 }
             }
         }
+    }
+
+    protected function needsProcessing(Controller $controller)
+    {
+        return UNDEFINED !== $controller->prefix
+            || UNDEFINED !== $controller->middleware
+            || UNDEFINED !== $controller->responses;
+    }
+
+    protected function contextMatch(AbstractAnnotation $annotation, Context $context)
+    {
+        return $annotation->_context->namespace === $context->namespace
+            && $annotation->_context->class == $context->class;
     }
 }
