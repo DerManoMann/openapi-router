@@ -5,7 +5,6 @@ namespace Radebatz\OpenApi\Routing\Adapters;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Router;
 use OpenApi\Annotations\Operation;
-use OpenApi\Annotations\Parameter;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 
 /**
@@ -36,9 +35,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
             $controller = str_replace($namespace, '', $controller);
         }
 
-        /** @var Parameter $parameter */
         foreach ($parameters as $parameter) {
-            $name = $parameter->name;
             // TODO
         }
 

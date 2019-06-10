@@ -88,4 +88,17 @@ class ControllerTest extends TestCase
             }
         }
     }
+
+    /** @test */
+    public function duplicatePath()
+    {
+        /** @var Router $router */
+        $router = $this->app->get('router');
+
+        $getya = $router->getRoutes()->getByName('getya');
+        $this->assertEquals('getya', $getya->uri());
+
+        $getya = $router->getRoutes()->getByName('foo.getya');
+        $this->assertEquals('foo/getya', $getya->uri());
+    }
 }
