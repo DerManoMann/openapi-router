@@ -8,10 +8,13 @@ use OpenApi\Annotations\Info;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
+use OpenApi\Processors\BuildPaths;
 use Psr\SimpleCache\CacheInterface;
 use Radebatz\OpenApi\Routing\Annotations as OAX;
 use Radebatz\OpenApi\Routing\Annotations\MiddlewareProperty;
-use Radebatz\OpenApi\Routing\Processors\ControllerProcessor;
+use Radebatz\OpenApi\Routing\Processors\ControllerCleanup;
+use Radebatz\OpenApi\Routing\Processors\MergeControllerPrefix;
+use Radebatz\OpenApi\Routing\Processors\MergeSharedProperties;
 use Symfony\Component\Finder\Finder;
 use const OpenApi\Annotations\UNDEFINED;
 
@@ -31,23 +34,6 @@ class OpenApiRouter
     protected $openapi = null;
     protected $routingAdapter;
     protected $options = [];
-
-    /**
-     * Prepare OpenApi.
-     */
-    public static function register()
-    {
-        if (!in_array($controllerProcessor = new ControllerProcessor(), Analysis::processors())) {
-            Analyser::$whitelist[] = $ns = 'Radebatz\OpenApi\Routing\Annotations';
-            Analyser::$defaultImports['oax'] = $ns;
-            Analysis::registerProcessor($controllerProcessor);
-
-            $operations = [OAX\Get::class, OAX\Post::class, OAX\Put::class, OAX\Patch::class, OAX\Delete::class, OAX\Options::class, OAX\Head::class];
-            foreach ($operations as $operation) {
-                $operation::$_blacklist[] = 'middleware';
-            }
-        }
-    }
 
     /**
      * Create new routes.
@@ -164,20 +150,6 @@ class OpenApiRouter
         }
     }
 
-    public function scan(): OpenApi
-    {
-        // provide default @OA\Info in case we need to do some scanning
-        $options = [
-            'analysis' => new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])]),
-        ];
-
-        static::register();
-
-        $openapi = \OpenApi\scan($this->sources, $this->options[self::OPTION_OA_INFO_INJECT] ? $options : []);
-
-        return $openapi;
-    }
-
     /**
      * Extract (uri) parameter meta data.
      *
@@ -215,5 +187,55 @@ class OpenApiRouter
         }
 
         return $metadata;
+    }
+
+    public function scan(): OpenApi
+    {
+        // provide default @OA\Info in case we need to do some scanning
+        $options = [
+            'analysis' => new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])]),
+        ];
+
+        static::register();
+
+        $openapi = \OpenApi\scan($this->sources, $this->options[self::OPTION_OA_INFO_INJECT] ? $options : []);
+
+        return $openapi;
+    }
+
+    /**
+     * Prepare OpenApi.
+     */
+    public static function register()
+    {
+        if (!in_array($mergeControllerPrefix = new MergeControllerPrefix(), Analysis::processors())) {
+            Analyser::$whitelist[] = $ns = 'Radebatz\OpenApi\Routing\Annotations';
+            Analyser::$defaultImports['oax'] = $ns;
+
+            // register $mergeControllerPrefix before Operation(s) get merged
+            static::registerProcessorBefore($mergeControllerPrefix, BuildPaths::class);
+            Analysis::registerProcessor(new MergeSharedProperties());
+            Analysis::registerProcessor(new ControllerCleanup());
+
+            $operations = [OAX\Get::class, OAX\Post::class, OAX\Put::class, OAX\Patch::class, OAX\Delete::class, OAX\Options::class, OAX\Head::class];
+            foreach ($operations as $operation) {
+                $operation::$_blacklist[] = 'middleware';
+            }
+        }
+    }
+
+    public static function registerProcessorBefore($processor, $beforeClass)
+    {
+        $index = null;
+        foreach (Analysis::processors() as $ii => $pp) {
+            if (get_class($pp) == $beforeClass) {
+                $index = $ii;
+                break;
+            }
+        }
+
+        if (null !== $index) {
+            array_splice(Analysis::processors(), $index, 0, [$processor]);
+        }
     }
 }

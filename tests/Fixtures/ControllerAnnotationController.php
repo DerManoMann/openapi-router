@@ -50,4 +50,20 @@ class ControllerAnnotationController extends Controller
     {
         return $response->write('Bar bar');
     }
+
+    /**
+     * @OAX\Get(
+     *     path="/getya",
+     *     operationId="foo.getya",
+     *     x={
+     *         "middleware"={"foo"},
+     *     },
+     *
+     *     @OA\Response(response="200", description="All good")
+     * )
+     */
+    public static function getya($request, $response)
+    {
+        return $response->write('Get ya');
+    }
 }

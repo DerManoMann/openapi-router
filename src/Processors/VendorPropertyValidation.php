@@ -10,7 +10,7 @@ use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 /**
  * OpenApi processor to allow easy validation of vendor properties.
  */
-class VendorPropertyValidationProcessor
+class VendorPropertyValidation
 {
     protected $names = [];
     protected $uniqueNames = true;
