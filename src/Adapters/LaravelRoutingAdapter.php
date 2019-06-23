@@ -22,7 +22,10 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
     public function __construct(Application $app, array $options = [])
     {
         $this->app = $app;
-        $this->options = $options + [self::OPTIONS_NAMESPACE => 'App\\Http\\Controllers\\'];
+        $this->options = $options + [
+                self::OPTIONS_AUTO_REGEX => true,
+                self::OPTIONS_NAMESPACE => 'App\\Http\\Controllers\\',
+            ];
     }
 
     /**
@@ -47,7 +50,9 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
                     break;
 
                 case 'integer':
-                    $where[$name] = '[0-9]+';
+                    if ($this->options[self::OPTIONS_AUTO_REGEX]) {
+                        $where[$name] = '[0-9]+';
+                    }
                     break;
             }
         }

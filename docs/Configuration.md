@@ -61,6 +61,15 @@ Configuration keys are available as constants on the `RoutingAdapterInterface` i
 
 Right now these options are available:
 
+**`OPTIONS_AUTO_REGEX`**
+---
+When enabled the adapter will automatically configure a `[0-9]+` regex for any path elements defined as integer. 
+
+Available for:
+* All adapters
+
+   default: `true`
+
 **`OPTIONS_NAMESPACE`**
 ---
 Specifies a base namespace for all controllers. If set this will be removed from the controller classes passed into the
@@ -88,6 +97,7 @@ use Symfony\Component\Cache\Simple\ArrayCache;
     ];
     
     $adapterOptions = [
+        RoutingAdapterInterface::OPTIONS_AUTO_REGEX => false,
         RoutingAdapterInterface::OPTIONS_NAMESPACE => 'My\\App',
     ];
     
