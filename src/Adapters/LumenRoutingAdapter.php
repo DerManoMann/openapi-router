@@ -5,6 +5,7 @@ namespace Radebatz\OpenApi\Routing\Adapters;
 use Laravel\Lumen\Application;
 use Laravel\Lumen\Routing\Router;
 use OpenApi\Annotations\Operation;
+use OpenApi\Annotations\Parameter;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 
 /**
@@ -35,8 +36,28 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
             $controller = str_replace($namespace, '', $controller);
         }
 
-        foreach ($parameters as $parameter) {
-            // TODO
+        /** @var Parameter $parameter */
+        foreach ($parameters as $name => $parameter) {
+            if (!$parameter['required']) {
+                if (false !== strpos($path, $needle = "/{{$name}}[/{")) {
+                    // multiple optional parameters
+                    $path = preg_replace("#/{{$name}}(\[?.*}\])#", "[/{{$name}}$1]", $path);
+                } else {
+                    $path = str_replace("/{{$name}}", "[/{{$name}}]", $path);
+                }
+            }
+
+            switch ($parameter['type']) {
+                case 'regex':
+                    if ($pattern = $parameter['pattern']) {
+                        $path = str_replace("{{$name}}", "{{$name}:$pattern}", $path);
+                    }
+                    break;
+
+                case 'integer':
+                    $path = str_replace("{{$name}}", "{{$name}:[0-9]+}", $path);
+                    break;
+            }
         }
 
         /** @var Router $router */

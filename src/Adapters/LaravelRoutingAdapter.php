@@ -5,6 +5,7 @@ namespace Radebatz\OpenApi\Routing\Adapters;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Router;
 use OpenApi\Annotations\Operation;
+use OpenApi\Annotations\Parameter;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 
 /**
@@ -35,8 +36,20 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
             $controller = str_replace($namespace, '', $controller);
         }
 
-        foreach ($parameters as $parameter) {
-            // TODO
+        $where = [];
+        /** @var Parameter $parameter */
+        foreach ($parameters as $name => $parameter) {
+            switch ($parameter['type']) {
+                case 'regex':
+                    if ($pattern = $parameter['pattern']) {
+                        $where[$name] = $pattern;
+                    }
+                    break;
+
+                case 'integer':
+                    $where[$name] = '[0-9]+';
+                    break;
+            }
         }
 
         /** @var Router $router */
@@ -49,8 +62,10 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
             $action['as'] = $custom[static::X_NAME];
         }
 
-        $route = $router->addRoute(strtoupper($operation->method), $path, $action);
-        $route->middleware($custom[static::X_MIDDLEWARE]);
+        $router
+            ->addRoute(strtoupper($operation->method), $path, $action)
+            ->middleware($custom[static::X_MIDDLEWARE])
+            ->where($where);
     }
 
     /**
