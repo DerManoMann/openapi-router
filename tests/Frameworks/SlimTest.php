@@ -91,7 +91,7 @@ class SlimTest extends TestCase
         return $app;
     }
 
-    protected function call($path, $method = 'GET'): Response
+    protected function call($path, $method = 'GET', $silent = true): Response
     {
         $environment = Environment::mock([
             'REQUEST_METHOD' => strtoupper($method),
@@ -101,6 +101,6 @@ class SlimTest extends TestCase
         $app = $this->getApp();
         $app->getContainer()['request'] = Request::createFromEnvironment($environment);
 
-        return $app->run(true);
+        return $app->run($silent);
     }
 }
