@@ -34,14 +34,16 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
     public function register(Operation $operation, string $controller, array $parameters, array $custom): void
     {
         $path = $operation->path;
-        $controller = str_replace('::__invoke', '', $controller);
-        if ($namespace = $this->options[self::OPTIONS_NAMESPACE]) {
-            $controller = str_replace($namespace, '', $controller);
-        }
 
         $where = [];
         /** @var Parameter $parameter */
         foreach ($parameters as $name => $parameter) {
+            if (!$parameter['required']) {
+                if (false !== strpos($path, $needle = "/{{$name}}")) {
+                    $path = str_replace("/{{$name}}", "/{{$name}?}", $path);
+                }
+            }
+
             switch ($parameter['type']) {
                 case 'regex':
                     if ($pattern = $parameter['pattern']) {
@@ -55,6 +57,11 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
                     }
                     break;
             }
+        }
+
+        $controller = str_replace('::__invoke', '', $controller);
+        if ($namespace = $this->options[self::OPTIONS_NAMESPACE]) {
+            $controller = str_replace($namespace, '', $controller);
         }
 
         /** @var Router $router */

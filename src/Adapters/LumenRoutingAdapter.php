@@ -69,7 +69,7 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
         $router = $this->app->router;
 
         $action = [
-            'uses' => $controller
+            'uses' => str_replace('::', '@', $controller),
         ];
         if ($custom[static::X_NAME]) {
             $action['as'] = $custom[static::X_NAME];

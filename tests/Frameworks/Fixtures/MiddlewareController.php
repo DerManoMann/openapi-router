@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\Slim;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
 
 class MiddlewareController
 {
@@ -14,7 +14,7 @@ class MiddlewareController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public static function mw($request, $response)
+    public function mw($request, $response)
     {
         return $response->write('MW!');
     }
