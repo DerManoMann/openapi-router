@@ -36,6 +36,11 @@ trait CallsApplicationTrait
 
     public function route($name, $parameters = [], $secure = null)
     {
-        return $this->app['url']->route($name, $parameters, $secure);
+        $uri = $this->app['url']->route($name, $parameters, $secure);
+
+        // 5.7 fixes
+        $uri = str_replace('://:/', '://localhost/', $uri);
+
+        return $uri;
     }
 }

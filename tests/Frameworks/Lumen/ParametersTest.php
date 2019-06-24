@@ -19,6 +19,10 @@ class ParametersTest extends TestCase
     /** @test */
     public function optionalParameter()
     {
+        if (false !== (strpos($this->createApplication()->version(), '5.7'))) {
+            $this->markTestSkipped();
+        }
+
         $this->get($this->route('oi', ['name' => 'joe']));
         $this->assertEquals(200, $this->response->getStatusCode());
         $this->assertEquals('Oi: joe', $this->response->getContent());
