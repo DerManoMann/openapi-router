@@ -5,6 +5,7 @@ namespace Radebatz\OpenApi\Routing\Adapters;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Router;
 use OpenApi\Annotations\Operation;
+use OpenApi\Annotations\Parameter;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 
 /**
@@ -21,7 +22,10 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
     public function __construct(Application $app, array $options = [])
     {
         $this->app = $app;
-        $this->options = $options + [self::OPTIONS_NAMESPACE => 'App\\Http\\Controllers\\'];
+        $this->options = $options + [
+                self::OPTIONS_AUTO_REGEX => true,
+                self::OPTIONS_NAMESPACE => 'App\\Http\\Controllers\\',
+            ];
     }
 
     /**
@@ -30,13 +34,34 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
     public function register(Operation $operation, string $controller, array $parameters, array $custom): void
     {
         $path = $operation->path;
+
+        $where = [];
+        /** @var Parameter $parameter */
+        foreach ($parameters as $name => $parameter) {
+            if (!$parameter['required']) {
+                if (false !== strpos($path, $needle = "/{{$name}}")) {
+                    $path = str_replace("/{{$name}}", "/{{$name}?}", $path);
+                }
+            }
+
+            switch ($parameter['type']) {
+                case 'regex':
+                    if ($pattern = $parameter['pattern']) {
+                        $where[$name] = $pattern;
+                    }
+                    break;
+
+                case 'integer':
+                    if ($this->options[self::OPTIONS_AUTO_REGEX]) {
+                        $where[$name] = '[0-9]+';
+                    }
+                    break;
+            }
+        }
+
         $controller = str_replace('::__invoke', '', $controller);
         if ($namespace = $this->options[self::OPTIONS_NAMESPACE]) {
             $controller = str_replace($namespace, '', $controller);
-        }
-
-        foreach ($parameters as $parameter) {
-            // TODO
         }
 
         /** @var Router $router */
@@ -49,8 +74,10 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
             $action['as'] = $custom[static::X_NAME];
         }
 
-        $route = $router->addRoute(strtoupper($operation->method), $path, $action);
-        $route->middleware($custom[static::X_MIDDLEWARE]);
+        $router
+            ->addRoute(strtoupper($operation->method), $path, $action)
+            ->middleware($custom[static::X_MIDDLEWARE])
+            ->where($where);
     }
 
     /**

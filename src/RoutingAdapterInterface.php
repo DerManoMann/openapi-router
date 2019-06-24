@@ -14,6 +14,7 @@ interface RoutingAdapterInterface
     public const X_MIDDLEWARE = 'middleware';
 
     public const OPTIONS_NAMESPACE = 'namespace';
+    public const OPTIONS_AUTO_REGEX = 'autoregex';
 
     /**
      * Register a route.

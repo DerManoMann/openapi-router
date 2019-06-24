@@ -1,9 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\Laravel;
-
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
 
 /**
  * @OAX\Controller(
@@ -11,18 +8,18 @@ use Illuminate\Routing\Controller;
  *     @OA\Response(response="403", description="Not allowed")
  * )
  */
-class InvokeController extends Controller
+class InvokeController
 {
     /**
      * @OA\Get(
-     *     path="/invoke",
+     *     path="/invoke/{name}",
      *     x={
      *       "name": "invoke"
      *     },
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function __invoke(Request $request)
+    public function __invoke($name)
     {
         return 'invoke';
     }

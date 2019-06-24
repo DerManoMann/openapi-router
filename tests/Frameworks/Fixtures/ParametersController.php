@@ -1,10 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\Silex;
-
-use Silex\Application;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
 
 class ParametersController
 {
@@ -26,9 +22,9 @@ class ParametersController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function hey(Application $app, Request $request, $name)
+    public function hey($name)
     {
-        return new Response(sprintf('Hey: %s', $name));
+        return sprintf('Hey: %s', $name);
     }
 
     /**
@@ -49,9 +45,9 @@ class ParametersController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function oi(Application $app, Request $request, $name = 'you')
+    public function oi($name = 'you')
     {
-        return new Response(sprintf('Oi: %s', $name));
+        return sprintf('Oi: %s', $name);
     }
 
     /**
@@ -73,9 +69,9 @@ class ParametersController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function id($request, $response, $name)
+    public function id($id)
     {
-        return new Response(sprintf('ID: %s', $id));
+        return sprintf('ID: %s', $id);
     }
 
     /**
@@ -97,9 +93,9 @@ class ParametersController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function hid(Application $app, Request $request, $hid)
+    public function hid($hid)
     {
-        return new Response(sprintf('HID: %s', $hid));
+        return sprintf('HID: %s', $hid);
     }
 
     /**
@@ -129,8 +125,8 @@ class ParametersController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function multi(Application $app, Request $request, $foo = null, $bar = null)
+    public function multi($foo = null, $bar = null)
     {
-        return new Response('foobar');
+        return 'foobar';
     }
 }
