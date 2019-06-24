@@ -14,7 +14,7 @@ trait CallsApplicationTrait
     protected $app = null;
 
     /** @inheritDoc */
-    public function createApplication(): Application
+    public function createApplication()
     {
         if (!$this->app) {
             $app = require __DIR__ . '/../../../vendor/laravel/laravel/bootstrap/app.php';
