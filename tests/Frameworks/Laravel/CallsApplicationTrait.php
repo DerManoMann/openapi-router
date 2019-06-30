@@ -13,13 +13,13 @@ trait CallsApplicationTrait
 {
     protected $app = null;
 
-    /** @inheritDoc */
+    /** @inheritdoc */
     public function createApplication()
     {
         if (!$this->app) {
             $app = require __DIR__ . '/../../../vendor/laravel/laravel/bootstrap/app.php';
             $app->make(Kernel::class)->bootstrap();
-            app('config')->set([
+            $app['config']->set([
                 'app.environment' => 'local',
                 'app.debug' => true,
             ]);

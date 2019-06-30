@@ -52,5 +52,8 @@
         "silex/silex": "^2.3",
         "slim/slim": "^3.12",
         "symfony/cache": "^4.2"
+    },
+    "suggest": {
+        "radebatz/openapi-verifier": "Allows your PHPUnit tests to validate your controller response against the OpenAPI annotations."
     }
 }
