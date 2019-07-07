@@ -1,7 +1,7 @@
 # openapi-router
 
 [![Build Status](https://travis-ci.org/DerManoMann/openapi-router.png)](https://travis-ci.org/DerManoMann/openapi-router)
-[![Coverage Status](https://coveralls.io/repos/DerManoMann/openapi-router/badge.png)](https://coveralls.io/r/DerManoMann/openapi-router)
+[![Coverage Status](https://coveralls.io/repos/github/DerManoMann/openapi-router/badge.svg)](https://coveralls.io/github/DerManoMann/openapi-router)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Introduction
