@@ -13,7 +13,7 @@ trait CallsApplicationTrait
 {
     protected $app = null;
 
-    /** @inheritdoc */
+    /** {@inheritdoc} */
     public function createApplication()
     {
         if (!$this->app) {

@@ -9,7 +9,7 @@ use Radebatz\OpenApi\Routing\OpenApiRouter;
 
 trait CallsApplicationTrait
 {
-    /** @inheritDoc */
+    /** {@inheritdoc} */
     public function createApplication()
     {
         $app = new Application();

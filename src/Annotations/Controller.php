@@ -27,7 +27,7 @@ class Controller extends AbstractAnnotation
     public $responses = UNDEFINED;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static $_nested = [
         'OpenApi\Annotations\Response' => ['responses', 'response'],
