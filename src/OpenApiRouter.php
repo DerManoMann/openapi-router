@@ -103,10 +103,11 @@ class OpenApiRouter
                         // as per \OpenApi\Processors\OperationId
                         if ($context && $context->method) {
                             if ($context->class) {
+                                $methodSuffix = '__invoke' != $context->method ? '::' . $context->method : '';
                                 if ($context->namespace) {
-                                    $controller = $context->namespace . '\\' . $context->class . '::' . $context->method;
+                                    $controller = $context->namespace . '\\' . $context->class . $methodSuffix;
                                 } else {
-                                    $controller = $context->class . '::' . $context->method;
+                                    $controller = $context->class . $methodSuffix;
                                 }
                             } else {
                                 $controller = $context->method;

@@ -7,9 +7,9 @@
 ## Introduction
 Allows to (re-)use [Swagger-PHP](https://github.com/zircote/swagger-php) annotations to configure routes in the
 following frameworks:
-* [Laravel](https://github.com/laravel/laravel)
-* [Lumen](https://github.com/laravel/lumen)
-* [Slim](https://github.com/slimphp/Slim)
+* [Laravel5](https://github.com/laravel/laravel/tree/5.8)
+* [Lumen5](https://github.com/laravel/lumen/tree/5.8)
+* [Slim3](https://github.com/slimphp/Slim/tree/3.x) and [Slim4](https://github.com/slimphp/Slim) 
 * [Silex](https://github.com/silexphp/Silex) (Deprecated)
 
 

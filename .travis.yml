@@ -24,6 +24,7 @@ install:
   - travis_retry composer update --no-interaction $PREFER_LOWEST --prefer-source
 
 script:
+  - mkdir -p build/logs
   - ./vendor/bin/phpunit --coverage-clover build/logs/clover.xml
   - if [[ $TRAVIS_PHP_VERSION < 7.4 ]]; then composer run-script fix-cs; fi;
 

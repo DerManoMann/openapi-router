@@ -2,6 +2,9 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
 
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
 class NamedRouteController
 {
     /**
@@ -30,5 +33,21 @@ class NamedRouteController
     public static function static_getya()
     {
         return 'Get ya';
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/invoke_getya",
+     *     x={
+     *       "name": "invoke_getya"
+     *     },
+     *     @OA\Response(response="200", description="All good")
+     * )
+     */
+    public function __invoke(Request $request, Response $response)
+    {
+        $response->getBody()->write('Get ya');
+
+        return $response;
     }
 }
