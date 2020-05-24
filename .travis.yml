@@ -25,7 +25,7 @@ install:
 
 script:
   - ./vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-  - if [[ $TRAVIS_PHP_VERSION < 7.4 ]]; then composer run-script fix-cs; fi;
+  - if [[ $TRAVIS_PHP_VERSION < 7.4 ]]; then wget https://cs.symfony.com/download/php-cs-fixer-v2.phar -O vendor/bin/php-cs-fixer && chmod +x vendor/bin/php-cs-fixer && composer run-script fix-cs; fi;
 
 after_script:
   - if [[ $TRAVIS_PHP_VERSION = 7.3 && $PREFER_LOWEST = '' ]]; then php vendor/bin/php-coveralls -v; fi;
