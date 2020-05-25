@@ -39,7 +39,7 @@ class ParametersController
      *         required=false,
      *         description="The name",
      *         @OA\Schema(
-     *             type="string",
+     *             type="string"
      *         )
      *     ),
      *     @OA\Response(response="200", description="All good")

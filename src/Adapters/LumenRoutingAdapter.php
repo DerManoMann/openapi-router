@@ -13,7 +13,7 @@ use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
  */
 class LumenRoutingAdapter implements RoutingAdapterInterface
 {
-    /** @var Application $app */
+    /** @var Application */
     protected $app;
 
     /** @var array */

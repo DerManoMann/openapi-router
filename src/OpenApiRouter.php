@@ -8,6 +8,7 @@ use OpenApi\Annotations\Info;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
+use OpenApi\Annotations\PathItem;
 use OpenApi\Processors\BuildPaths;
 use Psr\SimpleCache\CacheInterface;
 use Radebatz\OpenApi\Routing\Annotations as OAX;
@@ -204,6 +205,8 @@ class OpenApiRouter
 
     /**
      * Prepare OpenApi.
+     *
+     * Register annotations under the `oax` namespace alias.
      */
     public static function register()
     {
@@ -214,9 +217,19 @@ class OpenApiRouter
             static::registerProcessorBefore($mergeController, BuildPaths::class);
             Analysis::registerProcessor(new ControllerCleanup());
 
-            $operations = [OAX\Get::class, OAX\Post::class, OAX\Put::class, OAX\Patch::class, OAX\Delete::class, OAX\Options::class, OAX\Head::class];
-            foreach ($operations as $operation) {
-                $operation::$_blacklist[] = 'middleware';
+            $operations = [
+                OAX\Get::class => 'get',
+                OAX\Post::class => 'post',
+                OAX\Put::class => 'put',
+                OAX\Patch::class => 'patch',
+                OAX\Delete::class => 'delete',
+                OAX\Options::class => 'options',
+                OAX\Head::class => 'head',
+                //OAX\Trace::class => 'trace',
+            ];
+            foreach ($operations as $class => $operation) {
+                PathItem::$_nested[$class] = $operation;
+                $class::$_blacklist[] = 'middleware';
             }
         }
     }

@@ -1,9 +1,5 @@
 <?php
 
-$finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__)
-;
-
 return PhpCsFixer\Config::create()
     ->setRules([
         '@PSR2' => true,
@@ -56,5 +52,4 @@ return PhpCsFixer\Config::create()
         'phpdoc_no_empty_return' => true,
         'phpdoc_no_alias_tag' => true,
     ])
-    ->setFinder($finder)
 ;

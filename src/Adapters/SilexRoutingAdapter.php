@@ -13,7 +13,7 @@ use Silex\ControllerCollection;
  */
 class SilexRoutingAdapter implements RoutingAdapterInterface
 {
-    /** @var Application $app */
+    /** @var Application */
     protected $app;
 
     public function __construct(Application $app, array $options = [])

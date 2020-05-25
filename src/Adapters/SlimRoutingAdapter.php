@@ -12,7 +12,7 @@ use Slim\App;
  */
 class SlimRoutingAdapter implements RoutingAdapterInterface
 {
-    /** @var App $app */
+    /** @var App */
     protected $app;
 
     /** @var array */
