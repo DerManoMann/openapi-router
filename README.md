@@ -14,7 +14,7 @@ following frameworks:
 
 
 ## Requirements
-* [PHP 7.1 or higher](http://www.php.net/)
+* [PHP 7.2 or higher](http://www.php.net/)
 
 ## Installation
 
