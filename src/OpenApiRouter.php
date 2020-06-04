@@ -225,7 +225,7 @@ class OpenApiRouter
                 OAX\Delete::class => 'delete',
                 OAX\Options::class => 'options',
                 OAX\Head::class => 'head',
-                //OAX\Trace::class => 'trace',
+                OAX\Trace::class => 'trace',
             ];
             foreach ($operations as $class => $operation) {
                 PathItem::$_nested[$class] = $operation;
