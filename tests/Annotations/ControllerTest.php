@@ -67,7 +67,7 @@ class ControllerTest extends TestCase
 
         $this->assertNotNull($route);
         $this->assertCount($expected, $route->middleware());
-        $this->assertNotContains(' middleware', $this->openapi->toYaml());
+        $this->assertStringNotContainsString(' middleware', $this->openapi->toYaml());
     }
 
     /** @test */
