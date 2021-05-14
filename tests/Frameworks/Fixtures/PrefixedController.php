@@ -21,6 +21,6 @@ class PrefixedController
      */
     public function prefixed()
     {
-        return 'Get fooya';
+        return FakeResponse::create('Get fooya');
     }
 }

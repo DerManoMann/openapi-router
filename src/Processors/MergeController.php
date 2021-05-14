@@ -34,7 +34,7 @@ class MergeController
                         }
 
                         if (UNDEFINED !== $controller->middleware) {
-                            $uses = array_flip(class_uses_recursive($operation));
+                            $uses = array_flip(class_uses($operation));
                             if (array_key_exists(MiddlewareProperty::class, $uses)) {
                                 $operation->middleware = UNDEFINED !== $operation->middleware ? $operation->middleware : [];
                                 $operation->middleware = array_merge($operation->middleware, $controller->middleware);

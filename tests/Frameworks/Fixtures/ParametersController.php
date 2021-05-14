@@ -24,7 +24,7 @@ class ParametersController
      */
     public function hey($name)
     {
-        return sprintf('Hey: %s', $name);
+        return FakeResponse::create(sprintf('Hey: %s', $name));
     }
 
     /**
@@ -47,7 +47,7 @@ class ParametersController
      */
     public function oi($name = 'you')
     {
-        return sprintf('Oi: %s', $name);
+        return FakeResponse::create(sprintf('Oi: %s', $name));
     }
 
     /**
@@ -71,7 +71,7 @@ class ParametersController
      */
     public function id($id)
     {
-        return sprintf('ID: %s', $id);
+        return FakeResponse::create(sprintf('ID: %s', $id));
     }
 
     /**
@@ -95,7 +95,7 @@ class ParametersController
      */
     public function hid($hid)
     {
-        return sprintf('HID: %s', $hid);
+        return FakeResponse::create(sprintf('HID: %s', $hid));
     }
 
     /**
@@ -127,6 +127,6 @@ class ParametersController
      */
     public function multi($foo = null, $bar = null)
     {
-        return 'foobar';
+        return FakeResponse::create('foobar');
     }
 }

@@ -13,7 +13,16 @@ trait CallsApplicationTrait
 {
     protected $app = null;
 
-    /** {@inheritdoc} */
+    protected function setUp(): void
+    {
+        if (!class_exists('\\Illuminate\\Foundation\\Application')) {
+            $this->markTestSkipped('not installed.');
+        }
+
+        parent::setUp();
+    }
+
+    /** @inheritdoc */
     public function createApplication()
     {
         if (!$this->app) {
@@ -34,9 +43,11 @@ trait CallsApplicationTrait
         return $this->app;
     }
 
-    protected function getRouter(?Application $application = null): Router
+    protected function getRouter(?Application $app = null): Router
     {
-        return $this->createApplication()['router'];
+        $app = $app ?: $this->app;
+
+        return $app['router'];
     }
 
     protected function route($name, $parameters = [], $absolute = true)

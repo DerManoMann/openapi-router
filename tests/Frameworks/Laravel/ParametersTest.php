@@ -4,9 +4,8 @@ namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Laravel;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
-use PHPUnit\Framework\TestCase;
 
-class ParametersTest extends TestCase
+class ParametersTest extends LaravelTestCase
 {
     use CallsApplicationTrait;
 

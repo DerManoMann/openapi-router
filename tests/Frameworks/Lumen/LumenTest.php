@@ -2,9 +2,7 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Lumen;
 
-use Laravel\Lumen\Testing\TestCase;
-
-class LumenTest extends TestCase
+class LumenTest extends LumenTestCase
 {
     use CallsApplicationTrait;
 

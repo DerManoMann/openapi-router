@@ -21,7 +21,7 @@ interface RoutingAdapterInterface
      *
      * @param Operation $operation  The route URI pattern
      * @param array     $parameters URI parameter meta data in reverse order
-     * @param array     $custom     Custom properties (e.g.`x={}`)
+     * @param array     $custom     Custom properties
      */
     public function register(Operation $operation, string $controller, array $parameters, array $custom): void;
 

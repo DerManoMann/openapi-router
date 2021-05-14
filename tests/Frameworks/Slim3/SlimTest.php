@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Slim;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Slim3;
 
 use PHPUnit\Framework\TestCase;
-use Slim\Http\Request;
 
 class SlimTest extends TestCase
 {

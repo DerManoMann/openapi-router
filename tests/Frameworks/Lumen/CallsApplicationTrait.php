@@ -9,7 +9,15 @@ use Radebatz\OpenApi\Routing\OpenApiRouter;
 
 trait CallsApplicationTrait
 {
-    /** {@inheritdoc} */
+    protected function setUp(): void
+    {
+        if (!class_exists('\\Laravel\\Lumen\\Application')) {
+            $this->markTestSkipped('not installed.');
+        }
+        parent::setUp();
+    }
+
+    /** @inheritdoc */
     public function createApplication()
     {
         $app = new Application();
@@ -29,18 +37,15 @@ trait CallsApplicationTrait
         return $app;
     }
 
-    protected function getRouter(?Application $application = null): Router
+    protected function getRouter(?Application $app = null): Router
     {
-        return $this->app->router;
+        $app = $app ?: $this->app;
+
+        return $app->router;
     }
 
     public function route($name, $parameters = [], $secure = null)
     {
-        $uri = $this->app['url']->route($name, $parameters, $secure);
-
-        // 5.7 fixes
-        $uri = str_replace('://:/', '://localhost/', $uri);
-
-        return $uri;
+        return $this->app['url']->route($name, $parameters, $secure);
     }
 }
