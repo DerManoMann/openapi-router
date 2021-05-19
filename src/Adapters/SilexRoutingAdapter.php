@@ -25,7 +25,7 @@ class SilexRoutingAdapter implements RoutingAdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function register(Operation $operation, string $controller, array $parameters, array $custom): void
     {
@@ -63,7 +63,7 @@ class SilexRoutingAdapter implements RoutingAdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function registerCached(): bool
     {

@@ -29,7 +29,7 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function register(Operation $operation, string $controller, array $parameters, array $custom): void
     {
@@ -79,7 +79,7 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function registerCached(): bool
     {

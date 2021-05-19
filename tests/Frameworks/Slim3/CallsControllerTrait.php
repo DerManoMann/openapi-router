@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Slim;
+namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Slim3;
 
 use Radebatz\OpenApi\Routing\Adapters\SlimRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
@@ -12,6 +12,13 @@ use Slim\Interfaces\RouterInterface;
 
 trait CallsControllerTrait
 {
+    protected function setUp(): void
+    {
+        if (!class_exists('\\Slim\\App') || version_compare(App::VERSION, '4.0.0', '>=')) {
+            $this->markTestSkipped('not installed.');
+        }
+    }
+
     protected function getRouter(?App $app = null): RouterInterface
     {
         $app = $app ?: $this->getApp();

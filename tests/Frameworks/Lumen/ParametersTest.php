@@ -2,10 +2,7 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Lumen;
 
-use Laravel\Lumen\Testing\TestCase;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
-class ParametersTest extends TestCase
+class ParametersTest extends LumenTestCase
 {
     use CallsApplicationTrait;
 
@@ -19,10 +16,6 @@ class ParametersTest extends TestCase
     /** @test */
     public function optionalParameter()
     {
-        if (false !== (strpos($this->createApplication()->version(), '5.7'))) {
-            $this->markTestSkipped();
-        }
-
         $this->get($this->route('oi', ['name' => 'joe']));
         $this->assertEquals(200, $this->response->getStatusCode());
         $this->assertEquals('Oi: joe', $this->response->getContent());
@@ -43,8 +36,8 @@ class ParametersTest extends TestCase
     /** @test */
     public function typedParameterFail()
     {
-        $this->expectException(NotFoundHttpException::class);
         $this->get($this->route('id', ['id' => 'x123']));
+        $this->assertEquals(404, $this->response->getStatusCode());
     }
 
     /** @test */
@@ -58,7 +51,7 @@ class ParametersTest extends TestCase
     /** @test */
     public function regexParameterFail()
     {
-        $this->expectException(NotFoundHttpException::class);
         $this->get($this->route('hid', ['hid' => 'za1b2c3']));
+        $this->assertEquals(404, $this->response->getStatusCode());
     }
 }

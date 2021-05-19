@@ -15,7 +15,7 @@ class NamedRouteController
      */
     public function getya()
     {
-        return 'Get ya';
+        return FakeResponse::create('Get ya');
     }
 
     /**
@@ -29,6 +29,6 @@ class NamedRouteController
      */
     public static function static_getya()
     {
-        return 'Get ya';
+        return FakeResponse::create('Static Get ya');
     }
 }

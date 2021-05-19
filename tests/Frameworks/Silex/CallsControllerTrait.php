@@ -9,6 +9,13 @@ use Symfony\Component\Routing\RouteCollection;
 
 trait CallsControllerTrait
 {
+    protected function setUp(): void
+    {
+        if (!class_exists('\\Silex\\Application')) {
+            $this->markTestSkipped('not installed.');
+        }
+    }
+
     protected function getRouter(?Application $app = null): RouteCollection
     {
         $app = $app ?: $this->getApp();

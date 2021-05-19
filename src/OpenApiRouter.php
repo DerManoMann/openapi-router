@@ -115,7 +115,7 @@ class OpenApiRouter
                         }
 
                         $middleware = [];
-                        $uses = array_flip(class_uses_recursive($operation));
+                        $uses = array_flip(class_uses($operation));
                         if (array_key_exists(MiddlewareProperty::class, $uses)) {
                             if (UNDEFINED !== $operation->middleware && is_array($operation->middleware)) {
                                 $middleware = $operation->middleware;

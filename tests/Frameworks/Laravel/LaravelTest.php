@@ -2,9 +2,7 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Laravel;
 
-use Illuminate\Foundation\Testing\TestCase;
-
-class LaravelTest extends TestCase
+class LaravelTest extends LaravelTestCase
 {
     use CallsApplicationTrait;
 

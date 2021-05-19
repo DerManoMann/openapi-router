@@ -21,6 +21,6 @@ class InvokeController
      */
     public function __invoke($name)
     {
-        return 'invoke';
+        return FakeResponse::create('invoke');
     }
 }
