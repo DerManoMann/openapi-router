@@ -21,9 +21,9 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
     public function __construct(App $app, array $options = [])
     {
         $this->app = $app;
-        $this->options = $options + [
-                self::OPTIONS_AUTO_REGEX => true,
-            ];
+        $this->options = array_merge([
+            static::OPTION_AUTO_REGEX => true,
+        ], $options);
     }
 
     /**
@@ -52,7 +52,7 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
                     break;
 
                 case 'integer':
-                    if ($this->options[self::OPTIONS_AUTO_REGEX]) {
+                    if ($this->options[static::OPTION_AUTO_REGEX]) {
                         $path = str_replace("{{$name}}", "{{$name}:[0-9]+}", $path);
                     }
                     break;

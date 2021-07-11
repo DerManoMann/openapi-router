@@ -22,10 +22,10 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
     public function __construct(Application $app, array $options = [])
     {
         $this->app = $app;
-        $this->options = $options + [
-                self::OPTIONS_AUTO_REGEX => true,
-                self::OPTIONS_NAMESPACE => 'App\\Http\\Controllers\\',
-            ];
+        $this->options = array_merge([
+            static::OPTION_AUTO_REGEX => true,
+            static::OPTION_NAMESPACE => 'App\\Http\\Controllers\\',
+        ], $options);
     }
 
     /**
@@ -35,7 +35,7 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
     {
         $path = $operation->path;
         $controller = str_replace('::__invoke', '', $controller);
-        if ($namespace = $this->options[self::OPTIONS_NAMESPACE]) {
+        if ($namespace = $this->options[self::OPTION_NAMESPACE]) {
             $controller = str_replace($namespace, '', $controller);
         }
 
@@ -58,7 +58,7 @@ class LumenRoutingAdapter implements RoutingAdapterInterface
                     break;
 
                 case 'integer':
-                    if ($this->options[self::OPTIONS_AUTO_REGEX]) {
+                    if ($this->options[self::OPTION_AUTO_REGEX]) {
                         $path = str_replace("{{$name}}", "{{$name}:[0-9]+}", $path);
                     }
                     break;

@@ -19,9 +19,9 @@ class SilexRoutingAdapter implements RoutingAdapterInterface
     public function __construct(Application $app, array $options = [])
     {
         $this->app = $app;
-        $this->options = $options + [
-                self::OPTIONS_AUTO_REGEX => true,
-            ];
+        $this->options = array_merge([
+            self::OPTION_AUTO_REGEX => true,
+        ], $options);
     }
 
     /**
@@ -50,7 +50,7 @@ class SilexRoutingAdapter implements RoutingAdapterInterface
                     break;
 
                 case 'integer':
-                    if ($this->options[self::OPTIONS_AUTO_REGEX]) {
+                    if ($this->options[self::OPTION_AUTO_REGEX]) {
                         $controller->assert($name, '[0-9]+');
                     }
                     break;
