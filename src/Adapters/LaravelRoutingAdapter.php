@@ -22,10 +22,10 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
     public function __construct(Application $app, array $options = [])
     {
         $this->app = $app;
-        $this->options = $options + [
-                self::OPTIONS_AUTO_REGEX => true,
-                self::OPTIONS_NAMESPACE => 'App\\Http\\Controllers\\',
-            ];
+        $this->options = array_merge([
+                static::OPTION_AUTO_REGEX => true,
+                static::OPTION_NAMESPACE => 'App\\Http\\Controllers\\',
+            ], $options);
     }
 
     /**
@@ -52,7 +52,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
                     break;
 
                 case 'integer':
-                    if ($this->options[self::OPTIONS_AUTO_REGEX]) {
+                    if ($this->options[static::OPTION_AUTO_REGEX]) {
                         $where[$name] = '[0-9]+';
                     }
                     break;
@@ -60,7 +60,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         }
 
         $controller = str_replace('::__invoke', '', $controller);
-        if ($namespace = $this->options[self::OPTIONS_NAMESPACE]) {
+        if ($namespace = $this->options[static::OPTION_NAMESPACE]) {
             $controller = str_replace($namespace, '', $controller);
         }
 

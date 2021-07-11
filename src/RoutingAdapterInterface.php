@@ -13,8 +13,8 @@ interface RoutingAdapterInterface
     public const X_NAME = 'name';
     public const X_MIDDLEWARE = 'middleware';
 
-    public const OPTIONS_NAMESPACE = 'namespace';
-    public const OPTIONS_AUTO_REGEX = 'autoregex';
+    public const OPTION_NAMESPACE = 'namespace';
+    public const OPTION_AUTO_REGEX = 'autoregex';
 
     /**
      * Register a route.

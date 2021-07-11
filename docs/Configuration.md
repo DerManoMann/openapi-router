@@ -61,7 +61,7 @@ Configuration keys are available as constants on the `RoutingAdapterInterface` i
 
 Right now these options are available:
 
-**`OPTIONS_AUTO_REGEX`**
+**`OPTION_AUTO_REGEX`**
 ---
 When enabled the adapter will automatically configure a `[0-9]+` regex for any path elements defined as integer. 
 
@@ -70,7 +70,7 @@ Available for:
 
    default: `true`
 
-**`OPTIONS_NAMESPACE`**
+**`OPTION_NAMESPACE`**
 ---
 Specifies a base namespace for all controllers. If set this will be removed from the controller classes passed into the
 framework router.
@@ -84,6 +84,7 @@ Available for:
    default: `'App\\Http\\Controllers\\'`
 
 ### Example use
+
 ```php
 
 use Radebatz\OpenApi\Routing\Adapters\LaravelRoutingAdapter;
@@ -97,8 +98,8 @@ use Symfony\Component\Cache\Simple\ArrayCache;
     ];
     
     $adapterOptions = [
-        RoutingAdapterInterface::OPTIONS_AUTO_REGEX => false,
-        RoutingAdapterInterface::OPTIONS_NAMESPACE => 'My\\App',
+        RoutingAdapterInterface::OPTION_AUTO_REGEX => false,
+        RoutingAdapterInterface::OPTION_NAMESPACE => 'My\\App',
     ];
     
     (new OpenApiRouter([__DIR__ . '/Fixtures/Laravel'], new LaravelRoutingAdapter($app, $adapterOptions), $options))
