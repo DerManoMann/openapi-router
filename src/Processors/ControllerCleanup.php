@@ -3,8 +3,8 @@
 namespace Radebatz\OpenApi\Routing\Processors;
 
 use OpenApi\Analysis;
+use OpenApi\Generator;
 use Radebatz\OpenApi\Routing\Annotations\Controller;
-use const OpenApi\Annotations\UNDEFINED;
 
 /**
  * Clean up controller annotations.
@@ -22,7 +22,7 @@ class ControllerCleanup
 
     protected function clearMerged(Analysis $analysis, $annotations)
     {
-        if (UNDEFINED === $annotations) {
+        if (Generator::UNDEFINED === $annotations) {
             return;
         }
 

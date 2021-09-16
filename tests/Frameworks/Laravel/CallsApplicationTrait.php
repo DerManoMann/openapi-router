@@ -36,6 +36,9 @@ trait CallsApplicationTrait
 
             (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LaravelRoutingAdapter($app)))
                 ->registerRoutes();
+            $openapi = (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LaravelRoutingAdapter($app)))
+                ->scan();
+            //file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
 
             $this->app = $app;
         }
@@ -50,7 +53,7 @@ trait CallsApplicationTrait
         return $app['router'];
     }
 
-    protected function route($name, $parameters = [], $absolute = true)
+    protected function route(string $name, $parameters = [], bool $absolute = true): string
     {
         return $this->createApplication()['url']->route($name, $parameters, $absolute);
     }

@@ -4,7 +4,7 @@ namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
 
 /**
  * @OAX\Controller(
- *     prefix="foo",
+ *     prefix="/foo",
  *     @OA\Response(response="403", description="Not allowed")
  * )
  */

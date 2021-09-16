@@ -5,7 +5,11 @@ namespace Radebatz\OpenApi\Routing\Annotations;
 /**
  * @Annotation
  */
-class Patch extends \OpenApi\Annotations\Patch
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+class Patch extends Operation
 {
-    use MiddlewareProperty;
+    /**
+     * @inheritdoc
+     */
+    public $method = 'patch';
 }

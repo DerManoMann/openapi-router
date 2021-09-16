@@ -5,7 +5,11 @@ namespace Radebatz\OpenApi\Routing\Annotations;
 /**
  * @Annotation
  */
-class Put extends \OpenApi\Annotations\Put
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+class Put extends Operation
 {
-    use MiddlewareProperty;
+    /**
+     * @inheritdoc
+     */
+    public $method = 'put';
 }

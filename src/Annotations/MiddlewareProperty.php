@@ -2,7 +2,7 @@
 
 namespace Radebatz\OpenApi\Routing\Annotations;
 
-use const OpenApi\Annotations\UNDEFINED;
+use OpenApi\Generator;
 
 trait MiddlewareProperty
 {
@@ -11,5 +11,5 @@ trait MiddlewareProperty
      *
      * @var array
      */
-    public $middleware = UNDEFINED;
+    public $middleware = Generator::UNDEFINED;
 }

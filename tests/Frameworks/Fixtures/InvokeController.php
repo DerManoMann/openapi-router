@@ -4,8 +4,8 @@ namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
 
 /**
  * @OAX\Controller(
- *     prefix="foo",
- *     @OA\Response(response="403", description="Not allowed")
+ *     prefix="/foo",
+ *     @OA\Response(response="401", description="Unauthorized")
  * )
  */
 class InvokeController

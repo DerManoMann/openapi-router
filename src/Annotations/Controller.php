@@ -3,12 +3,14 @@
 namespace Radebatz\OpenApi\Routing\Annotations;
 
 use OpenApi\Annotations\AbstractAnnotation;
-use const OpenApi\Annotations\UNDEFINED;
+use OpenApi\Annotations\Response;
+use OpenApi\Generator;
 
 /**
  * @Annotation
  */
-class Controller extends AbstractAnnotation
+#[\Attribute(\Attribute::TARGET_CLASS)]
+class AbstractController extends AbstractAnnotation
 {
     use MiddlewareProperty;
 
@@ -17,19 +19,54 @@ class Controller extends AbstractAnnotation
      *
      * @var string
      */
-    public $prefix = UNDEFINED;
+    public $prefix = Generator::UNDEFINED;
 
     /**
      * The list of possible responses as they are returned from executing this operation.
      *
      * @var \OpenApi\Annotations\Response[]
      */
-    public $responses = UNDEFINED;
+    public $responses = Generator::UNDEFINED;
 
     /**
      * @inheritdoc
      */
     public static $_nested = [
-        'OpenApi\Annotations\Response' => ['responses', 'response'],
+        Response::class => ['responses', 'response'],
     ];
+}
+
+if (\PHP_VERSION_ID >= 80100) {
+    /**
+     * @Annotation
+     */
+    #[\Attribute(\Attribute::TARGET_CLASS)]
+    class Controller extends AbstractController
+    {
+        public function __construct(
+            array $properties = [],
+            string $prefix = Generator::UNDEFINED,
+            $middleware = Generator::UNDEFINED,
+            $x = Generator::UNDEFINED,
+            $responses = Generator::UNDEFINED
+        ) {
+            parent::__construct($properties + [
+                    'prefix' => $prefix,
+                    'middleware' => $middleware,
+                    'x' => $x,
+                    'value' => $this->combine($responses),
+                ]);
+        }
+    }
+} else {
+    /**
+     * @Annotation
+     */
+    class Controller extends AbstractController
+    {
+        public function __construct(array $properties)
+        {
+            parent::__construct($properties);
+        }
+    }
 }

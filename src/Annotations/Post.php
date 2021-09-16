@@ -5,7 +5,11 @@ namespace Radebatz\OpenApi\Routing\Annotations;
 /**
  * @Annotation
  */
-class Post extends \OpenApi\Annotations\Post
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+class Post extends Operation
 {
-    use MiddlewareProperty;
+    /**
+     * @inheritdoc
+     */
+    public $method = 'post';
 }

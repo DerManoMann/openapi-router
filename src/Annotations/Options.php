@@ -5,7 +5,11 @@ namespace Radebatz\OpenApi\Routing\Annotations;
 /**
  * @Annotation
  */
-class Options extends \OpenApi\Annotations\Options
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+class Options extends Operation
 {
-    use MiddlewareProperty;
+    /**
+     * @inheritdoc
+     */
+    public $method = 'options';
 }

@@ -32,12 +32,6 @@ composer require radebatz/openapi-router
 ```
 After that all required classes should be availabe in your project to add routing support.
 
-**NOTE:** If you are using the included [extended OpenApi Annotations](src/Annotations) without composer autoloading
-you most likely need to run this line of code before generating OpenAPI documentation (swagger.json, etc.):
-```php
-\Radebatz\OpenApi\Routing\OpenApiRouter::register();
-```
-
 ## Basic usage
 
 Example using the `Slim` framework adapter and standard [OpenApi annotations](https://github.com/zircote/swagger-php/tree/master/src/Annotations) only.
