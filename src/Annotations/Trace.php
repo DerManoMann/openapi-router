@@ -5,7 +5,11 @@ namespace Radebatz\OpenApi\Routing\Annotations;
 /**
  * @Annotation
  */
-class Trace extends \OpenApi\Annotations\Trace
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+class Trace extends Operation
 {
-    use MiddlewareProperty;
+    /**
+     * @inheritdoc
+     */
+    public $method = 'trace';
 }

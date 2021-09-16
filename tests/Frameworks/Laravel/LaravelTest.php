@@ -25,11 +25,19 @@ class LaravelTest extends LaravelTestCase
     public function prefixed()
     {
         $response = $this->get($this->route('prefixed'));
-
         $response->assertStatus(200);
 
         $response = $this->get('foo/prefixed');
+        $response->assertStatus(200);
+    }
 
+    /**
+     * @test
+     * @requires PHP 8.1
+     */
+    public function attributesPrefixed()
+    {
+        $response = $this->get('attributes/prefixed');
         $response->assertStatus(200);
     }
 }

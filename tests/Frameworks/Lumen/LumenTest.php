@@ -18,4 +18,24 @@ class LumenTest extends LumenTestCase
         $this->get('/foo/invoke/joe');
         $this->assertEquals(200, $this->response->getStatusCode());
     }
+
+    /** @test */
+    public function prefixed()
+    {
+        $response = $this->get($this->route('prefixed'));
+        $this->assertEquals(200, $this->response->getStatusCode());
+
+        $response = $this->get('foo/prefixed');
+        $this->assertEquals(200, $this->response->getStatusCode());
+    }
+
+    /**
+     * @test
+     * @requires PHP 8.1
+     */
+    public function attributesPrefixed()
+    {
+        $response = $this->get('attributes/prefixed');
+        $this->assertEquals(200, $this->response->getStatusCode());
+    }
 }
