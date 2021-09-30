@@ -17,8 +17,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
-        env:
-          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: ramsey/composer-install@v1
         with:

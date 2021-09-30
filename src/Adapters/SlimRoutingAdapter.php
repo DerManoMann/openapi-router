@@ -33,6 +33,8 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
     {
         $path = $operation->path;
 
+        $controller = str_replace('::', ':', $controller);
+
         /** @var Parameter $parameter */
         foreach ($parameters as $name => $parameter) {
             if (!$parameter['required']) {
