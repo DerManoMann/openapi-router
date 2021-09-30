@@ -6,11 +6,13 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.operating-system }}
+    env:
+      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
     strategy:
       fail-fast: true
       matrix:
         operating-system: [ ubuntu-latest ]
-        php: [ '7.2', '7.3', '7.4', '8.0' ]
+        php: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
         lumen: [ '7.0', '8.0' ]
         dependencies: [ 'lowest', 'highest' ]
         exclude:
@@ -19,6 +21,11 @@ jobs:
           - php: '7.2'
             lumen: '8.0'
           - php: '8.0'
+            lumen: '8.0'
+            dependencies: 'lowest'
+          - php: '8.1'
+            lumen: '7.0'
+          - php: '8.1'
             lumen: '8.0'
             dependencies: 'lowest'
 
@@ -39,10 +46,12 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: pcov
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install framework deps
         run: |
-          composer require --dev laravel/lumen "^${{ matrix.lumen }}"
+          composer require --dev laravel/lumen "^${{ matrix.lumen }}" -W
 
       - name: Composer install
         uses: ramsey/composer-install@v1
