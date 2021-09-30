@@ -60,8 +60,9 @@ jobs:
 
       - name: Code coverage upload to Coveralls
         if: matrix.php == '8.0' && matrix.dependencies == 'highest' && matrix.laravel == '8.0'
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           composer require php-coveralls/php-coveralls -W
           vendor/bin/php-coveralls -v --coverage_clover=build/logs/clover.xml
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.name }}

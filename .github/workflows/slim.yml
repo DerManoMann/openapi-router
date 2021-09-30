@@ -38,8 +38,6 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: pcov
-        env:
-          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install framework deps
         run: |

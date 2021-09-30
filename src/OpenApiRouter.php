@@ -194,12 +194,17 @@ class OpenApiRouter
 
     public function scan(): OpenApi
     {
+        $generator = $this->generator();
         // provide default @OA\Info in case we need to do some scanning
-        $analysis = $this->options[self::OPTION_OA_INFO_INJECT]
-            ? new Analysis([new Info(['title' => 'Test', 'version' => '1.0'])], new Context())
-            : null;
+        $analysis = $generator->withContext(function (Generator $generator, Analysis $analysis, Context $context) {
+            if ($this->options[self::OPTION_OA_INFO_INJECT]) {
+                $analysis->addAnnotation(new Info(['title' => 'Test', 'version' => '1.0']), $context);
+            }
 
-        return $this->generator()
+            return $analysis;
+        });
+
+        return $generator
             ->setAnalyser(new ReflectionAnalyser([new DocBlockAnnotationFactory(), new AttributeAnnotationFactory()]))
             ->generate($this->sources, $analysis);
     }
@@ -229,7 +234,7 @@ class OpenApiRouter
         $routingNamespace = 'Radebatz\\OpenApi\\Routing\\Annotations';
         $generator = (new Generator())
             ->addNamespace($routingNamespace . '\\')
-            ->setAliases(['oax' => $routingNamespace])
+            ->addAlias('oax', $routingNamespace)
             ->addProcessor(new ControllerCleanup());
 
         $processors = $generator->getProcessors();

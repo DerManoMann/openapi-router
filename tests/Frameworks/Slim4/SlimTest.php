@@ -22,4 +22,23 @@ class SlimTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('Static Get ya', $response->getBody());
     }
+
+    /** @test */
+    public function prefixed()
+    {
+        $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('prefixed'));
+
+        $response = $this->call('/foo/prefixed');
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     * @requires PHP 8.1
+     */
+    public function attributesPrefixed()
+    {
+        $response = $this->call('attributes/prefixed');
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }
