@@ -38,7 +38,7 @@ The example showcases the two vendor extensions that the router supports:
   [Middleware](https://www.php-fig.org/psr/psr-15/) is a concept that only some frameworks support. In those cases
   one or more middleware can be attached to a route as shown above.
   
-  Middleware binding is supported by all adapters except the `SilexRoutingAdapter`
+  Middleware binding is supported by all adapters.
 
 As an alternative to using the x-name property it is also possible to use the standard `operationId` property to configure
 a route name.
