@@ -10,7 +10,6 @@ following frameworks:
 * [Laravel](https://github.com/laravel/laravel)
 * [Lumen](https://github.com/laravel/lumen)
 * [Slim](https://github.com/slimphp/Slim)
-* [Silex](https://github.com/silexphp/Silex) (Deprecated)
 
 
 ## Requirements
