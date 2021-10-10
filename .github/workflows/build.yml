@@ -1,0 +1,13 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  call-laravel:
+    uses: DerManoMann/openapi-router/.github/workflows/laravel.yml@master
+  call-lumen:
+    uses: DerManoMann/openapi-router/.github/workflows/lumen.yml@master
+  call-slim:
+    uses: DerManoMann/openapi-router/.github/workflows/slim.yml@master
