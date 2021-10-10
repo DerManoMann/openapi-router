@@ -1,8 +1,7 @@
-name: Lumen
+name: lumen
 
 on:
-  push:
-  pull_request:
+  workflow_call:
 
 jobs:
   test:
