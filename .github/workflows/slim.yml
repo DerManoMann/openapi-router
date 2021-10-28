@@ -8,11 +8,12 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     env:
       COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
+      COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
         operating-system: [ ubuntu-latest ]
-        php: [ '7.2', '7.3', '7.4', '8.0', '8.1 ]
+        php: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
         slim: [ '4.0' ]
         dependencies: [ 'lowest', 'highest' ]
         exclude:
