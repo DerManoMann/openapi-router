@@ -2,11 +2,18 @@ name: security-checks
 
 on:
   push:
+    branches:
+      - master
   pull_request:
+    branches:
+      - master
 
 jobs:
   security-checker:
     runs-on: ${{ matrix.operating-system }}
+    env:
+      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
+      COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: true
       matrix:
