@@ -2,6 +2,8 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Laravel;
 
+use Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\AMiddleware;
+
 class LaravelTest extends LaravelTestCase
 {
     use CallsApplicationTrait;
@@ -39,5 +41,17 @@ class LaravelTest extends LaravelTestCase
     {
         $response = $this->get('attributes/prefixed');
         $response->assertStatus(200);
+    }
+
+    /**
+     * @test
+     * @requires PHP 8.1
+     */
+    public function attributesMiddleware()
+    {
+        $route = $this->getRouter()->getRoutes()->getByName('attributes');
+
+        $this->assertNotNull($route);
+        $this->assertEquals([AMiddleware::class], $route->gatherMiddleware());
     }
 }

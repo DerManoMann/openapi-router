@@ -6,11 +6,11 @@ use OpenApi\Annotations as OA;
 use Radebatz\OpenApi\Routing\Annotations as OAX;
 
 if (\PHP_VERSION_ID >= 80100) {
-    #[OAX\Controller(prefix: '/attributes')]
+    #[OAX\Controller(prefix: '/attributes', middleware: [AMiddleware::class])]
     #[OA\Response(response: 403, description: 'Not allowed')]
     class AttributeController
     {
-        #[OA\Get(path: '/prefixed', x: ['name' => 'prefixed'])]
+        #[OA\Get(path: '/prefixed', x: ['name' => 'attributes'])]
         #[OA\Response(response: 200, description: 'All good')]
         public function prefixed()
         {
