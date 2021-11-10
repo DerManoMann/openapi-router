@@ -5,6 +5,7 @@ namespace Radebatz\OpenApi\Routing\Processors;
 use OpenApi\Analysis;
 use OpenApi\Annotations\Operation;
 use OpenApi\Generator;
+use Radebatz\OpenApi\Routing\Annotations\Middleware;
 use Radebatz\OpenApi\Routing\Annotations\MiddlewareProperty;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 
@@ -33,9 +34,10 @@ class VendorPropertyValidation
 
     public function __invoke(Analysis $analysis)
     {
-        $allOperations = $analysis->getAnnotationsOfType(Operation::class);
+        /** @var Operation[] $operations */
+        $operations = $analysis->getAnnotationsOfType(Operation::class);
         /** @var Operation $operation */
-        foreach ($allOperations as $operation) {
+        foreach ($operations as $operation) {
             if (Generator::UNDEFINED !== $operation->operationId) {
                 $this->validateUniqueName($operation->operationId);
             }
@@ -44,6 +46,13 @@ class VendorPropertyValidation
             if (array_key_exists(MiddlewareProperty::class, $uses)) {
                 if (Generator::UNDEFINED !== $operation->middleware) {
                     $this->validateVendorProperty(RoutingAdapterInterface::X_MIDDLEWARE, $operation->middleware);
+                }
+            }
+            if (Generator::UNDEFINED !== $operation->attachables) {
+                foreach ($operation->attachables as $attachable) {
+                    if ($attachable instanceof Middleware) {
+                        $this->validateVendorProperty(RoutingAdapterInterface::X_MIDDLEWARE, $attachable->names);
+                    }
                 }
             }
 

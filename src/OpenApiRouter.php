@@ -16,6 +16,7 @@ use OpenApi\Generator;
 use OpenApi\Processors\BuildPaths;
 use Psr\SimpleCache\CacheInterface;
 use Radebatz\OpenApi\Routing\Annotations as OAX;
+use Radebatz\OpenApi\Routing\Annotations\Middleware;
 use Radebatz\OpenApi\Routing\Annotations\MiddlewareProperty;
 use Radebatz\OpenApi\Routing\Processors\ControllerCleanup;
 use Radebatz\OpenApi\Routing\Processors\MergeController;
@@ -93,18 +94,17 @@ class OpenApiRouter
                     /** @var Operation $operation */
                     $operation = $pathItem->{$method};
 
-                    if (Generator::UNDEFINED !== $operation->parameters) {
-                        foreach ($operation->parameters as $parameter) {
-                            if ('path' == $parameter->in) {
-                                $parameters[] = $parameter;
+                    if ($operation) {
+                        if (Generator::UNDEFINED !== $operation->parameters) {
+                            foreach ($operation->parameters as $parameter) {
+                                if ('path' == $parameter->in) {
+                                    $parameters[] = $parameter;
+                                }
                             }
                         }
-                    }
 
-                    if ($operation) {
                         $controller = null;
                         $context = $operation->_context;
-                        // as per \OpenApi\Processors\OperationId
                         if ($context && $context->method) {
                             if ($context->class) {
                                 if ($context->namespace) {
@@ -121,9 +121,17 @@ class OpenApiRouter
                         $uses = array_flip(class_uses($operation));
                         if (array_key_exists(MiddlewareProperty::class, $uses)) {
                             if (Generator::UNDEFINED !== $operation->middleware && is_array($operation->middleware)) {
-                                $middleware = $operation->middleware;
+                                $middleware = array_merge($middleware, $operation->middleware);
                             }
                         }
+                        if (Generator::UNDEFINED !== $operation->attachables) {
+                            foreach ($operation->attachables as $attachable) {
+                                if ($attachable instanceof Middleware) {
+                                    $middleware = array_merge($middleware, $attachable->names);
+                                }
+                            }
+                        }
+                        $middleware = array_unique($middleware);
 
                         $custom = [
                             RoutingAdapterInterface::X_NAME => $this->options[self::OPTION_OA_OPERATION_ID_AS_NAME] ? $operation->operationId : null,

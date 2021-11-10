@@ -8,6 +8,7 @@ use OpenApi\Annotations\Operation;
 use OpenApi\Context;
 use OpenApi\Generator;
 use Radebatz\OpenApi\Routing\Annotations\Controller;
+use Radebatz\OpenApi\Routing\Annotations\Middleware;
 use Radebatz\OpenApi\Routing\Annotations\MiddlewareProperty;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 
@@ -33,11 +34,21 @@ class MergeController
                             $operation->path = str_replace('//', '/', $path);
                         }
 
-                        if (Generator::UNDEFINED !== $controller->middleware) {
+                        if (Generator::UNDEFINED !== $controller->middleware || Generator::UNDEFINED !== $controller->attachables) {
+                            $middleware = Generator::UNDEFINED !== $controller->middleware ? $controller->middleware : [];
+                            if (Generator::UNDEFINED !== $controller->attachables) {
+                                foreach ($controller->attachables as $attachable) {
+                                    if ($attachable instanceof Middleware) {
+                                        $middleware = array_merge($middleware, $controller->names);
+                                    }
+                                }
+                            }
+                            $middleware = array_unique($middleware);
+
                             $uses = array_flip(class_uses($operation));
                             if (array_key_exists(MiddlewareProperty::class, $uses)) {
                                 $operation->middleware = Generator::UNDEFINED !== $operation->middleware ? $operation->middleware : [];
-                                $operation->middleware = array_merge($operation->middleware, $controller->middleware);
+                                $operation->middleware = array_merge($operation->middleware, $middleware);
                             } else {
                                 // add as X property
                                 $operation->x = Generator::UNDEFINED !== $operation->x ? $operation->x : [];
@@ -46,7 +57,7 @@ class MergeController
                                         ? $operation->x[RoutingAdapterInterface::X_MIDDLEWARE]
                                         : [];
                                 $operation->x[RoutingAdapterInterface::X_MIDDLEWARE] =
-                                    array_merge($operation->x[RoutingAdapterInterface::X_MIDDLEWARE], $controller->middleware);
+                                    array_merge($operation->x[RoutingAdapterInterface::X_MIDDLEWARE], $middleware);
                             }
                         }
 
