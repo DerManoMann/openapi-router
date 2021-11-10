@@ -15,11 +15,6 @@ abstract class Operation extends \OpenApi\Annotations\Operation
     /**
      * @inheritdoc
      */
-    public $method = 'options';
-
-    /**
-     * @inheritdoc
-     */
     public static $_parents = [
         PathItem::class,
     ];

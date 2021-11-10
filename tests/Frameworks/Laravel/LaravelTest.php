@@ -3,6 +3,7 @@
 namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Laravel;
 
 use Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\AMiddleware;
+use Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\BMiddleware;
 
 class LaravelTest extends LaravelTestCase
 {
@@ -52,6 +53,6 @@ class LaravelTest extends LaravelTestCase
         $route = $this->getRouter()->getRoutes()->getByName('attributes');
 
         $this->assertNotNull($route);
-        $this->assertEquals([AMiddleware::class], $route->gatherMiddleware());
+        $this->assertEquals([BMiddleware::class, AMiddleware::class], $route->gatherMiddleware());
     }
 }

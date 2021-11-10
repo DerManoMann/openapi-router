@@ -43,7 +43,7 @@ The example showcases the two vendor extensions that the router supports:
 As an alternative to using the x-name property it is also possible to use the standard `operationId` property to configure
 a route name.
 
-**NOTE:** It s worth noticing that by default this property is set to `[Controller class]::[method name]` by the swagger-php
+**NOTE:** It is worth noticing that by default this property is set to `[Controller class]::[method name]` by the swagger-php
 library. If you do not wish to use `operationId` it is recommended to disable using it as name value for route binding
 (see the global `OPTION_OA_OPERATION_ID_AS_NAME` config option)
 
@@ -99,5 +99,27 @@ class UserController extends Controller
     public static function delete($request, $response, $id)
     {
         // delete user
+    }
+```
+
+## Attributes
+As of PHP 8.1 swagger-php and openapi-router also allow to use PHP attributes instead of docblock annotations.
+Names and features are the same with one exception - for middleware there is a new attribute `Middleware` which avoid having to
+use the included customized swagger-php operation annotations.
+
+Here is an example taken from the test suite:
+```php
+
+use Radebatz\OpenApi\Routing\Annotations as OAX;
+
+    class AttributeController
+    {
+        #[OA\Get(path: '/prefixed', x: ['name' => 'attributes'])]
+        #[OA\Response(response: 200, description: 'All good')]
+        #[OAX\Middleware([BMiddleware::class])]
+        public function prefixed()
+        {
+            return FakeResponse::create('Get fooya');
+        }
     }
 ```
