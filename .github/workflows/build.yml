@@ -10,8 +10,8 @@ on:
 
 jobs:
   call-laravel:
-    uses: DerManoMann/openapi-router/.github/workflows/laravel.yml@master
+    uses: DerManoMann/openapi-router/.github/workflows/laravel.yml@php81-attributes
   call-lumen:
-    uses: DerManoMann/openapi-router/.github/workflows/lumen.yml@master
+    uses: DerManoMann/openapi-router/.github/workflows/lumen.yml@php81-attributes
   call-slim:
-    uses: DerManoMann/openapi-router/.github/workflows/slim.yml@master
+    uses: DerManoMann/openapi-router/.github/workflows/slim.yml@php81-attributes
