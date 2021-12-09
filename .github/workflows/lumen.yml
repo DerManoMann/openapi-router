@@ -7,13 +7,15 @@ jobs:
   test:
     runs-on: ${{ matrix.operating-system }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         operating-system: [ ubuntu-latest ]
         php: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
         lumen: [ '7.0', '8.0' ]
         dependencies: [ 'lowest', 'highest' ]
         exclude:
+          - php: '8.1'
+            lumen: '7.0'
           - php: '8.0'
             lumen: '7.0'
           - php: '7.2'
