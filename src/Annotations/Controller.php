@@ -3,6 +3,7 @@
 namespace Radebatz\OpenApi\Routing\Annotations;
 
 use OpenApi\Annotations\AbstractAnnotation;
+use OpenApi\Annotations\Attachable;
 use OpenApi\Annotations\Response;
 use OpenApi\Generator;
 
@@ -33,6 +34,7 @@ class AbstractController extends AbstractAnnotation
      */
     public static $_nested = [
         Response::class => ['responses', 'response'],
+        Attachable::class => ['attachables'],
     ];
 }
 

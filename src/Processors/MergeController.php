@@ -39,7 +39,7 @@ class MergeController
                             if (Generator::UNDEFINED !== $controller->attachables) {
                                 foreach ($controller->attachables as $attachable) {
                                     if ($attachable instanceof Middleware) {
-                                        $middleware = array_merge($middleware, $controller->names);
+                                        $middleware = array_merge($middleware, $attachable->names);
                                     }
                                 }
                             }
