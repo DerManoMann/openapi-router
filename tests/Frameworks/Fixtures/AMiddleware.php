@@ -6,6 +6,11 @@ use Closure;
 
 class AMiddleware
 {
+    public function __invoke($request, $next)
+    {
+        return $next->handle($request);
+    }
+
     public function handle($request, Closure $next)
     {
         return $next($request);

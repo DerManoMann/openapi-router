@@ -2,12 +2,6 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
 
-use Closure;
-
-class CMiddleware
+class CMiddleware extends AMiddleware
 {
-    public function handle($request, Closure $next)
-    {
-        return $next($request);
-    }
 }
