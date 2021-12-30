@@ -2,13 +2,13 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
 
-use OpenApi\Annotations as OA;
-use Radebatz\OpenApi\Routing\Annotations as OAX;
+use OpenApi\Attributes as OA;
+use Radebatz\OpenApi\Routing\Attributes as OAX;
 
 if (\PHP_VERSION_ID >= 80100) {
-    #[OAX\Controller(prefix: '/attributes', middleware: [AMiddleware::class])]
+    #[OAX\Controller(prefix: '/attributes')]
     #[OA\Response(response: 403, description: 'Not allowed')]
-    #[OAX\Middleware([CMiddleware::class])]
+    #[OAX\Middleware([AMiddleware::class])]
     class AttributeController
     {
         #[OA\Get(path: '/prefixed', x: ['name' => 'attributes'])]

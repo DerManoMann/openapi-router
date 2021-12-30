@@ -22,7 +22,7 @@ class ControllerCleanup
 
     protected function clearMerged(Analysis $analysis, $annotations)
     {
-        if (Generator::UNDEFINED === $annotations) {
+        if (Generator::isDefault($annotations)) {
             return;
         }
 

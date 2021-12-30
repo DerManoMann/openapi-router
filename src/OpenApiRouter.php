@@ -95,7 +95,7 @@ class OpenApiRouter
                     $operation = $pathItem->{$method};
 
                     if ($operation) {
-                        if (Generator::UNDEFINED !== $operation->parameters) {
+                        if (!Generator::isDefault($operation->parameters)) {
                             foreach ($operation->parameters as $parameter) {
                                 if ('path' == $parameter->in) {
                                     $parameters[] = $parameter;
@@ -120,11 +120,11 @@ class OpenApiRouter
                         $middleware = [];
                         $uses = array_flip(class_uses($operation));
                         if (array_key_exists(MiddlewareProperty::class, $uses)) {
-                            if (Generator::UNDEFINED !== $operation->middleware && is_array($operation->middleware)) {
+                            if (!Generator::isDefault($operation->middleware) && is_array($operation->middleware)) {
                                 $middleware = array_merge($middleware, $operation->middleware);
                             }
                         }
-                        if (Generator::UNDEFINED !== $operation->attachables) {
+                        if (!Generator::isDefault($operation->attachables)) {
                             foreach ($operation->attachables as $attachable) {
                                 if ($attachable instanceof Middleware) {
                                     $middleware = array_merge($middleware, $attachable->names);
@@ -137,7 +137,7 @@ class OpenApiRouter
                             RoutingAdapterInterface::X_NAME => $this->options[self::OPTION_OA_OPERATION_ID_AS_NAME] ? $operation->operationId : null,
                             RoutingAdapterInterface::X_MIDDLEWARE => $middleware,
                         ];
-                        if (Generator::UNDEFINED !== $operation->x) {
+                        if (!Generator::isDefault($operation->x)) {
                             foreach (array_keys($custom) as $xKey) {
                                 if (array_key_exists($xKey, $operation->x)) {
                                     if (is_array($custom[$xKey])) {
@@ -175,17 +175,17 @@ class OpenApiRouter
             $name = $parameter->name;
 
             $metadata[$name] = [
-                'required' => Generator::UNDEFINED !== $parameter->required ? $parameter->required : false,
+                'required' => !Generator::isDefault($parameter->required) ? $parameter->required : false,
                 'type' => null,
                 'pattern' => null,
             ];
 
-            if (Generator::UNDEFINED !== $parameter->schema) {
+            if (!Generator::isDefault($parameter->schema)) {
                 $schema = $parameter->schema;
                 switch ($schema->type) {
                     case 'string':
                         $metadata[$name]['type'] = $schema->type;
-                        if (Generator::UNDEFINED !== ($pattern = $schema->pattern)) {
+                        if (!Generator::isDefault($pattern = $schema->pattern)) {
                             $metadata[$name]['type'] = 'regex';
                             $metadata[$name]['pattern'] = $schema->pattern;
                         }
