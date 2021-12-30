@@ -42,7 +42,7 @@
         "php": ">=7.2",
         "doctrine/annotations": "^1.7",
         "psr/simple-cache": "^1.0 || ^2.0",
-        "zircote/swagger-php": "^4.0.2"
+        "zircote/swagger-php": "^4.2.3"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.17 || ^3.0",

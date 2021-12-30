@@ -1,14 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Annotations;
+namespace Radebatz\OpenApi\Routing\Attributes;
 
-use OpenApi\Annotations\Attachable;
 use OpenApi\Annotations\Operation;
+use OpenApi\Attributes\Attachable;
 use OpenApi\Generator;
 
-/**
- * @Annotation
- */
+#[\Attribute(\Attribute::TARGET_ALL | \Attribute::IS_REPEATABLE)]
 class Middleware extends Attachable
 {
     /**

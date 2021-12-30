@@ -36,11 +36,9 @@ trait CallsApplicationTrait
 
             (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LaravelRoutingAdapter($app)))
                 ->registerRoutes();
-            if (false) {
-                $openapi = (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LaravelRoutingAdapter($app)))
-                    ->scan();
-                file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
-            }
+            $openapi = (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LaravelRoutingAdapter($app)))
+                ->scan();
+            file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
 
             $this->app = $app;
         }

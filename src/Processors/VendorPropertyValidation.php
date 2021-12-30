@@ -38,17 +38,17 @@ class VendorPropertyValidation
         $operations = $analysis->getAnnotationsOfType(Operation::class);
         /** @var Operation $operation */
         foreach ($operations as $operation) {
-            if (Generator::UNDEFINED !== $operation->operationId) {
+            if (!Generator::isDefault($operation->operationId)) {
                 $this->validateUniqueName($operation->operationId);
             }
 
             $uses = array_flip(class_uses_recursive($operation));
             if (array_key_exists(MiddlewareProperty::class, $uses)) {
-                if (Generator::UNDEFINED !== $operation->middleware) {
+                if (!Generator::isDefault($operation->middleware)) {
                     $this->validateVendorProperty(RoutingAdapterInterface::X_MIDDLEWARE, $operation->middleware);
                 }
             }
-            if (Generator::UNDEFINED !== $operation->attachables) {
+            if (!Generator::isDefault($operation->attachables)) {
                 foreach ($operation->attachables as $attachable) {
                     if ($attachable instanceof Middleware) {
                         $this->validateVendorProperty(RoutingAdapterInterface::X_MIDDLEWARE, $attachable->names);
@@ -56,7 +56,7 @@ class VendorPropertyValidation
                 }
             }
 
-            if (Generator::UNDEFINED !== $operation->x) {
+            if (!Generator::isDefault($operation->x)) {
                 if (array_key_exists(RoutingAdapterInterface::X_NAME, $operation->x)) {
                     $this->validateUniqueName($operation->x[RoutingAdapterInterface::X_NAME]);
                 }

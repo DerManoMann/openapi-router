@@ -33,6 +33,9 @@ trait CallsApplicationTrait
 
         (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LumenRoutingAdapter($app), $options))
             ->registerRoutes();
+        $openapi = (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LumenRoutingAdapter($app), $options))
+            ->scan();
+        file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
 
         return $app;
     }

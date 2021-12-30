@@ -32,6 +32,9 @@ trait CallsControllerTrait
 
         (new OpenApiRouter([__DIR__ . '/../Fixtures'], new SlimRoutingAdapter($app)))
             ->registerRoutes();
+        $openapi = (new OpenApiRouter([__DIR__ . '/../Fixtures'], new SlimRoutingAdapter($app)))
+            ->scan();
+        file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
 
         return $app;
     }
