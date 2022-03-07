@@ -2,8 +2,8 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Laravel;
 
-use Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\AMiddleware;
-use Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\BMiddleware;
+use Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\BarMiddleware;
+use Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\FooMiddleware;
 
 class LaravelTest extends LaravelTestCase
 {
@@ -41,6 +41,7 @@ class LaravelTest extends LaravelTestCase
     public function attributesPrefixed()
     {
         $response = $this->get('attributes/prefixed');
+        echo $response->getContent();
         $response->assertStatus(200);
     }
 
@@ -53,6 +54,6 @@ class LaravelTest extends LaravelTestCase
         $route = $this->getRouter()->getRoutes()->getByName('attributes');
 
         $this->assertNotNull($route);
-        $this->assertEquals([AMiddleware::class, BMiddleware::class], $route->gatherMiddleware());
+        $this->assertEquals([FooMiddleware::class, BarMiddleware::class], $route->gatherMiddleware());
     }
 }

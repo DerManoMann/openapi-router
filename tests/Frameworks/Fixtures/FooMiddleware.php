@@ -4,8 +4,8 @@ namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
 
 class FooMiddleware
 {
-    public function __invoke($request, $response, $next)
+    public function __invoke($request, $handlerOrResponse = null, $next = null)
     {
-        return $next($request, $response);
+        return FakeResponse::create('invoke');
     }
 }

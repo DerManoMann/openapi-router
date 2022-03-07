@@ -32,6 +32,15 @@ class SlimTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    /** @test */
+    public function middleware()
+    {
+        $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('mw'));
+
+        $response = $this->call('/mw');
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
     /**
      * @test
      * @requires PHP 8.1
