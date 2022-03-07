@@ -22,10 +22,17 @@ class LumenTest extends LumenTestCase
     /** @test */
     public function prefixed()
     {
-        $response = $this->get($this->route('prefixed'));
+        $this->get($this->route('prefixed'));
         $this->assertEquals(200, $this->response->getStatusCode());
 
-        $response = $this->get('foo/prefixed');
+        $this->get('foo/prefixed');
+        $this->assertEquals(200, $this->response->getStatusCode());
+    }
+
+    /** @test */
+    public function middleware()
+    {
+        $this->get($this->route('mw'));
         $this->assertEquals(200, $this->response->getStatusCode());
     }
 
@@ -35,7 +42,7 @@ class LumenTest extends LumenTestCase
      */
     public function attributesPrefixed()
     {
-        $response = $this->get('attributes/prefixed');
+        $this->get('attributes/prefixed');
         $this->assertEquals(200, $this->response->getStatusCode());
     }
 }

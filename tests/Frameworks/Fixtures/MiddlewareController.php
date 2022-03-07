@@ -14,7 +14,7 @@ class MiddlewareController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function mw($request, $response)
+    public function mw($request = null, $response = null)
     {
         return FakeResponse::create('MW!', $response);
     }
