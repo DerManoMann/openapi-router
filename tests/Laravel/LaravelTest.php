@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Laravel;
+namespace Radebatz\OpenApi\Routing\Tests\Laravel;
 
-use Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\BarMiddleware;
-use Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\FooMiddleware;
+use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\BarMiddleware;
+use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\FooMiddleware;
 
 class LaravelTest extends LaravelTestCase
 {

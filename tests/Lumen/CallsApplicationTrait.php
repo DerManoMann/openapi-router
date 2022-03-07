@@ -1,14 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Lumen;
+namespace Radebatz\OpenApi\Routing\Tests\Lumen;
 
 use Laravel\Lumen\Application;
 use Laravel\Lumen\Routing\Router;
 use Radebatz\OpenApi\Routing\Adapters\LumenRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
+use Radebatz\OpenApi\Routing\Tests\Concerns\Fixtures;
+use function app;
 
 trait CallsApplicationTrait
 {
+    use Fixtures;
+
     protected function setUp(): void
     {
         if (!class_exists('\\Laravel\\Lumen\\Application')) {
@@ -31,9 +35,9 @@ trait CallsApplicationTrait
             OpenApiRouter::OPTION_OA_OPERATION_ID_AS_NAME => true,
         ];
 
-        (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LumenRoutingAdapter($app), $options))
+        (new OpenApiRouter($this->getFixtureFinder(), new LumenRoutingAdapter($app), $options))
             ->registerRoutes();
-        $openapi = (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LumenRoutingAdapter($app), $options))
+        $openapi = (new OpenApiRouter($this->getFixtureFinder(), new LumenRoutingAdapter($app), $options))
             ->scan();
         file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
 

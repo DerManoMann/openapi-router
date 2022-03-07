@@ -1,17 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Slim4;
+namespace Radebatz\OpenApi\Routing\Tests\Slim4;
 
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Message\ResponseInterface;
 use Radebatz\OpenApi\Routing\Adapters\SlimRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
+use Radebatz\OpenApi\Routing\Tests\Concerns\Fixtures;
 use Slim\App;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouteCollectorInterface;
 
 trait CallsControllerTrait
 {
+    use Fixtures;
+
     protected function setUp(): void
     {
         if (!class_exists('\\Slim\\App') || version_compare(App::VERSION, '4.0.0', '<')) {
@@ -30,9 +33,9 @@ trait CallsControllerTrait
     {
         $app = AppFactory::create();
 
-        (new OpenApiRouter([__DIR__ . '/../Fixtures'], new SlimRoutingAdapter($app)))
+        (new OpenApiRouter($this->getFixtureFinder(), new SlimRoutingAdapter($app)))
             ->registerRoutes();
-        $openapi = (new OpenApiRouter([__DIR__ . '/../Fixtures'], new SlimRoutingAdapter($app)))
+        $openapi = (new OpenApiRouter($this->getFixtureFinder(), new SlimRoutingAdapter($app)))
             ->scan();
         file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
 

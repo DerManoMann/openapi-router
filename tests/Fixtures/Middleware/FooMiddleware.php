@@ -1,6 +1,8 @@
 <?php
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
+namespace Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware;
+
+use Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers\FakeResponse;
 
 class FooMiddleware
 {

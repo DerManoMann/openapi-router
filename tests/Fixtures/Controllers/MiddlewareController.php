@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
+namespace Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers;
 
 class MiddlewareController
 {
@@ -9,7 +9,7 @@ class MiddlewareController
      *     path="/mw",
      *     x={
      *       "name": "mw",
-     *       "middleware"={"Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\FooMiddleware", "Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures\BarMiddleware"}
+     *       "middleware"={"Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\FooMiddleware", "Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\BarMiddleware"}
      *     },
      *     @OA\Response(response="200", description="All good")
      * )

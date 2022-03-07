@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Laravel;
+namespace Radebatz\OpenApi\Routing\Tests\Laravel;
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Application;
@@ -8,9 +8,12 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Facade;
 use Radebatz\OpenApi\Routing\Adapters\LaravelRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
+use Radebatz\OpenApi\Routing\Tests\Concerns\Fixtures;
 
 trait CallsApplicationTrait
 {
+    use Fixtures;
+
     protected $app = null;
 
     protected function setUp(): void
@@ -26,7 +29,7 @@ trait CallsApplicationTrait
     public function createApplication()
     {
         if (!$this->app) {
-            $app = require __DIR__ . '/../../../vendor/laravel/laravel/bootstrap/app.php';
+            $app = require __DIR__ . '/../../vendor/laravel/laravel/bootstrap/app.php';
             $app->make(Kernel::class)->bootstrap();
             $app['config']->set([
                 'app.environment' => 'local',
@@ -34,9 +37,9 @@ trait CallsApplicationTrait
             ]);
             Facade::setFacadeApplication($app);
 
-            (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LaravelRoutingAdapter($app)))
+            (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app)))
                 ->registerRoutes();
-            $openapi = (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LaravelRoutingAdapter($app)))
+            $openapi = (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app)))
                 ->scan();
             file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
 

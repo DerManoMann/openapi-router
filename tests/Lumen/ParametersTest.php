@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Lumen;
+namespace Radebatz\OpenApi\Routing\Tests\Lumen;
 
 class ParametersTest extends LumenTestCase
 {

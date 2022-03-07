@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Laravel;
+namespace Radebatz\OpenApi\Routing\Tests\Laravel;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Lumen;
+namespace Radebatz\OpenApi\Routing\Tests\Lumen;
 
 if (class_exists('\\Laravel\\Lumen\\Testing\\TestCase')) {
     abstract class LumenTestCase extends \Laravel\Lumen\Testing\TestCase
