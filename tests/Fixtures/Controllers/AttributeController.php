@@ -1,9 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
+namespace Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers;
 
 use OpenApi\Attributes as OA;
 use Radebatz\OpenApi\Routing\Attributes as OAX;
+use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\BarMiddleware;
+use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\FooMiddleware;
 
 if (\PHP_VERSION_ID >= 80100) {
     #[OAX\Controller(prefix: '/attributes')]

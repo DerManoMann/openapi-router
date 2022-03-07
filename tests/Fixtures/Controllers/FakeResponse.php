@@ -1,6 +1,6 @@
 <?php
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
+namespace Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers;
 
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Slim\Factory\AppFactory;

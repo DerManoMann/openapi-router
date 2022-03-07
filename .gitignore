@@ -4,5 +4,5 @@
 .phpunit.result.cache
 composer.lock
 vendor/
-/storage/
-tests/Frameworks/*/openapi.yaml
+tests/storage/
+tests/*/openapi.yaml

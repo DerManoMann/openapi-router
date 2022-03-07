@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Laravel;
+namespace Radebatz\OpenApi\Routing\Tests\Laravel;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Router;
@@ -35,7 +35,7 @@ class CachingTest extends LaravelTestCase
             OpenApiRouter::OPTION_CACHE => $cache,
         ];
 
-        (new OpenApiRouter([__DIR__ . '/../Fixtures'], new LaravelRoutingAdapter($app = $this->getApp()), $options))
+        (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app = $this->getApp()), $options))
             ->registerRoutes();
 
         /** @var Router $router */

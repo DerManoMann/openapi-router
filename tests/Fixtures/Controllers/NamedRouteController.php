@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Frameworks\Fixtures;
+namespace Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers;
 
 class NamedRouteController
 {
