@@ -50,7 +50,7 @@
         "nyholm/psr7-server": "^1.0",
         "phpunit/phpunit": ">=8.0",
         "symfony/cache": "^5.0 || ^6.0",
-        "symfony/psr-http-message-bridge": "^2.1"
+        "symfony/psr-http-message-bridge": "^7.1"
     },
     "suggest": {
         "radebatz/openapi-verifier": "Allows your PHPUnit tests to validate your controller response against the OpenAPI annotations."
