@@ -1,7 +1,7 @@
 # Annotation Extensions
 
 ## Default Annotations
-By default the router expects only standard [OpenApi annotations](https://github.com/zircote/swagger-php/tree/master/src/Annotations).
+By default the router expects only standard [OpenApi annotations](https://github.com/zircote/swagger-php/tree/main/src/Annotations).
 
 Theses annotations have only limited build in support for advanced routing features. If you feel like
 sticking to those the only way to add more options is to use the

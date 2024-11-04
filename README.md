@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Introduction
-Allows to (re-)use [Swagger-PHP](https://github.com/zircote/swagger-php) annotations to configure routes in the
+Allows to (re-)use [Swagger-PHP](https://github.com/zircote/swagger-php) attributes to configure routes in the
 following frameworks:
 * [Laravel](https://github.com/laravel/laravel)
 * [Lumen](https://github.com/laravel/lumen)
@@ -13,7 +13,7 @@ following frameworks:
 
 
 ## Requirements
-* [PHP 7.2 or higher](http://www.php.net/) - depending on framework version.
+* [PHP 7.4 or higher](http://www.php.net/) - depending on framework version.
 
 ## Installation
 
@@ -34,7 +34,7 @@ After that all required classes should be availabe in your project to add routin
 
 ## Basic usage
 
-Example using the `Slim` framework adapter and standard [OpenApi annotations](https://github.com/zircote/swagger-php/tree/master/src/Annotations) only.
+Example using the `Slim` framework adapter and standard [OpenApi annotations](https://github.com/zircote/swagger-php/tree/main/src/Annotations) only.
 
 **index.php**
 ```php
@@ -58,6 +58,8 @@ $app->run();
 <?php
 
 namespace MyApp\Controllers;
+
+use OpenApi\Annotations as OA;
 
 class GetController
 {

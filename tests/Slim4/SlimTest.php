@@ -43,6 +43,7 @@ class SlimTest extends TestCase
 
     /**
      * @test
+     *
      * @requires PHP 8.1
      */
     public function attributesPrefixed()
