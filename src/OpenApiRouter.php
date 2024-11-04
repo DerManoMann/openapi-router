@@ -10,16 +10,12 @@ use OpenApi\Annotations\Info;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
-use OpenApi\Annotations\PathItem;
 use OpenApi\Context;
 use OpenApi\Generator;
 use OpenApi\Processors\BuildPaths;
 use Psr\SimpleCache\CacheInterface;
-use Radebatz\OpenApi\Routing\Annotations as OAX;
-use Radebatz\OpenApi\Routing\Annotations\Middleware;
-use Radebatz\OpenApi\Routing\Annotations\MiddlewareProperty;
-use Radebatz\OpenApi\Routing\Processors\ControllerCleanup;
-use Radebatz\OpenApi\Routing\Processors\MergeController;
+use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
+use Radebatz\OpenApi\Extras\Annotations\Middleware;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -118,12 +114,6 @@ class OpenApiRouter
                         }
 
                         $middleware = [];
-                        $uses = array_flip(class_uses($operation));
-                        if (array_key_exists(MiddlewareProperty::class, $uses)) {
-                            if (!Generator::isDefault($operation->middleware) && is_array($operation->middleware)) {
-                                $middleware = array_merge($middleware, $operation->middleware);
-                            }
-                        }
                         if (!Generator::isDefault($operation->attachables)) {
                             foreach ($operation->attachables as $attachable) {
                                 if ($attachable instanceof Middleware) {
@@ -187,7 +177,7 @@ class OpenApiRouter
                         $metadata[$name]['type'] = $schema->type;
                         if (!Generator::isDefault($pattern = $schema->pattern)) {
                             $metadata[$name]['type'] = 'regex';
-                            $metadata[$name]['pattern'] = $schema->pattern;
+                            $metadata[$name]['pattern'] = $pattern;
                         }
                         break;
                     case 'integer':
@@ -217,47 +207,12 @@ class OpenApiRouter
             ->generate($this->sources, $analysis);
     }
 
-    /**
-     * Set up Generator.
-     *
-     * Registers our custom annotations under the `oax` namespace alias.
-     */
     public function generator(): Generator
     {
-        $operations = [
-            OAX\Get::class => 'get',
-            OAX\Post::class => 'post',
-            OAX\Put::class => 'put',
-            OAX\Patch::class => 'patch',
-            OAX\Delete::class => 'delete',
-            OAX\Options::class => 'options',
-            OAX\Head::class => 'head',
-            OAX\Trace::class => 'trace',
-        ];
-        foreach ($operations as $class => $operation) {
-            PathItem::$_nested[$class] = $operation;
-            $class::$_blacklist[] = 'middleware';
-        }
-
-        $routingNamespace = 'Radebatz\\OpenApi\\Routing\\Annotations';
-        $generator = (new Generator())
-            ->addNamespace($routingNamespace . '\\')
-            ->addAlias('oax', $routingNamespace)
-            ->addProcessor(new ControllerCleanup());
-
-        $processors = $generator->getProcessors();
-        $insertMergeController = function (array $processors) {
-            $tmp = [];
-            foreach ($processors as $processor) {
-                if (get_class($processor) == BuildPaths::class) {
-                    $tmp[] = new MergeController();
-                }
-                $tmp[] = $processor;
-            }
-
-            return $tmp;
-        };
-        $generator->setProcessors($insertMergeController($processors));
+        $generator = new Generator();
+        $generator
+            ->getProcessorPipeline()
+            ->insert(new MergeControllerDefaults(), BuildPaths::class);
 
         return $generator;
     }

@@ -2,6 +2,8 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers;
 
+use OpenApi\Annotations as OA;
+
 class MiddlewareController
 {
     /**
@@ -11,6 +13,7 @@ class MiddlewareController
      *       "name": "mw",
      *       "middleware"={"Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\FooMiddleware", "Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\BarMiddleware"}
      *     },
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */

@@ -2,6 +2,8 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers;
 
+use OpenApi\Annotations as OA;
+
 class NamedRouteController
 {
     /**
@@ -10,6 +12,7 @@ class NamedRouteController
      *     x={
      *       "name": "getya"
      *     },
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */
@@ -24,6 +27,7 @@ class NamedRouteController
      *     x={
      *       "name": "static_getya"
      *     },
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */

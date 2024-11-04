@@ -38,6 +38,7 @@ class LumenTest extends LumenTestCase
 
     /**
      * @test
+     *
      * @requires PHP 8.1
      */
     public function attributesPrefixed()

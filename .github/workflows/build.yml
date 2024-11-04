@@ -3,15 +3,15 @@ name: build
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   call-laravel:
-    uses: DerManoMann/openapi-router/.github/workflows/laravel.yml@master
+    uses: ./.github/workflows/laravel.yml@main
   call-lumen:
-    uses: DerManoMann/openapi-router/.github/workflows/lumen.yml@master
+    uses: ./.github/workflows/lumen.yml@main
   call-slim:
-    uses: DerManoMann/openapi-router/.github/workflows/slim.yml@master
+    uses: ./.github/workflows/slim.yml@main
