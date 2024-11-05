@@ -13,7 +13,7 @@ following frameworks:
 
 
 ## Requirements
-* [PHP 8.1 or higher](http://www.php.net/) - depending on framework version.
+* [PHP 8.1       or higher](http://www.php.net/) - depending on framework version.
 
 ## Installation
 

@@ -2,9 +2,6 @@
 
 namespace Radebatz\OpenApi\Routing;
 
-use OpenApi\Analysers\AttributeAnnotationFactory;
-use OpenApi\Analysers\DocBlockAnnotationFactory;
-use OpenApi\Analysers\ReflectionAnalyser;
 use OpenApi\Analysis;
 use OpenApi\Annotations\Info;
 use OpenApi\Annotations\OpenApi;
@@ -12,9 +9,9 @@ use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use OpenApi\Context;
 use OpenApi\Generator;
-use OpenApi\Processors\BuildPaths;
+use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
-use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
+use Radebatz\OpenApi\Extras\OpenApiBuilder;
 use Radebatz\OpenApi\Extras\Annotations\Middleware;
 use Symfony\Component\Finder\Finder;
 
@@ -49,7 +46,7 @@ class OpenApiRouter
         $this->options = $options + [
                 self::OPTION_RELOAD => true,
                 self::OPTION_CACHE => null,
-                self::OPTION_OA_INFO_INJECT => true,
+                self::OPTION_OA_INFO_INJECT => false,
                 self::OPTION_OA_OPERATION_ID_AS_NAME => true,
             ];
     }
@@ -190,30 +187,20 @@ class OpenApiRouter
         return $metadata;
     }
 
-    public function scan(): OpenApi
+    public function scan(?LoggerInterface $logger = null): OpenApi
     {
-        $generator = $this->generator();
+        $generator = (new OpenApiBuilder())->build($logger);
+
         // provide default @OA\Info in case we need to do some scanning
         $analysis = $generator->withContext(function (Generator $generator, Analysis $analysis, Context $context) {
             if ($this->options[self::OPTION_OA_INFO_INJECT]) {
-                $analysis->addAnnotation(new Info(['title' => 'Test', 'version' => '1.0']), $context);
+                $analysis->addAnnotation(new Info(['title' => 'OpenApi', 'version' => '1.0']), $context);
             }
 
             return $analysis;
         });
 
         return $generator
-            ->setAnalyser(new ReflectionAnalyser([new DocBlockAnnotationFactory(), new AttributeAnnotationFactory()]))
             ->generate($this->sources, $analysis);
-    }
-
-    public function generator(): Generator
-    {
-        $generator = new Generator();
-        $generator
-            ->getProcessorPipeline()
-            ->insert(new MergeControllerDefaults(), BuildPaths::class);
-
-        return $generator;
     }
 }

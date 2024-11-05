@@ -15,7 +15,7 @@ class CachingTest extends LaravelTestCase
 {
     use CallsApplicationTrait;
 
-    public function reloadTests()
+    public static function reloadTests(): iterable
     {
         return [
             [null, true, false],
