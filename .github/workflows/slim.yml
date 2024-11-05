@@ -2,6 +2,10 @@ name: slim
 
 on:
   workflow_call:
+    inputs:
+      php-versions:
+        required: true
+        type: string
 
 jobs:
   test:
@@ -10,15 +14,12 @@ jobs:
       COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
       COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         operating-system: [ ubuntu-latest ]
-        php: [ '8.0', '8.1' ]
+        php: ${{ fromJson(format('[{0}]', inputs.php-versions)) }}
         slim: [ '4.0' ]
         dependencies: [ 'lowest', 'highest' ]
-        exclude:
-          - php: '8.1'
-            dependencies: 'lowest'
 
     name: PHP ${{ matrix.php }} / Slim ${{ matrix.slim }} on ${{ matrix.operating-system }} with ${{ matrix.dependencies }} dependencies
 
