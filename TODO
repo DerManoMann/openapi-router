@@ -1,4 +1,0 @@
-* Add support for:
-  * scheme
-  * parameter requirements (regex, etc)
-* Wrap as service provider / middleware?
