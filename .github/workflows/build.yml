@@ -10,8 +10,14 @@ on:
 
 jobs:
   call-laravel:
-    uses: ./.github/workflows/laravel.yml@main
+    uses: ./.github/workflows/laravel.yml
+    with:
+      php-versions: '8.1,8.2,8.3,8.4'
   call-lumen:
-    uses: ./.github/workflows/lumen.yml@main
+    uses: ./.github/workflows/lumen.yml
+    with:
+      php-versions: '8.1,8.2,8.3,8.4'
   call-slim:
-    uses: ./.github/workflows/slim.yml@main
+    uses: ./.github/workflows/slim.yml
+    with:
+      php-versions: '8.1,8.2,8.3,8.4'
