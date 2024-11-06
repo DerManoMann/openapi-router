@@ -33,9 +33,12 @@ trait CallsControllerTrait
     {
         $app = AppFactory::create();
 
-        (new OpenApiRouter($this->getFixtureFinder(), new SlimRoutingAdapter($app)))
+        $options = [
+            OpenApiRouter::OPTION_OA_INFO_INJECT => true,
+        ];
+        (new OpenApiRouter($this->getFixtureFinder(), new SlimRoutingAdapter($app), $options))
             ->registerRoutes();
-        $openapi = (new OpenApiRouter($this->getFixtureFinder(), new SlimRoutingAdapter($app)))
+        $openapi = (new OpenApiRouter($this->getFixtureFinder(), new SlimRoutingAdapter($app), $options))
             ->scan();
         file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
 
