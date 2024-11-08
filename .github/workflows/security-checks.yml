@@ -3,28 +3,25 @@ name: security-checks
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   security-checker:
     runs-on: ${{ matrix.operating-system }}
-    env:
-      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
-      COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: true
       matrix:
         operating-system: [ ubuntu-latest ]
-        php: [ '8.0', '8.1' ]
+        php: [ '8.1', '8.2', '8.3', '8.4' ]
         dependencies: [ 'highest' ]
 
     name: PHP ${{ matrix.php }} on ${{ matrix.operating-system }} with ${{ matrix.dependencies }} dependencies
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         name: Checkout repository
 
       - name: Setup PHP
@@ -33,15 +30,15 @@ jobs:
           php-version: ${{ matrix.php }}
 
       - name: Composer install
-        uses: ramsey/composer-install@v1
+        uses: ramsey/composer-install@v3
         with:
           dependency-versions: ${{ matrix.dependencies }}
           composer-options: ${{ matrix.composer-options }} --no-dev
 
       - name: Cache security checker dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.symfony/cache
           key: security-checker-db
 
-      - uses: symfonycorp/security-checker-action@v2
+      - uses: symfonycorp/security-checker-action@v5

@@ -2,6 +2,8 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers;
 
+use OpenApi\Annotations as OA;
+
 class ParametersController
 {
     /**
@@ -10,15 +12,18 @@ class ParametersController
      *     x={
      *       "name": "hey"
      *     },
+     *
      *     @OA\Parameter(
      *         name="name",
      *         in="path",
      *         required=true,
      *         description="The name",
+     *
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */
@@ -33,15 +38,18 @@ class ParametersController
      *     x={
      *       "name": "oi"
      *     },
+     *
      *     @OA\Parameter(
      *         name="name",
      *         in="path",
      *         required=false,
      *         description="The name",
+     *
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */
@@ -56,16 +64,19 @@ class ParametersController
      *     x={
      *       "name": "id"
      *     },
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         required=true,
      *         description="The id",
+     *
      *         @OA\Schema(
      *             type="integer",
      *             format="int32"
      *         )
      *     ),
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */
@@ -80,16 +91,19 @@ class ParametersController
      *     x={
      *       "name": "hid"
      *     },
+     *
      *     @OA\Parameter(
      *         name="hid",
      *         in="path",
      *         required=true,
      *         description="The hid",
+     *
      *         @OA\Schema(
      *             type="string",
      *             pattern="[0-9a-f]+"
      *         )
      *     ),
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */
@@ -104,24 +118,29 @@ class ParametersController
      *     x={
      *       "name": "multi"
      *     },
+     *
      *     @OA\Parameter(
      *         name="foo",
      *         in="path",
      *         required=false,
      *         description="The foo",
+     *
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
+     *
      *     @OA\Parameter(
      *         name="bar",
      *         in="path",
      *         required=false,
      *         description="The bar",
+     *
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */

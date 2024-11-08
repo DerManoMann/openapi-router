@@ -5,15 +5,16 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Introduction
-Allows to (re-)use [Swagger-PHP](https://github.com/zircote/swagger-php) annotations to configure routes in the
-following frameworks:
+Allows to (re-)use [Swagger-PHP](https://github.com/zircote/swagger-php) attributes (docblock annotations are deprecated),
+to configure routes in the following frameworks:
+
 * [Laravel](https://github.com/laravel/laravel)
 * [Lumen](https://github.com/laravel/lumen)
 * [Slim](https://github.com/slimphp/Slim)
 
 
 ## Requirements
-* [PHP 7.2 or higher](http://www.php.net/) - depending on framework version.
+* [PHP 8.1 or higher](http://www.php.net/) - depending on framework version.
 
 ## Installation
 
@@ -34,7 +35,30 @@ After that all required classes should be availabe in your project to add routin
 
 ## Basic usage
 
-Example using the `Slim` framework adapter and standard [OpenApi annotations](https://github.com/zircote/swagger-php/tree/master/src/Annotations) only.
+Example using the `Slim` framework adapter and standard [OpenApi attributes](https://zircote.github.io/swagger-php/guide/attributes) only.
+
+**Controller**
+```php
+<?php
+
+namespace MyApp\Controllers\V1;
+
+use OpenApi\Attributes as OA;
+use Radebatz\OpenApi\Extras\Attributes as OAX;
+
+/* Things shared by all endpoints in this controller.*/
+#[OAX\Controller(prefix: '/api/v1')]
+#[OA\Response(response: 200, description: 'OK')]
+#[OAX\Middleware(names: ['auth', 'admin'])]
+class GetController
+{
+    #[OA\Get(path: '/getme', operationId: 'getme')]
+    #[OA\Response(response: 400, description: 'Not good enough')]
+    public function getme($request, $response) {
+        return $response->write('Get me');
+    }
+}
+```
 
 **index.php**
 ```php
@@ -53,33 +77,8 @@ $app = new App();
 $app->run();
 ```
 
-**Controller**
-```php
-<?php
-
-namespace MyApp\Controllers;
-
-class GetController
-{
-
-    /**
-     * @OA\Get(
-     *     path="/getme",
-     *     x={
-     *       "name": "getme"
-     *     },
-     *     @OA\Response(response="200", description="All good")
-     * )
-     */
-    public function getme($request, $response) {
-        return $response->write('Get me');
-    }
-}
-```
-
 ## Documentation
 * [Configuration](docs/Configuration.md)
-* [Annotation extensions](docs/AnnotationExtensions.md)
 
 ## License
 

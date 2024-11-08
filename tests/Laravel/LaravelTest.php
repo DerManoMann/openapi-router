@@ -36,6 +36,7 @@ class LaravelTest extends LaravelTestCase
 
     /**
      * @test
+     *
      * @requires PHP 8.1
      */
     public function attributesPrefixed()
@@ -47,6 +48,7 @@ class LaravelTest extends LaravelTestCase
 
     /**
      * @test
+     *
      * @requires PHP 8.1
      */
     public function attributesMiddleware()
@@ -54,6 +56,6 @@ class LaravelTest extends LaravelTestCase
         $route = $this->getRouter()->getRoutes()->getByName('attributes');
 
         $this->assertNotNull($route);
-        $this->assertEquals([FooMiddleware::class, BarMiddleware::class], $route->gatherMiddleware());
+        $this->assertEquals([BarMiddleware::class, FooMiddleware::class], $route->gatherMiddleware());
     }
 }

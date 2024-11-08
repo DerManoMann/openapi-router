@@ -2,6 +2,10 @@ name: lumen
 
 on:
   workflow_call:
+    inputs:
+      php-versions:
+        required: true
+        type: string
 
 jobs:
   test:
@@ -13,27 +17,14 @@ jobs:
       fail-fast: true
       matrix:
         operating-system: [ ubuntu-latest ]
-        php: [ '7.2', '7.3', '7.4', '8.0', '8.1' ]
-        lumen: [ '8.0', '9.0' ]
+        php: ${{ fromJson(format('[{0}]', inputs.php-versions)) }}
+        lumen: [ '10.0' ]
         dependencies: [ 'highest' ]
-        exclude:
-          - php: '7.2'
-            lumen: '9.0'
-          - php: '7.2'
-            lumen: '8.0'
-          - php: '7.3'
-            lumen: '9.0'
-          - php: '7.4'
-            lumen: '9.0'
-          - php: '8.1'
-            lumen: '8.0'
-          - php: '8.1'
-            dependencies: 'lowest'
 
     name: PHP ${{ matrix.php }} / Lumen ${{ matrix.lumen }} on ${{ matrix.operating-system }} with ${{ matrix.dependencies }} dependencies
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         name: Checkout repository
 
       - name: Setup PHP
