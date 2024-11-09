@@ -10,7 +10,7 @@ class NamedRouteController
      * @OA\Get(
      *     path="/getya",
      *     x={
-     *       "name": "getya"
+     *         "name": "getya"
      *     },
      *
      *     @OA\Response(response="200", description="All good")

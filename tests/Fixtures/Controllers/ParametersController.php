@@ -10,7 +10,7 @@ class ParametersController
      * @OA\Get(
      *     path="/hey/{name}",
      *     x={
-     *       "name": "hey"
+     *         "name": "hey"
      *     },
      *
      *     @OA\Parameter(
@@ -36,7 +36,7 @@ class ParametersController
      * @OA\Get(
      *     path="/oi/{name}",
      *     x={
-     *       "name": "oi"
+     *         "name": "oi"
      *     },
      *
      *     @OA\Parameter(
@@ -62,7 +62,7 @@ class ParametersController
      * @OA\Get(
      *     path="/id/{id}",
      *     x={
-     *       "name": "id"
+     *         "name": "id"
      *     },
      *
      *     @OA\Parameter(
@@ -89,7 +89,7 @@ class ParametersController
      * @OA\Get(
      *     path="/hid/{hid}",
      *     x={
-     *       "name": "hid"
+     *         "name": "hid"
      *     },
      *
      *     @OA\Parameter(
@@ -116,7 +116,7 @@ class ParametersController
      * @OA\Get(
      *     path="/multi/{foo}/{bar}",
      *     x={
-     *       "name": "multi"
+     *         "name": "multi"
      *     },
      *
      *     @OA\Parameter(

@@ -10,8 +10,8 @@ class MiddlewareController
      * @OA\Get(
      *     path="/mw",
      *     x={
-     *       "name": "mw",
-     *       "middleware"={"Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\FooMiddleware", "Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\BarMiddleware"}
+     *         "name": "mw",
+     *         "middleware": {"Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\FooMiddleware", "Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\BarMiddleware"}
      *     },
      *
      *     @OA\Response(response="200", description="All good")
