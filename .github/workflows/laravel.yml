@@ -54,7 +54,7 @@ jobs:
           vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml
 
       - name: Code coverage upload to Coveralls
-        if: matrix.php == '8.0' && matrix.dependencies == 'highest' && matrix.laravel == '8.0'
+        if: matrix.php == '8.3' && matrix.dependencies == 'highest' && matrix.laravel == '11.0'
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
