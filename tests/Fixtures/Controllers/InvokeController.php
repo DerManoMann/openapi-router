@@ -2,6 +2,7 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers;
 
+use OpenApi\Annotations as OA;
 use Radebatz\OpenApi\Extras\Annotations as OAX;
 
 /**
@@ -17,7 +18,7 @@ class InvokeController
      * @OA\Get(
      *     path="/invoke/{name}",
      *     x={
-     *       "name": "invoke"
+     *         "name": "invoke"
      *     },
      *
      *     @OA\Response(response="200", description="All good")
