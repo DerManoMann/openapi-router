@@ -3,10 +3,7 @@
 namespace Radebatz\OpenApi\Routing;
 
 use OpenApi\Analysis;
-use OpenApi\Annotations\Info;
-use OpenApi\Annotations\OpenApi;
-use OpenApi\Annotations\Operation;
-use OpenApi\Annotations\Parameter;
+use OpenApi\Annotations as OA;
 use OpenApi\Context;
 use OpenApi\Generator;
 use Psr\Log\LoggerInterface;
@@ -27,9 +24,9 @@ class OpenApiRouter
 
     public const CACHE_KEY_OPENAPI = 'openapi-router.openapi';
 
-    protected $sources = [];
-    protected $openapi = null;
-    protected $routingAdapter;
+    protected string|array|Finder $sources;
+    protected ?OA\OpenApi $openapi;
+    protected RoutingAdapterInterface $routingAdapter;
     protected $options = [];
 
     /**
@@ -51,7 +48,7 @@ class OpenApiRouter
             ];
     }
 
-    public function registerRoutes(): ?OpenApi
+    public function registerRoutes(): ?OA\OpenApi
     {
         if (!$this->options[self::OPTION_RELOAD] && $this->routingAdapter->registerCached()) {
             return null;
@@ -73,18 +70,18 @@ class OpenApiRouter
         return $openapi;
     }
 
-    protected function registerOpenApi(OpenApi $openapi)
+    protected function registerOpenApi(OA\OpenApi $openapi)
     {
         $methods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
 
         foreach ($openapi->paths as $pathItem) {
             foreach ($methods as $method) {
                 $operation = null;
-                /** @var Parameter[] $parameters */
+                /** @var OA\Parameter[] $parameters */
                 $parameters = [];
 
                 if (Generator::UNDEFINED !== $pathItem->{$method}) {
-                    /** @var Operation $operation */
+                    /** @var OA\Operation $operation */
                     $operation = $pathItem->{$method};
 
                     if ($operation) {
@@ -127,11 +124,7 @@ class OpenApiRouter
                         if (!Generator::isDefault($operation->x)) {
                             foreach (array_keys($custom) as $xKey) {
                                 if (array_key_exists($xKey, $operation->x)) {
-                                    if (is_array($custom[$xKey])) {
-                                        $custom[$xKey] = array_merge($custom[$xKey], $operation->x[$xKey]);
-                                    } else {
-                                        $custom[$xKey] = $operation->x[$xKey];
-                                    }
+                                    $custom[$xKey] = is_array($custom[$xKey]) ? array_merge($custom[$xKey], $operation->x[$xKey]) : $operation->x[$xKey];
                                 }
                             }
                         }
@@ -151,18 +144,17 @@ class OpenApiRouter
     /**
      * Extract (uri) parameter meta data.
      *
-     * @param Parameter[] $parameters
+     * @param OA\Parameter[] $parameters
      */
-    protected function parameterMetadata($parameters): array
+    protected function parameterMetadata(array $parameters): array
     {
         $metadata = [];
 
-        /** @var Parameter $parameter */
         foreach ($parameters as $parameter) {
             $name = $parameter->name;
 
             $metadata[$name] = [
-                'required' => !Generator::isDefault($parameter->required) ? $parameter->required : false,
+                'required' => !Generator::isDefault($parameter->required) && $parameter->required,
                 'type' => null,
                 'pattern' => null,
             ];
@@ -187,14 +179,14 @@ class OpenApiRouter
         return $metadata;
     }
 
-    public function scan(?LoggerInterface $logger = null): OpenApi
+    public function scan(?LoggerInterface $logger = null): OA\OpenApi
     {
         $generator = (new OpenApiBuilder())->build($logger);
 
         // provide default @OA\Info in case we need to do some scanning
         $analysis = $generator->withContext(function (Generator $generator, Analysis $analysis, Context $context) {
             if ($this->options[self::OPTION_OA_INFO_INJECT]) {
-                $analysis->addAnnotation(new Info(['title' => 'OpenApi', 'version' => '1.0']), $context);
+                $analysis->addAnnotation(new OA\Info(['title' => 'OpenApi', 'version' => '1.0']), $context);
             }
 
             return $analysis;

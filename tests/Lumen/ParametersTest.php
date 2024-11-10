@@ -4,6 +4,7 @@ namespace Radebatz\OpenApi\Routing\Tests\Lumen;
 
 class ParametersTest extends LumenTestCase
 {
+    public $response;
     use CallsApplicationTrait;
 
     /** @test */

@@ -14,7 +14,7 @@ use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 class VendorPropertyValidation
 {
     protected $names = [];
-    protected $uniqueNames = true;
+    protected bool $uniqueNames;
     protected $callback;
 
     /**

@@ -2,8 +2,7 @@
 
 namespace Radebatz\OpenApi\Routing\Adapters;
 
-use OpenApi\Annotations\Operation;
-use OpenApi\Annotations\Parameter;
+use OpenApi\Annotations as OA;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 use Slim\App;
 
@@ -12,11 +11,8 @@ use Slim\App;
  */
 class SlimRoutingAdapter implements RoutingAdapterInterface
 {
-    /** @var App */
-    protected $app;
-
-    /** @var array */
-    protected $options = [];
+    protected App $app;
+    protected array $options;
 
     public function __construct(App $app, array $options = [])
     {
@@ -29,13 +25,13 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
     /**
      * @inheritdoc
      */
-    public function register(Operation $operation, string $controller, array $parameters, array $custom): void
+    public function register(OA\Operation $operation, string $controller, array $parameters, array $custom): void
     {
         $path = $operation->path;
 
         $controller = str_replace('::', ':', $controller);
 
-        /** @var Parameter $parameter */
+        /** @var OA\Parameter $parameter */
         foreach ($parameters as $name => $parameter) {
             if (!$parameter['required']) {
                 if (false !== strpos($path, $needle = "/{{$name}}[/{")) {
