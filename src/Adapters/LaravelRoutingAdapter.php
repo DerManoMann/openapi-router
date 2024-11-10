@@ -13,11 +13,8 @@ use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
  */
 class LaravelRoutingAdapter implements RoutingAdapterInterface
 {
-    /** @var Application */
-    protected $app;
-
-    /** @var array */
-    protected $options = [];
+    protected Application $app;
+    protected array $options;
 
     public function __construct(Application $app, array $options = [])
     {
