@@ -35,10 +35,8 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         $where = [];
         /** @var Parameter $parameter */
         foreach ($parameters as $name => $parameter) {
-            if (!$parameter['required']) {
-                if (false !== strpos($path, $needle = "/{{$name}}")) {
-                    $path = str_replace("/{{$name}}", "/{{$name}?}", $path);
-                }
+            if (!$parameter['required'] && false !== strpos($path, $needle = "/{{$name}}")) {
+                $path = str_replace($needle, "/{{$name}?}", $path);
             }
 
             switch ($parameter['type']) {
