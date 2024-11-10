@@ -14,7 +14,7 @@ trait CallsApplicationTrait
 {
     use Fixtures;
 
-    protected $app = null;
+    protected $app;
 
     protected function setUp(): void
     {

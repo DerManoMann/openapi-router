@@ -14,7 +14,7 @@
     "prefer-stable": true,
     "scripts": {
         "cs": "php-cs-fixer fix --allow-risky=yes",
-        "rector": "rector process src test",
+        "rector": "rector process src tests",
         "lint": [
             "@cs --dry-run",
             "@rector --dry-run"

@@ -9,4 +9,4 @@ return RectorConfig::configure()
         TypedPropertyFromStrictConstructorRector::class
     ])
     ->withPreparedSets(true, true)
-    ->withPhpVersion(PhpVersion::PHP_74);
+    ->withPhpVersion(PhpVersion::PHP_81);

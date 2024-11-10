@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Routing\Tests\Slim4;
+namespace Radebatz\OpenApi\Routing\Tests\Slim;
 
 use PHPUnit\Framework\TestCase;
 

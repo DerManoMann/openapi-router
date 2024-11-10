@@ -43,7 +43,7 @@ class CachingTest extends LaravelTestCase
         $router = $app['router'];
         $this->assertNotNull($router->getRoutes()->getByName('getya'));
 
-        $this->assertEquals($openapisCached, $cache ? $cache->has(OpenApiRouter::CACHE_KEY_OPENAPI) : false);
+        $this->assertEquals($openapisCached, $cache && $cache->has(OpenApiRouter::CACHE_KEY_OPENAPI));
     }
 
     protected function getApp(): Application
