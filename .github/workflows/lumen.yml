@@ -18,7 +18,7 @@ jobs:
       matrix:
         operating-system: [ ubuntu-latest ]
         php: ${{ fromJson(format('[{0}]', inputs.php-versions)) }}
-        lumen: [ '10.0' ]
+        lumen: [ '10.0', '11.0' ]
         dependencies: [ 'highest' ]
 
     name: PHP ${{ matrix.php }} / Lumen ${{ matrix.lumen }} on ${{ matrix.operating-system }} with ${{ matrix.dependencies }} dependencies
