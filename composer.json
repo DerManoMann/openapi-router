@@ -61,5 +61,8 @@
     },
     "suggest": {
         "radebatz/openapi-verifier": "Allows your PHPUnit tests to validate your controller response against your OpenAPI spec."
+    },
+    "conflict": {
+        "zircote/swagger-php": "5.3.0"
     }
 }
