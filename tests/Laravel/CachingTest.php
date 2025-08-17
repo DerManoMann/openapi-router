@@ -18,17 +18,17 @@ class CachingTest extends LaravelTestCase
     public static function reloadTests(): iterable
     {
         return [
-            [null, true, false],
-            [null, false, false],
-            [new Psr16Cache(new ArrayAdapter()), false, true],
-            [new Psr16Cache(new ArrayAdapter()), true, false],
+            'no-cache-reload' => [null, true, false],
+            'no-cache-no-reload' => [null, false, false],
+            'cache-reload' => [new Psr16Cache(new ArrayAdapter()), false, true],
+            'cache-no-reload' => [new Psr16Cache(new ArrayAdapter()), true, false],
         ];
     }
 
     /**
      * @dataProvider reloadTests
      */
-    public function testReload(?CacheInterface $cache, $reload, $openapisCached)
+    public function testReload(?CacheInterface $cache, bool $reload, bool $openapisCached): void
     {
         $options = [
             OpenApiRouter::OPTION_OA_INFO_INJECT => true,

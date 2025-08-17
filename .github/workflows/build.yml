@@ -16,8 +16,8 @@ jobs:
   call-lumen:
     uses: ./.github/workflows/lumen.yml
     with:
-      php-versions: '8.1,8.2,8.3,8.4'
+      php-versions: '8.1,8.2,8.3,8.4,8.5'
   call-slim:
     uses: ./.github/workflows/slim.yml
     with:
-      php-versions: '8.1,8.2,8.3,8.4'
+      php-versions: '8.1,8.2,8.3,8.4,8.5'
