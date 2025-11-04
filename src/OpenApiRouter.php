@@ -27,7 +27,7 @@ class OpenApiRouter
     protected string|array|Finder $sources;
     protected ?OA\OpenApi $openapi;
     protected RoutingAdapterInterface $routingAdapter;
-    protected $options = [];
+    protected array $options;
 
     /**
      * Create new routes.
