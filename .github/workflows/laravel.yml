@@ -29,6 +29,8 @@ jobs:
             dependencies: 'lowest'
           - laravel: '12.0'
             dependencies: 'lowest'
+          - laravel: '13.0'
+            dependencies: 'lowest'
 
     name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} on ${{ matrix.operating-system }} with ${{ matrix.dependencies }} dependencies
 
