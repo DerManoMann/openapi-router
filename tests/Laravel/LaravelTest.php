@@ -56,6 +56,6 @@ class LaravelTest extends LaravelTestCase
         $route = $this->getRouter()->getRoutes()->getByName('attributes');
 
         $this->assertNotNull($route);
-        $this->assertEquals([BarMiddleware::class, FooMiddleware::class], $route->gatherMiddleware());
+        $this->assertSame([FooMiddleware::class, BarMiddleware::class], $route->gatherMiddleware());
     }
 }
