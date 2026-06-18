@@ -6,3 +6,4 @@ composer.lock
 vendor/
 tests/storage/
 tests/*/openapi.yaml
+/.claude/settings.local.json
