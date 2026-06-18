@@ -9,7 +9,6 @@ Allows to (re-)use [Swagger-PHP](https://github.com/zircote/swagger-php) attribu
 to configure routes in the following frameworks:
 
 * [Laravel](https://github.com/laravel/laravel)
-* [Lumen](https://github.com/laravel/lumen)
 * [Slim](https://github.com/slimphp/Slim)
 
 
