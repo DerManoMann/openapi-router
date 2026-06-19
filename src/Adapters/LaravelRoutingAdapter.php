@@ -21,7 +21,6 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         $this->app = $app;
         $this->options = array_merge([
                 static::OPTION_AUTO_REGEX => true,
-                static::OPTION_NAMESPACE => 'App\\Http\\Controllers\\',
             ], $options);
     }
 
@@ -55,9 +54,6 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         }
 
         $controller = str_replace('::__invoke', '', $controller);
-        if ($namespace = $this->options[static::OPTION_NAMESPACE]) {
-            $controller = str_replace($namespace, '', $controller);
-        }
 
         /** @var Router $router */
         $router = $this->app->get('router');
