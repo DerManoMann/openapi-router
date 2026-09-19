@@ -12,18 +12,18 @@ namespace Radebatz\OpenApi\Routing;
  * has the `Specification` in hand and hands adapters this instead — cacheable, and it means
  * an adapter never needs to depend on swagger-php at all.
  */
-final class RouteRegistration
+final readonly class RouteRegistration
 {
     /**
      * @param array<string,array{required: bool, type: ?string, pattern: ?string}> $parameters URI parameter metadata, keyed by name, in reverse declaration order
      * @param array<string,mixed>                                                  $custom     `RoutingAdapterInterface::X_*` keys
      */
     public function __construct(
-        public readonly string $path,
-        public readonly string $method,
-        public readonly string $controller,
-        public readonly array $parameters,
-        public readonly array $custom,
+        public string $path,
+        public string $method,
+        public string $controller,
+        public array $parameters,
+        public array $custom,
     ) {
     }
 }

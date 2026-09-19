@@ -3,6 +3,7 @@
 namespace Radebatz\OpenApi\Routing\Tests\Slim;
 
 use Nyholm\Psr7\Factory\Psr17Factory;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Radebatz\OpenApi\Routing\Adapters\SlimRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
@@ -17,11 +18,14 @@ trait CallsControllerTrait
 
     protected function setUp(): void
     {
-        if (!class_exists('\\Slim\\App') || version_compare(App::VERSION, '4.0.0', '<')) {
+        if (!class_exists(App::class) || version_compare(App::VERSION, '4.0.0', '<')) {
             $this->markTestSkipped('not installed.');
         }
     }
 
+    /**
+     * @param App<ContainerInterface|null>|null $app
+     */
     protected function getRouteCollector(?App $app = null): RouteCollectorInterface
     {
         $app = $app ?: $this->getApp();
@@ -29,6 +33,9 @@ trait CallsControllerTrait
         return $app->getRouteCollector();
     }
 
+    /**
+     * @return App<ContainerInterface|null>
+     */
     protected function getApp(): App
     {
         $app = AppFactory::create();
@@ -42,7 +49,7 @@ trait CallsControllerTrait
         return $app;
     }
 
-    protected function call($path, $method = 'GET'): ResponseInterface
+    protected function call(string $path, string $method = 'GET'): ResponseInterface
     {
         $request = (new Psr17Factory())->createServerRequest($method, $path);
 

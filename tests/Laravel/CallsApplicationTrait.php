@@ -18,7 +18,7 @@ trait CallsApplicationTrait
 
     protected function setUp(): void
     {
-        if (!class_exists('\\Illuminate\\Foundation\\Application')) {
+        if (!class_exists(Application::class)) {
             $this->markTestSkipped('not installed.');
         }
 
@@ -56,7 +56,10 @@ trait CallsApplicationTrait
         return $app['router'];
     }
 
-    protected function route(string $name, $parameters = [], bool $absolute = true): string
+    /**
+     * @param array<string,mixed>|string $parameters
+     */
+    protected function route(string $name, array|string $parameters = [], bool $absolute = true): string
     {
         return $this->createApplication()['url']->route($name, $parameters, $absolute);
     }

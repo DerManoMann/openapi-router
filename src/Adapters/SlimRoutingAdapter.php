@@ -2,6 +2,7 @@
 
 namespace Radebatz\OpenApi\Routing\Adapters;
 
+use Psr\Container\ContainerInterface;
 use Radebatz\OpenApi\Routing\RouteRegistration;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 use Slim\App;
@@ -12,7 +13,8 @@ use Slim\App;
 class SlimRoutingAdapter implements RoutingAdapterInterface
 {
     /**
-     * @param bool $autoRegex Constrain an `integer`-typed path parameter to `[0-9]+`
+     * @param App<ContainerInterface|null> $app
+     * @param bool                         $autoRegex Constrain an `integer`-typed path parameter to `[0-9]+`
      */
     public function __construct(
         protected App $app,
@@ -31,7 +33,7 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
 
         foreach ($route->parameters as $name => $parameter) {
             if (!$parameter['required']) {
-                if (false !== strpos($path, $needle = "/{{$name}}[/{")) {
+                if (str_contains($path, $needle = "/{{$name}}[/{")) {
                     // multiple optional parameters
                     $path = preg_replace("#/{{$name}}(\[?.*}\])#", "[/{{$name}}$1]", $path);
                 } else {

@@ -4,38 +4,39 @@ namespace Radebatz\OpenApi\Routing\Tests\Laravel;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use PHPUnit\Framework\Attributes\Test;
 
-class ParametersTest extends LaravelTestCase
+final class ParametersTest extends LaravelTestCase
 {
     use CallsApplicationTrait;
 
-    /** @test */
-    public function parameter()
+    #[Test]
+    public function parameter(): void
     {
         /* @var Route $route */
-        $this->assertNotNull($route = $this->getRouter()->getRoutes()->getByName('hey'));
+        $this->assertInstanceOf(Route::class, $route = $this->getRouter()->getRoutes()->getByName('hey'));
         $this->assertEquals('hey/{name}', $route->uri());
     }
 
-    /** @test */
-    public function optionalParameter()
+    #[Test]
+    public function optionalParameter(): void
     {
-        $this->assertNotNull($route = $this->getRouter()->getRoutes()->getByName('oi'));
+        $this->assertInstanceOf(Route::class, $route = $this->getRouter()->getRoutes()->getByName('oi'));
         $this->assertEquals('oi/{name?}', $route->uri());
     }
 
-    /** @test */
-    public function typedParameter()
+    #[Test]
+    public function typedParameter(): void
     {
-        $this->assertNotNull($route = $this->getRouter()->getRoutes()->getByName('id'));
+        $this->assertInstanceOf(Route::class, $route = $this->getRouter()->getRoutes()->getByName('id'));
         $this->assertTrue($route->matches(Request::create('id/123')));
         $this->assertFalse($route->matches(Request::create('id/12x3')));
     }
 
-    /** @test */
-    public function regexParameter()
+    #[Test]
+    public function regexParameter(): void
     {
-        $this->assertNotNull($route = $this->getRouter()->getRoutes()->getByName('hid'));
+        $this->assertInstanceOf(Route::class, $route = $this->getRouter()->getRoutes()->getByName('hid'));
         $this->assertTrue($route->matches(Request::create('hid/a1b2c3')));
         $this->assertFalse($route->matches(Request::create('hid/z12x3')));
     }

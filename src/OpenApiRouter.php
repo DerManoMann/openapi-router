@@ -20,12 +20,15 @@ class OpenApiRouter
     public const CACHE_KEY_ROUTES = 'openapi-router.routes';
 
     protected bool $reload = true;
+
     protected ?CacheInterface $cache = null;
+
     protected bool $operationIdAsName = true;
+
     protected ?LoggerInterface $logger = null;
 
     /**
-     * @param string|array|Finder $sources The directory(s) or filename(s)
+     * @param string|list<string>|Finder $sources The directory(s) or filename(s)
      */
     public function __construct(
         protected string|array|Finder $sources,
@@ -85,7 +88,7 @@ class OpenApiRouter
         }
 
         $routes = null;
-        if ($this->cache && !$this->reload) {
+        if ($this->cache instanceof CacheInterface && !$this->reload) {
             $routes = $this->cache->get(self::CACHE_KEY_ROUTES);
         }
 
@@ -95,7 +98,7 @@ class OpenApiRouter
             $this->routingAdapter->register($route);
         }
 
-        if ($this->cache && !$this->reload) {
+        if ($this->cache instanceof CacheInterface && !$this->reload) {
             $this->cache->set(self::CACHE_KEY_ROUTES, $routes);
         }
 
@@ -144,7 +147,7 @@ class OpenApiRouter
     }
 
     /**
-     * @param array<class-string, OA\PathItem> $classToPathItem
+     * @param array<string, OA\PathItem> $classToPathItem
      *
      * @return array<string,mixed>
      */
@@ -204,22 +207,42 @@ class OpenApiRouter
             ];
 
             if ($schema = $parameter->schema) {
-                switch ($schema->type) {
+                switch ($this->routableType($schema->type)) {
                     case 'string':
-                        $metadata[$name]['type'] = $schema->type;
+                        $metadata[$name]['type'] = 'string';
                         if ($pattern = $schema->pattern) {
                             $metadata[$name]['type'] = 'regex';
                             $metadata[$name]['pattern'] = $pattern;
                         }
                         break;
                     case 'integer':
-                        $metadata[$name]['type'] = $schema->type;
+                        $metadata[$name]['type'] = 'integer';
                         break;
                 }
             }
         }
 
         return $metadata;
+    }
+
+    /**
+     * Reduce a schema type to the single scalar type routing cares about.
+     *
+     * OpenAPI 3.1 allows a list of types, which is how nullability is expressed
+     * (`['integer', 'null']`). `null` is not a routable type, so it is dropped; anything
+     * still ambiguous after that (a genuine union) has no single constraint to apply.
+     *
+     * @param string|list<string>|null $type
+     */
+    protected function routableType(string|array|null $type): ?string
+    {
+        if (!is_array($type)) {
+            return $type;
+        }
+
+        $types = array_values(array_filter($type, static fn (string $candidate): bool => $candidate !== 'null'));
+
+        return count($types) === 1 ? $types[0] : null;
     }
 
     public function scan(): Result

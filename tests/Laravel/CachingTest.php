@@ -3,31 +3,29 @@
 namespace Radebatz\OpenApi\Routing\Tests\Laravel;
 
 use Illuminate\Foundation\Application;
+use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Facade;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\SimpleCache\CacheInterface;
 use Radebatz\OpenApi\Routing\Adapters\LaravelRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
-class CachingTest extends LaravelTestCase
+final class CachingTest extends LaravelTestCase
 {
     use CallsApplicationTrait;
 
-    public static function reloadTests(): iterable
+    public static function reloadTests(): \Iterator
     {
-        return [
-            'no-cache-reload' => [null, true, false],
-            'no-cache-no-reload' => [null, false, false],
-            'cache-reload' => [new Psr16Cache(new ArrayAdapter()), false, true],
-            'cache-no-reload' => [new Psr16Cache(new ArrayAdapter()), true, false],
-        ];
+        yield 'no-cache-reload' => [null, true, false];
+        yield 'no-cache-no-reload' => [null, false, false];
+        yield 'cache-reload' => [new Psr16Cache(new ArrayAdapter()), false, true];
+        yield 'cache-no-reload' => [new Psr16Cache(new ArrayAdapter()), true, false];
     }
 
-    /**
-     * @dataProvider reloadTests
-     */
+    #[DataProvider('reloadTests')]
     public function testReload(?CacheInterface $cache, bool $reload, bool $openapisCached): void
     {
         (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app = $this->getApp())))
@@ -37,9 +35,9 @@ class CachingTest extends LaravelTestCase
 
         /** @var Router $router */
         $router = $app['router'];
-        $this->assertNotNull($router->getRoutes()->getByName('getya'));
+        $this->assertInstanceOf(Route::class, $router->getRoutes()->getByName('getya'));
 
-        $this->assertEquals($openapisCached, $cache && $cache->has(OpenApiRouter::CACHE_KEY_ROUTES));
+        $this->assertSame($openapisCached, $cache instanceof CacheInterface && $cache->has(OpenApiRouter::CACHE_KEY_ROUTES));
     }
 
     protected function getApp(): Application

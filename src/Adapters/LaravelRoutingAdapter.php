@@ -30,7 +30,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
 
         $where = [];
         foreach ($route->parameters as $name => $parameter) {
-            if (!$parameter['required'] && false !== strpos($path, $needle = "/{{$name}}")) {
+            if (!$parameter['required'] && str_contains($path, $needle = "/{{$name}}")) {
                 $path = str_replace($needle, "/{{$name}?}", $path);
             }
 
@@ -61,10 +61,11 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
             $action['as'] = $route->custom[static::X_NAME];
         }
 
-        $router
-            ->addRoute(strtoupper($route->method), $path, $action)
-            ->middleware($route->custom[static::X_MIDDLEWARE])
-            ->where($where);
+        // not chained: Route::middleware() returns the middleware list when called without
+        // arguments, so its return type is `$this|array` and chaining off it is not safe
+        $laravelRoute = $router->addRoute(strtoupper($route->method), $path, $action);
+        $laravelRoute->middleware($route->custom[static::X_MIDDLEWARE]);
+        $laravelRoute->where($where);
     }
 
     /**

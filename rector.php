@@ -1,12 +1,25 @@
 <?php
 
+use Rector\CodingStyle\Rector\ClassMethod\NewlineBeforeNewAssignSetRector;
+use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
-use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictConstructorRector;
+use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
-    ->withRules([
-        TypedPropertyFromStrictConstructorRector::class
+    ->withSkipPath(__DIR__ . '/tests/Fixtures')
+    ->withSkip([
+        NewlineBeforeNewAssignSetRector::class,
+        NewlineAfterStatementRector::class,
+        ReadOnlyPropertyRector::class,
     ])
-    ->withPreparedSets(true, true)
-    ->withPhpVersion(PhpVersion::PHP_81);
+    ->withPreparedSets(
+        deadCode: true,
+        codeQuality: true,
+        codingStyle: true,
+        typeDeclarations: true,
+        phpunitCodeQuality: true,
+    )
+    ->withAttributesSets(phpunit: true)
+    ->withPhpVersion(PhpVersion::PHP_82)
+    ->withPhpSets();

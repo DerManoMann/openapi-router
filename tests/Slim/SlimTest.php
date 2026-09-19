@@ -2,53 +2,50 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Slim;
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class SlimTest extends TestCase
+final class SlimTest extends TestCase
 {
     use CallsControllerTrait;
 
-    /** @test */
-    public function namedRoute()
+    #[Test]
+    public function namedRoute(): void
     {
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('getya'));
-        $this->assertEquals('/getya', $route->getPattern());
+        $this->assertSame('/getya', $route->getPattern());
     }
 
-    /** @test */
-    public function request()
+    #[Test]
+    public function request(): void
     {
         $response = $this->call('/static_getya');
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
         $this->assertEquals('Static Get ya', $response->getBody());
     }
 
-    /** @test */
-    public function prefixed()
+    #[Test]
+    public function prefixed(): void
     {
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('prefixed'));
 
         $response = $this->call('/foo/prefixed');
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
     }
 
-    /** @test */
-    public function middleware()
+    #[Test]
+    public function middleware(): void
     {
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('mw'));
 
         $response = $this->call('/mw');
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     *
-     * @requires PHP 8.1
-     */
-    public function attributesPrefixed()
+    #[Test]
+    public function attributesPrefixed(): void
     {
         $response = $this->call('attributes/prefixed');
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
     }
 }

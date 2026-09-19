@@ -8,6 +8,7 @@ namespace Radebatz\OpenApi\Routing;
 interface RoutingAdapterInterface
 {
     public const X_NAME = 'name';
+
     public const X_MIDDLEWARE = 'middleware';
 
     /**
