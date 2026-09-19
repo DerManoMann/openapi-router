@@ -2,9 +2,6 @@
 
 namespace Radebatz\OpenApi\Routing;
 
-use OpenApi\Annotations\Operation;
-use OpenApi\Annotations\Parameter;
-
 /**
  * Routing adapter interface.
  */
@@ -17,12 +14,8 @@ interface RoutingAdapterInterface
 
     /**
      * Register a route.
-     *
-     * @param Operation $operation  The route URI pattern
-     * @param array     $parameters URI parameter meta data in reverse order
-     * @param array     $custom     Custom properties
      */
-    public function register(Operation $operation, string $controller, array $parameters, array $custom): void;
+    public function register(RouteRegistration $route): void;
 
     /**
      * Register routes cached on framework level (optional).

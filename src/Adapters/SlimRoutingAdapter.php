@@ -2,7 +2,7 @@
 
 namespace Radebatz\OpenApi\Routing\Adapters;
 
-use OpenApi\Annotations as OA;
+use Radebatz\OpenApi\Routing\RouteRegistration;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 use Slim\App;
 
@@ -25,14 +25,13 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
     /**
      * @inheritdoc
      */
-    public function register(OA\Operation $operation, string $controller, array $parameters, array $custom): void
+    public function register(RouteRegistration $route): void
     {
-        $path = $operation->path;
+        $path = $route->path;
 
-        $controller = str_replace('::', ':', $controller);
+        $controller = str_replace('::', ':', $route->controller);
 
-        /** @var OA\Parameter $parameter */
-        foreach ($parameters as $name => $parameter) {
+        foreach ($route->parameters as $name => $parameter) {
             if (!$parameter['required']) {
                 if (false !== strpos($path, $needle = "/{{$name}}[/{")) {
                     // multiple optional parameters
@@ -57,13 +56,13 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
             }
         }
 
-        $route = $this->app->map([strtoupper($operation->method)], $path, $controller);
-        if ($custom[static::X_NAME]) {
-            $route->setName($custom[static::X_NAME]);
+        $slimRoute = $this->app->map([strtoupper($route->method)], $path, $controller);
+        if ($route->custom[static::X_NAME]) {
+            $slimRoute->setName($route->custom[static::X_NAME]);
         }
 
-        foreach ($custom[static::X_MIDDLEWARE] as $middleware) {
-            $route->add($middleware);
+        foreach ($route->custom[static::X_MIDDLEWARE] as $middleware) {
+            $slimRoute->add($middleware);
         }
     }
 

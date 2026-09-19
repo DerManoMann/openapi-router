@@ -31,7 +31,6 @@ class CachingTest extends LaravelTestCase
     public function testReload(?CacheInterface $cache, bool $reload, bool $openapisCached): void
     {
         $options = [
-            OpenApiRouter::OPTION_OA_INFO_INJECT => true,
             OpenApiRouter::OPTION_RELOAD => $reload,
             OpenApiRouter::OPTION_CACHE => $cache,
         ];
@@ -43,7 +42,7 @@ class CachingTest extends LaravelTestCase
         $router = $app['router'];
         $this->assertNotNull($router->getRoutes()->getByName('getya'));
 
-        $this->assertEquals($openapisCached, $cache && $cache->has(OpenApiRouter::CACHE_KEY_OPENAPI));
+        $this->assertEquals($openapisCached, $cache && $cache->has(OpenApiRouter::CACHE_KEY_ROUTES));
     }
 
     protected function getApp(): Application

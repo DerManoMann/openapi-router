@@ -4,8 +4,7 @@ namespace Radebatz\OpenApi\Routing\Adapters;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Router;
-use OpenApi\Annotations\Operation;
-use OpenApi\Annotations\Parameter;
+use Radebatz\OpenApi\Routing\RouteRegistration;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 
 /**
@@ -27,13 +26,12 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
     /**
      * @inheritdoc
      */
-    public function register(Operation $operation, string $controller, array $parameters, array $custom): void
+    public function register(RouteRegistration $route): void
     {
-        $path = $operation->path;
+        $path = $route->path;
 
         $where = [];
-        /** @var Parameter $parameter */
-        foreach ($parameters as $name => $parameter) {
+        foreach ($route->parameters as $name => $parameter) {
             if (!$parameter['required'] && false !== strpos($path, $needle = "/{{$name}}")) {
                 $path = str_replace($needle, "/{{$name}?}", $path);
             }
@@ -53,7 +51,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
             }
         }
 
-        $controller = str_replace('::__invoke', '', $controller);
+        $controller = str_replace('::__invoke', '', $route->controller);
 
         /** @var Router $router */
         $router = $this->app->get('router');
@@ -61,13 +59,13 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         $action = [
             'uses' => str_replace('::', '@', $controller),
         ];
-        if ($custom[static::X_NAME]) {
-            $action['as'] = $custom[static::X_NAME];
+        if ($route->custom[static::X_NAME]) {
+            $action['as'] = $route->custom[static::X_NAME];
         }
 
         $router
-            ->addRoute(strtoupper($operation->method), $path, $action)
-            ->middleware($custom[static::X_MIDDLEWARE])
+            ->addRoute(strtoupper($route->method), $path, $action)
+            ->middleware($route->custom[static::X_MIDDLEWARE])
             ->where($where);
     }
 

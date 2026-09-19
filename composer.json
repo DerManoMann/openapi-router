@@ -39,18 +39,16 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "3.x-dev"
+            "dev-main": "5.x-dev"
         }
     },
     "require": {
         "php": ">=8.2",
         "psr/log": "^1.1 || ^2.0 || ^3.0",
         "psr/simple-cache": "^1.0 || ^2.0 || ^3.0",
-        "radebatz/openapi-extras": "^4.2",
-        "zircote/swagger-php": "^4.11.1 || ^5.0.2 || ^6.0"
+        "zircote/swagger-php": "^6.9"
     },
     "require-dev": {
-        "doctrine/annotations": "^2.0",
         "friendsofphp/php-cs-fixer": "^3.62.0",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
@@ -61,8 +59,5 @@
     },
     "suggest": {
         "radebatz/openapi-verifier": "Allows your PHPUnit tests to validate your controller response against your OpenAPI spec."
-    },
-    "conflict": {
-        "zircote/swagger-php": "5.3.0"
     }
 }

@@ -37,14 +37,11 @@ trait CallsApplicationTrait
             ]);
             Facade::setFacadeApplication($app);
 
-            $options = [
-                OpenApiRouter::OPTION_OA_INFO_INJECT => true,
-            ];
-            (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app), $options))
+            (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app)))
                 ->registerRoutes();
-            $openapi = (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app), $options))
+            $result = (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app)))
                 ->scan();
-            file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
+            file_put_contents(__DIR__ . '/openapi.yaml', $result->toYaml());
 
             $this->app = $app;
         }
