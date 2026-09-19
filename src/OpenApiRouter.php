@@ -17,32 +17,62 @@ use Symfony\Component\Finder\Finder;
  */
 class OpenApiRouter
 {
-    public const OPTION_RELOAD = 'reload';
-    public const OPTION_CACHE = 'cache';
-    public const OPTION_OA_OPERATION_ID_AS_NAME = 'oa_operation_id_as_name';
-
     public const CACHE_KEY_ROUTES = 'openapi-router.routes';
 
-    protected string|array|Finder $sources;
-    protected RoutingAdapterInterface $routingAdapter;
-    protected array $options;
+    protected bool $reload = true;
+    protected ?CacheInterface $cache = null;
+    protected bool $operationIdAsName = true;
+    protected ?LoggerInterface $logger = null;
 
     /**
-     * Create new routes.
-     *
-     * @param string|array|Finder     $sources        The directory(s) or filename(s)
-     * @param RoutingAdapterInterface $routingAdapter the framework adapter
-     * @param array                   $options        Optional configuration options
+     * @param string|array|Finder $sources The directory(s) or filename(s)
      */
-    public function __construct($sources, RoutingAdapterInterface $routingAdapter, array $options = [])
+    public function __construct(
+        protected string|array|Finder $sources,
+        protected RoutingAdapterInterface $routingAdapter,
+    ) {
+    }
+
+    /**
+     * Force a rescan on every {@see registerRoutes()} call rather than trusting the cache or
+     * the adapter's own cached routes. Typically off in production.
+     */
+    public function withReload(bool $reload = true): static
     {
-        $this->sources = $sources;
-        $this->routingAdapter = $routingAdapter;
-        $this->options = $options + [
-                self::OPTION_RELOAD => true,
-                self::OPTION_CACHE => null,
-                self::OPTION_OA_OPERATION_ID_AS_NAME => true,
-            ];
+        $this->reload = $reload;
+
+        return $this;
+    }
+
+    /**
+     * Cache extracted routes here across requests when {@see withReload()} is off.
+     */
+    public function withCache(?CacheInterface $cache): static
+    {
+        $this->cache = $cache;
+
+        return $this;
+    }
+
+    /**
+     * Use the operation's `operationId` as the route name. When off, only an explicit
+     * `x-name` vendor property names a route.
+     */
+    public function withOperationIdAsName(bool $operationIdAsName = true): static
+    {
+        $this->operationIdAsName = $operationIdAsName;
+
+        return $this;
+    }
+
+    /**
+     * Receive scan warnings/errors here, from both {@see scan()} and {@see registerRoutes()}.
+     */
+    public function withLogger(?LoggerInterface $logger): static
+    {
+        $this->logger = $logger;
+
+        return $this;
     }
 
     /**
@@ -50,14 +80,13 @@ class OpenApiRouter
      */
     public function registerRoutes(): ?array
     {
-        if (!$this->options[self::OPTION_RELOAD] && $this->routingAdapter->registerCached()) {
+        if (!$this->reload && $this->routingAdapter->registerCached()) {
             return null;
         }
 
         $routes = null;
-        /** @var CacheInterface $cache */
-        if (($cache = $this->options[self::OPTION_CACHE]) && !$this->options[self::OPTION_RELOAD]) {
-            $routes = $cache->get(self::CACHE_KEY_ROUTES);
+        if ($this->cache && !$this->reload) {
+            $routes = $this->cache->get(self::CACHE_KEY_ROUTES);
         }
 
         $routes ??= $this->extractRoutes($this->scan()->specification() ?? new Specification());
@@ -66,8 +95,8 @@ class OpenApiRouter
             $this->routingAdapter->register($route);
         }
 
-        if ($cache && !$this->options[self::OPTION_RELOAD]) {
-            $cache->set(self::CACHE_KEY_ROUTES, $routes);
+        if ($this->cache && !$this->reload) {
+            $this->cache->set(self::CACHE_KEY_ROUTES, $routes);
         }
 
         return $routes;
@@ -139,7 +168,7 @@ class OpenApiRouter
         }
 
         $custom = [
-            RoutingAdapterInterface::X_NAME => $this->options[self::OPTION_OA_OPERATION_ID_AS_NAME] ? $operation->operationId : null,
+            RoutingAdapterInterface::X_NAME => $this->operationIdAsName ? $operation->operationId : null,
             RoutingAdapterInterface::X_MIDDLEWARE => array_values(array_unique($middleware)),
         ];
 
@@ -193,24 +222,24 @@ class OpenApiRouter
         return $metadata;
     }
 
-    public function scan(?LoggerInterface $logger = null): Result
+    public function scan(): Result
     {
         $builder = (new Builder())
             ->addSource($this->sources)
             ->setMode(Mode::SPEC);
 
-        if ($logger instanceof LoggerInterface) {
-            $builder->setLogger($logger);
+        if ($this->logger instanceof LoggerInterface) {
+            $builder->setLogger($this->logger);
         }
 
         $result = $builder->build();
 
-        if ($logger instanceof LoggerInterface) {
+        if ($this->logger instanceof LoggerInterface) {
             foreach ($result->errors() as $error) {
-                $logger->error($error);
+                $this->logger->error($error);
             }
             foreach ($result->warnings() as $warning) {
-                $logger->warning($warning);
+                $this->logger->warning($warning);
             }
         }
 

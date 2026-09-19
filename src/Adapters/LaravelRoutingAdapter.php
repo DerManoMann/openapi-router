@@ -12,15 +12,13 @@ use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
  */
 class LaravelRoutingAdapter implements RoutingAdapterInterface
 {
-    protected Application $app;
-    protected array $options;
-
-    public function __construct(Application $app, array $options = [])
-    {
-        $this->app = $app;
-        $this->options = array_merge([
-                static::OPTION_AUTO_REGEX => true,
-            ], $options);
+    /**
+     * @param bool $autoRegex Constrain an `integer`-typed path parameter to `[0-9]+`
+     */
+    public function __construct(
+        protected Application $app,
+        protected bool $autoRegex = true,
+    ) {
     }
 
     /**
@@ -44,7 +42,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
                     break;
 
                 case 'integer':
-                    if ($this->options[static::OPTION_AUTO_REGEX]) {
+                    if ($this->autoRegex) {
                         $where[$name] = '[0-9]+';
                     }
                     break;

@@ -11,15 +11,13 @@ use Slim\App;
  */
 class SlimRoutingAdapter implements RoutingAdapterInterface
 {
-    protected App $app;
-    protected array $options;
-
-    public function __construct(App $app, array $options = [])
-    {
-        $this->app = $app;
-        $this->options = array_merge([
-            static::OPTION_AUTO_REGEX => true,
-        ], $options);
+    /**
+     * @param bool $autoRegex Constrain an `integer`-typed path parameter to `[0-9]+`
+     */
+    public function __construct(
+        protected App $app,
+        protected bool $autoRegex = true,
+    ) {
     }
 
     /**
@@ -49,7 +47,7 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
                     break;
 
                 case 'integer':
-                    if ($this->options[static::OPTION_AUTO_REGEX]) {
+                    if ($this->autoRegex) {
                         $path = str_replace("{{$name}}", "{{$name}:[0-9]+}", $path);
                     }
                     break;
