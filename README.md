@@ -7,8 +7,15 @@
 ## Introduction
 
 Configure framework routes from the [swagger-php](https://github.com/zircote/swagger-php)
-attributes already describing your API, so the routing table and the OpenAPI document cannot
-drift apart.
+attributes describing your API, so the routing table and the OpenAPI document cannot drift
+apart.
+
+**Spec attributes only.** Routes are read from the `OpenApi\Spec` namespace — swagger-php's
+spec pipeline. The classic `OpenApi\Attributes` namespace and docblock annotations are not
+read at all, so a codebase on classic needs converting first; see the
+[upgrade guide](docs/Upgrading.md) if you are coming from 4.x. Spec attributes are
+[marked beta upstream](https://zircote.github.io/swagger-php/guide/spec-attributes) and their
+API may still change.
 
 Supported frameworks:
 
@@ -19,13 +26,6 @@ Supported frameworks:
 
 * PHP 8.2 or higher
 * `zircote/swagger-php` ^6.9
-
-Attributes are read through swagger-php's spec pipeline — the `OpenApi\Spec` namespace, not
-the classic `OpenApi\Attributes` one. Docblock annotations are not supported; see the
-[upgrade guide](docs/Upgrading.md) if you are coming from 4.x.
-
-Spec attributes are [marked beta upstream](https://zircote.github.io/swagger-php/guide/spec-attributes)
-and their API may still change.
 
 ## Installation
 
