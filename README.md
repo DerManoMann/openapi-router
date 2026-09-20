@@ -20,9 +20,12 @@ Supported frameworks:
 * PHP 8.2 or higher
 * `zircote/swagger-php` ^6.9
 
-Attributes are read through swagger-php's spec pipeline (`OpenApi\Spec`). Docblock
-annotations are not supported — see the [upgrade guide](docs/Upgrading.md) if you are
-coming from 4.x.
+Attributes are read through swagger-php's spec pipeline — the `OpenApi\Spec` namespace, not
+the classic `OpenApi\Attributes` one. Docblock annotations are not supported; see the
+[upgrade guide](docs/Upgrading.md) if you are coming from 4.x.
+
+Spec attributes are [marked beta upstream](https://zircote.github.io/swagger-php/guide/spec-attributes)
+and their API may still change.
 
 ## Installation
 
@@ -82,6 +85,20 @@ $app = AppFactory::create();
 
 $app->run();
 ```
+
+## Writing the attributes
+
+Every attribute except `#[Middleware]` is swagger-php's, and documented there:
+
+* [Using spec attributes](https://zircote.github.io/swagger-php/guide/spec-attributes) — how
+  to write them
+* [Spec attribute reference](https://zircote.github.io/swagger-php/reference/spec-attributes)
+  — every attribute and its parameters
+* [Modes](https://zircote.github.io/swagger-php/guide/modes) — how the spec pipeline differs
+  from classic
+
+This package adds one attribute of its own, [`#[Middleware]`](docs/Configuration.md), and
+reads two vendor properties.
 
 ## Generating the OpenAPI document
 
