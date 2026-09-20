@@ -40,7 +40,6 @@ final class LaravelTest extends LaravelTestCase
     public function attributesPrefixed(): void
     {
         $response = $this->get('attributes/prefixed');
-        echo $response->getContent();
         $response->assertStatus(200);
     }
 
@@ -50,6 +49,16 @@ final class LaravelTest extends LaravelTestCase
         $route = $this->getRouter()->getRoutes()->getByName('attributes');
 
         $this->assertInstanceOf(Route::class, $route);
+        $this->assertSame([FooMiddleware::class, BarMiddleware::class], $route->gatherMiddleware());
+    }
+
+    #[Test]
+    public function inheritedMiddleware(): void
+    {
+        $route = $this->getRouter()->getRoutes()->getByName('inherited');
+
+        $this->assertInstanceOf(Route::class, $route);
+        $this->assertSame('base/inherited', $route->uri());
         $this->assertSame([FooMiddleware::class, BarMiddleware::class], $route->gatherMiddleware());
     }
 }

@@ -4,6 +4,7 @@ namespace Radebatz\OpenApi\Routing\Tests\Slim;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Radebatz\OpenApi\Routing\Adapters\SlimRoutingAdapter;
 
 final class SlimTest extends TestCase
 {
@@ -45,7 +46,21 @@ final class SlimTest extends TestCase
     #[Test]
     public function attributesPrefixed(): void
     {
-        $response = $this->call('attributes/prefixed');
+        $response = $this->call('/attributes/prefixed');
         $this->assertSame(200, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function hasNoRouteCacheOfItsOwn(): void
+    {
+        // Slim has no route cache to load, so the scan always runs
+        $this->assertFalse((new SlimRoutingAdapter($this->getApp()))->registerCached());
+    }
+
+    #[Test]
+    public function inheritedPathItem(): void
+    {
+        $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('inherited'));
+        $this->assertSame('/base/inherited', $route->getPattern());
     }
 }
