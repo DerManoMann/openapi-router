@@ -38,38 +38,32 @@ declaring `operationId` yourself produces hashed route names. Either declare the
 hashing off through the builder:
 
 ```php
-$builder = $router->defaultBuilder();
-$builder->getAugmenters()->get(OpenApi\Augmenter\OperationIds::class)?->setHash(false);
-$router->withBuilder($builder);
+$router->withBuilder(function (Builder $builder): void {
+    $builder->getAugmenters()->get(OpenApi\Augmenter\OperationIds::class)?->setHash(false);
+});
 ```
 
 ### `withLogger(?LoggerInterface $logger)`
 
-A PSR-3 logger for the scan, passed to `defaultBuilder()`. Ignored when a builder is supplied
-via `withBuilder()`, which carries its own.
+A PSR-3 logger for the scan, applied to the builder before the `withBuilder()` hook runs.
 
-### `withBuilder(?Builder $builder)` and `defaultBuilder()`
+### `withBuilder(callable $hook)`
 
-`defaultBuilder()` returns the `OpenApi\Builder` this package would use — sources added, spec
-mode set, logger applied. `withBuilder()` replaces it.
-
-Start from `defaultBuilder()` to keep those defaults and adjust:
+Configure the `OpenApi\Builder` before it runs. The hook receives one already carrying this
+package's sources, spec mode and logger, and may modify it in place or return a replacement —
+the same shape as swagger-php's own `withResolver()` and `withAugmenters()`.
 
 ```php
-$builder = $router->defaultBuilder();
-$builder->withAttributeFactory(
-    fn ($factory) => $factory->withTranslators(
-        fn ($translators) => $translators->add(new MyTranslator())
-    )
-);
-
-$router->withBuilder($builder)->registerRoutes();
+$router->withBuilder(function (Builder $builder): void {
+    $builder->withAttributeFactory(
+        fn ($factory) => $factory->withTranslators(
+            fn ($translators) => $translators->add(new MyTranslator())
+        )
+    );
+})->registerRoutes();
 ```
 
-Both hooks take a callable and receive the thing to configure, which is swagger-php's
-convention throughout `Builder`.
-
-A supplied builder is used as given, so it must carry its own sources and mode.
+Sources and mode are always applied by the router, so the hook cannot accidentally drop them.
 
 This matters for routing when it changes *which operations are discovered* — a translator
 turning a framework-native attribute into a `Spec\Operation` adds routes. Configuration that

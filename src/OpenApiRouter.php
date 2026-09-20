@@ -9,7 +9,6 @@ use OpenApi\Specification;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Radebatz\OpenApi\Routing\Attributes\Middleware;
-use Symfony\Component\Finder\Finder;
 
 /**
  * OpenApi router.
@@ -26,36 +25,41 @@ class OpenApiRouter
 
     protected ?LoggerInterface $logger = null;
 
-    protected ?Builder $builder = null;
+    /** @var (callable(Builder): (Builder|void))|null */
+    protected $builderHook;
 
     /**
-     * @param string|list<string>|Finder $sources The directory(s) or filename(s)
+     * @param string|\SplFileInfo|\Reflector|iterable<mixed> $sources directories, filenames or reflectors to scan — whatever `Builder::addSource()` accepts
      */
     public function __construct(
-        protected string|array|Finder $sources,
+        protected string|\SplFileInfo|\Reflector|iterable $sources,
         protected RoutingAdapterInterface $routingAdapter,
     ) {
     }
 
     /**
-     * Scan with a caller-configured builder instead of {@see defaultBuilder()}.
+     * Configure the builder before it runs.
      *
-     * The builder is used as given — sources, mode and logger included — so start from
-     * `defaultBuilder()` to keep this package's defaults.
+     * The hook receives a builder already carrying this package's sources, spec mode and
+     * logger, and may modify it in place or return a replacement — the same shape as
+     * swagger-php's own `withResolver()` and `withAugmenters()`.
+     *
+     * Relevant to routing when it changes which operations are discovered; configuration
+     * that only shapes the document belongs in a direct swagger-php call.
+     *
+     * @param callable(Builder): (Builder|void) $hook
      */
-    public function withBuilder(?Builder $builder): static
+    public function withBuilder(callable $hook): static
     {
-        $this->builder = $builder;
+        $this->builderHook = $hook;
 
         return $this;
     }
 
     /**
-     * The builder used when none is supplied.
-     *
-     * Public so it can serve as the starting point for a customised one.
+     * The builder for this scan, hook applied.
      */
-    public function defaultBuilder(): Builder
+    protected function builder(): Builder
     {
         $builder = (new Builder())
             ->addSource($this->sources)
@@ -63,6 +67,13 @@ class OpenApiRouter
 
         if ($this->logger instanceof LoggerInterface) {
             $builder->setLogger($this->logger);
+        }
+
+        if ($this->builderHook !== null) {
+            $customised = ($this->builderHook)($builder);
+            if ($customised instanceof Builder) {
+                $builder = $customised;
+            }
         }
 
         return $builder;
@@ -104,9 +115,7 @@ class OpenApiRouter
     }
 
     /**
-     * Logger for {@see defaultBuilder()}.
-     *
-     * Ignored when a builder is supplied via {@see withBuilder()}, which carries its own.
+     * PSR-3 logger for the scan.
      */
     public function withLogger(?LoggerInterface $logger): static
     {
@@ -130,7 +139,7 @@ class OpenApiRouter
         }
 
         $routes ??= $this->extractRoutes(
-            ($this->builder ?? $this->defaultBuilder())->build()->specification() ?? new Specification()
+            $this->builder()->build()->specification() ?? new Specification()
         );
 
         foreach ($routes as $route) {
