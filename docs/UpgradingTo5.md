@@ -4,8 +4,8 @@
 classic annotation pipeline, and drops `radebatz/openapi-extras`. Every controller attribute
 changes, and so does the router's configuration API.
 
-The reason it is worth doing: `OA\PathItem` — core swagger-php — does everything
-openapi-extras' `Controller` did and several things it could not.
+`OA\PathItem` — core swagger-php — does everything openapi-extras' `Controller` did, and
+several things it could not.
 
 ## Requirements
 
@@ -40,14 +40,19 @@ way to express:
 - **`security`** — cloned to contained operations the way tags and responses are
 - **`ref`** — the path item can itself be a `$ref`
 
-Composition also improved: prefixes compose along the whole class hierarchy, and tags,
-security, responses and parameters accumulate from every ancestor with deduplication by
-value, scheme, status code and name+in respectively.
+Composition runs the whole class hierarchy: prefixes compose, and tags, security, responses
+and parameters accumulate from every ancestor, deduplicated by value, scheme, status code and
+name+in respectively.
 
-**Two `Controller` features have no equivalent.** `middlewares` moves to this package's own
-attribute (below). **`inherit: false`**, which stopped the ancestor walk at a given class,
-is gone — `PathItem` composition is unconditional. If you relied on it, flatten the
-hierarchy or stop inheriting from the ancestor carrying the unwanted metadata.
+**Three `Controller` features have no equivalent:**
+
+- **`middlewares`** moves to this package's own attribute (below).
+- **`inherit: false`** stopped the ancestor walk at a given class. `PathItem` composition is
+  unconditional, so flatten the hierarchy or stop inheriting from the ancestor carrying the
+  unwanted metadata.
+- **`headers`** cloned shared headers onto every response in the controller. `PathItem` has
+  no `headers`; declare them on each `OA\Response(headers: [...])`, or on a shared response
+  component the operations `$ref`.
 
 ### Operation attributes are namespaced
 
@@ -56,9 +61,9 @@ hierarchy or stop inheriting from the ancestor carrying the unwanted metadata.
 +#[OA\Operation\Get(path: '/pets/{id}')]
 ```
 
-Likewise `Post`, `Put`, `Patch`, `Delete`, `Head`, `Options`, `Trace`. See swagger-php's
-[migration notes](https://zircote.github.io/swagger-php/) for the full attribute mapping —
-this package only changes the two things it owns.
+Likewise `Post`, `Put`, `Patch`, `Delete`, `Head`, `Options`, `Trace`. swagger-php's
+[spec attributes guide](https://zircote.github.io/swagger-php/guide/spec-attributes) covers
+the rest of the namespace.
 
 ### `OAX\Middleware` becomes `Middleware`
 
@@ -95,9 +100,9 @@ Shorthand for JSON content. Write it out:
 
 ### `JsonResponse`'s `wrap`
 
-`wrap: 'data'` nested the payload under an envelope key. There is no equivalent — it was
-bespoke. Either declare the wrapper schema explicitly, or reimplement it as a swagger-php
-augmenter and register it through [`withBuilder()`](Configuration.md).
+`wrap: 'data'` nested the payload under an envelope key. There is no equivalent: declare the
+wrapper schema explicitly, or reimplement it as a swagger-php augmenter and register it
+through [`withBuilder()`](Configuration.md).
 
 ### `EnumDescription` and `Customizers`
 

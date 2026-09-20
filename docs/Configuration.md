@@ -36,8 +36,8 @@ and cannot be serialized.
 Use each operation's `operationId` as the route name. Default `true`. When off, only an
 explicit `x-name` names a route.
 
-Note swagger-php hashes generated operation ids by default, so relying on this without
-declaring `operationId` yourself produces hashed route names. Either declare them, or turn
+swagger-php hashes generated operation ids by default, so relying on this without declaring
+`operationId` yourself produces hashed route names. Either declare them, or turn
 hashing off through the builder:
 
 ```php
@@ -66,12 +66,11 @@ $router->withBuilder(function (Builder $builder): void {
 })->registerRoutes();
 ```
 
-Sources and mode are always applied by the router, so the hook cannot accidentally drop them.
+The router applies sources and mode itself, so the hook does not need to.
 
-This matters for routing when it changes *which operations are discovered* — a translator
+Use it for configuration that changes *which operations are discovered* — a translator
 turning a framework-native attribute into a `Spec\Operation` adds routes. Configuration that
-only shapes the document belongs in a direct swagger-php call instead; this package does not
-generate documents.
+only shapes the document belongs in a direct swagger-php call.
 
 ## Adapters
 

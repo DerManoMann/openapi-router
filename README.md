@@ -110,8 +110,8 @@ class PetController
 ```
 
 Both apply, class-level first. It is an `Attachable`, so it never appears in the generated
-document — middleware is a routing concern, not an API one. It must sit beside an
-`OA\Operation` or an `OA\PathItem`; anywhere else raises an error.
+document. It must sit beside an `OA\Operation` or an `OA\PathItem`; anywhere else raises an
+error.
 
 ### Vendor extensions
 
@@ -130,9 +130,8 @@ prefix; swagger-php adds it when emitting.
 | `name` | `x-name` | **Replaces** the route name |
 | `middleware` | `x-middleware` | **Appends** to the `#[Middleware]` attributes |
 
-Unlike `#[Middleware]`, these **are** emitted into the document — that is the tradeoff
-between them. Prefer the attribute unless you want the middleware visible to whatever
-consumes your spec.
+Unlike `#[Middleware]`, these **are** emitted into the document. Prefer the attribute unless
+you want the middleware visible to whatever consumes your spec.
 
 The constants for the unprefixed keys are `RoutingAdapterInterface::X_NAME` and
 `X_MIDDLEWARE`.
@@ -145,8 +144,7 @@ Use swagger-php directly — its CLI or `Builder` over the same sources:
 ./vendor/bin/openapi --mode spec -o openapi.yaml src/controllers
 ```
 
-This package contributes nothing to the document, so routing it through here would only add
-a layer.
+The output is identical either way — this package adds nothing to the document.
 
 ## Documentation
 

@@ -1,6 +1,6 @@
 # openapi-router
 
-Configures a PHP framework's router from the swagger-php **spec attributes** already
+Configures a PHP framework's router from the swagger-php **spec attributes**
 describing an API, so the routing table and the OpenAPI document cannot drift apart.
 
 Terminology for this package. swagger-php's own vocabulary is defined in
