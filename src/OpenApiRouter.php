@@ -4,7 +4,6 @@ namespace Radebatz\OpenApi\Routing;
 
 use OpenApi\Builder;
 use OpenApi\Builder\Mode;
-use OpenApi\Builder\Result;
 use OpenApi\Spec as OA;
 use OpenApi\Specification;
 use Psr\Log\LoggerInterface;
@@ -130,7 +129,9 @@ class OpenApiRouter
             $routes = $this->cache->get(self::CACHE_KEY_ROUTES);
         }
 
-        $routes ??= $this->extractRoutes($this->scan()->specification() ?? new Specification());
+        $routes ??= $this->extractRoutes(
+            ($this->builder ?? $this->defaultBuilder())->build()->specification() ?? new Specification()
+        );
 
         foreach ($routes as $route) {
             $this->routingAdapter->register($route);
@@ -281,15 +282,5 @@ class OpenApiRouter
         $types = array_values(array_filter($type, static fn (string $candidate): bool => $candidate !== 'null'));
 
         return count($types) === 1 ? $types[0] : null;
-    }
-
-    /**
-     * Build the specification.
-     *
-     * Diagnostics reach the logger through the builder, so they are not re-reported here.
-     */
-    public function scan(): Result
-    {
-        return ($this->builder ?? $this->defaultBuilder())->build();
     }
 }

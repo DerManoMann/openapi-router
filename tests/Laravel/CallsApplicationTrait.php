@@ -41,9 +41,6 @@ trait CallsApplicationTrait
 
             (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app)))
                 ->registerRoutes();
-            $result = (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app)))
-                ->scan();
-            file_put_contents(__DIR__ . '/openapi.yaml', $result->toYaml());
 
             $this->app = $app;
         }
