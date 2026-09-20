@@ -37,8 +37,10 @@ class OpenApiRouter
     }
 
     /**
-     * Force a rescan on every {@see registerRoutes()} call rather than trusting the cache or
-     * the adapter's own cached routes. Typically off in production.
+     * Rescan on every {@see registerRoutes()} call.
+     *
+     * Bypasses both the configured cache and the adapter's own cached routes. Typically off
+     * in production.
      */
     public function withReload(bool $reload = true): static
     {
@@ -58,8 +60,9 @@ class OpenApiRouter
     }
 
     /**
-     * Use the operation's `operationId` as the route name. When off, only an explicit
-     * `x-name` vendor property names a route.
+     * Use the operation's `operationId` as the route name.
+     *
+     * When off, only an explicit `x-name` vendor property names a route.
      */
     public function withOperationIdAsName(bool $operationIdAsName = true): static
     {
@@ -187,7 +190,7 @@ class OpenApiRouter
     }
 
     /**
-     * Extract (uri) parameter meta data.
+     * Extract URI parameter metadata.
      *
      * @param list<OA\Parameter> $parameters
      *

@@ -25,7 +25,9 @@ trait CallsApplicationTrait
         parent::setUp();
     }
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     */
     public function createApplication()
     {
         if (!$this->app) {

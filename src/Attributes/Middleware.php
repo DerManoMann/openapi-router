@@ -7,12 +7,11 @@ use OpenApi\Spec\Operation;
 use OpenApi\Spec\PathItem;
 
 /**
- * Attaches one or more PSR-15 middleware to an operation or its containing controller.
+ * Attaches PSR-15 middleware to an operation or its containing controller.
  *
- * Stack directly alongside an `Operation` attribute (per-route) or a `PathItem` attribute
- * (per-controller, resolved via `OpenApiRouter`'s own class-to-`PathItem` lookup — swagger-php's
- * `PathItems` augmenter clones `tags`/`security`/`responses` from a class-level `PathItem` onto
- * its operations, but not `attachables`, so this package resolves that inheritance itself):
+ * Stack beside an `Operation` (per-route) or a `PathItem` (per-controller). Controller-level
+ * inheritance is resolved by `OpenApiRouter`, since swagger-php's `PathItems` augmenter does
+ * not clone `attachables` down to operations.
  *
  *   #[OA\PathItem(prefix: '/users')]
  *   #[Middleware(names: ['auth'])]
@@ -27,7 +26,7 @@ use OpenApi\Spec\PathItem;
 class Middleware extends Attachable
 {
     /**
-     * @param array<string> $names PSR-15 middleware names/class-strings, in the shape the routing adapter expects
+     * @param array<string> $names Middleware names or class-strings, as the adapter expects them
      */
     public function __construct(
         public array $names = [],
@@ -35,9 +34,9 @@ class Middleware extends Attachable
     }
 
     /**
-     * Without this, `Attachable::isRoot()` (true, unconditionally) means an unmerged
-     * `Middleware` lands in `Specification::$attachables` as its own top-level, orphaned
-     * entry instead of nesting into the `Operation`/`PathItem` it was stacked beside.
+     * Nest into the `Operation` or `PathItem` this is stacked beside.
+     *
+     * Without it the attribute stays unmerged and is silently orphaned.
      *
      * @return array<class-string,string>
      */
@@ -47,5 +46,15 @@ class Middleware extends Attachable
             Operation::class => 'attachables[]',
             PathItem::class => 'attachables[]',
         ];
+    }
+
+    /**
+     * Middleware only ever qualifies an operation or path item, never stands alone.
+     *
+     * Saying so turns a misplaced `#[Middleware]` into an assembly error.
+     */
+    public function isRoot(): bool
+    {
+        return false;
     }
 }

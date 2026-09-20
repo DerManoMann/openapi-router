@@ -5,12 +5,9 @@ namespace Radebatz\OpenApi\Routing;
 /**
  * Everything a routing adapter needs to register one route.
  *
- * Deliberately plain data, decoupled from swagger-php's `Spec\*` DTOs: every root DTO in the
- * spec pipeline carries a live `\Reflector` internally (`AbstractAttribute::getReflector()`)
- * with no `__serialize()`/`__sleep()` to strip it, so a `Spec\Operation` cannot survive a
- * PSR-16 cache round-trip. `OpenApiRouter` resolves everything a route needs while it still
- * has the `Specification` in hand and hands adapters this instead — cacheable, and it means
- * an adapter never needs to depend on swagger-php at all.
+ * Plain data rather than a `Spec\Operation`, because spec DTOs hold a live `\Reflector` with
+ * no `__serialize()` and so cannot survive a PSR-16 cache round-trip. Adapters therefore need
+ * no swagger-php dependency of their own.
  */
 final readonly class RouteRegistration
 {
