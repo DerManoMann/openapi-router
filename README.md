@@ -115,6 +115,7 @@ a layer.
 
 * [Configuration](docs/Configuration.md)
 * [Upgrading to 5.x](docs/Upgrading.md)
+* [Terminology](CONTEXT.md) — the words this package uses, and the ones it avoids
 
 ## License
 
