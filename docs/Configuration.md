@@ -89,34 +89,3 @@ Constrain a path parameter declared `type: 'integer'` to `[0-9]+`. Default `true
 Laravel expresses this as a `where()` constraint, Slim as a `{id:[0-9]+}` placeholder. A
 parameter whose schema carries an explicit `pattern` uses that instead, regardless of this
 setting.
-
-## Vendor properties
-
-Two `x-*` properties on an operation feed the router. Neither reaches the OpenAPI document's
-routing behaviour — they are read by this package only.
-
-| Property | Effect |
-|---|---|
-| `x-name` | **Replaces** the route name, whatever `setOperationIdAsName()` would have produced |
-| `x-middleware` | **Appends** to the middleware from `#[Middleware]` attributes |
-
-```php
-#[OA\Operation\Get(path: '/pets', operationId: 'listPets', x: [
-    'name' => 'pets.index',
-    'middleware' => ['throttle:60,1'],
-])]
-```
-
-The constants are `RoutingAdapterInterface::X_NAME` and `X_MIDDLEWARE`.
-
-## Middleware
-
-`#[Middleware(names: [...])]` attaches middleware in whatever form the framework expects —
-a class-string, or an alias such as Laravel's `auth`.
-
-Stack it beside an `OA\Operation` for a single route, or beside an `OA\PathItem` for every
-route in that controller; both apply, and the class-level entries come first. It is an
-`Attachable` and never appears in the generated document.
-
-A `#[Middleware]` with no `OA\Operation` or `OA\PathItem` beside it is an error rather than a
-silent no-op.

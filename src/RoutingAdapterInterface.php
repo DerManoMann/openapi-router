@@ -13,14 +13,16 @@ interface RoutingAdapterInterface
     /**
      * Key in `RouteRegistration::$custom` holding the route name, or `null` for an unnamed route.
      *
-     * Also the `x-name` vendor property, which overrides the name the router would derive.
+     * Doubles as the vendor extension key — declared as `x: ['name' => ...]` and emitted as
+     * `x-name` — which overrides the name the router would derive.
      */
     public const X_NAME = 'name';
 
     /**
      * Key in `RouteRegistration::$custom` holding the middleware list.
      *
-     * Also the `x-middleware` vendor property, which appends to any `#[Middleware]` attributes.
+     * Doubles as the vendor extension key — declared as `x: ['middleware' => [...]]` and
+     * emitted as `x-middleware` — which appends to any `#[Middleware]` attributes.
      */
     public const X_MIDDLEWARE = 'middleware';
 

@@ -45,9 +45,10 @@ _Avoid_: calling it an OpenAPI attribute — it deliberately is not, which is wh
 outside the `OpenApi\` namespace
 
 **Vendor property**:
-An `x-*` key on an operation that this package reads — `x-name` and `x-middleware`.
-_Avoid_: extension, custom property; swagger-php calls these vendor extensions and the `x`
-constructor argument carries them
+A vendor extension on an operation that this package reads. Declared unprefixed —
+`x: ['name' => ...]` — and emitted with the prefix, as `x-name`. Say which form you mean.
+_Avoid_: naming the declared key `x-name`; that is the emitted spelling, and the constants
+(`X_NAME`, `X_MIDDLEWARE`) hold the unprefixed one
 
 **Attachable**:
 swagger-php's extension point for metadata that rides along with an attribute without
