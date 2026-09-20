@@ -28,8 +28,8 @@ adapter's own cached routes. Default `true`; turn it off in production.
 A PSR-16 cache for the extracted routes, used when `setReload(false)` is set. Default
 `null`.
 
-Routes are cached rather than the specification, because a `Spec\Operation` holds a live
-`\Reflector` and cannot be serialized.
+It holds the routes, not the specification — a `Spec\Operation` carries a live `\Reflector`
+and cannot be serialized.
 
 ### `setOperationIdAsName(bool $operationIdAsName = true)`
 

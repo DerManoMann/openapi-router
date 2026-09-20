@@ -110,8 +110,8 @@ class PetController
 ```
 
 Both apply, class-level first. It is an `Attachable`, so it never appears in the generated
-document — middleware is a routing concern, not an API one. A `#[Middleware]` with no
-`OA\Operation` or `OA\PathItem` beside it is an error rather than a silent no-op.
+document — middleware is a routing concern, not an API one. It must sit beside an
+`OA\Operation` or an `OA\PathItem`; anywhere else raises an error.
 
 ### Vendor extensions
 

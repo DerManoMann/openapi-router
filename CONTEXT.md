@@ -41,8 +41,8 @@ _Avoid_: action, callable — `RouteRegistration::$controller` is the name, and 
 **Middleware**:
 This package's own attribute, and the only one it defines. An `Attachable`, so it is routing
 metadata that never reaches the OpenAPI document.
-_Avoid_: calling it an OpenAPI attribute — it deliberately is not, which is why it lives
-outside the `OpenApi\` namespace
+_Avoid_: calling it an OpenAPI attribute — it is not one, which is why it lives outside the
+`OpenApi\` namespace
 
 **Vendor property**:
 A vendor extension on an operation that this package reads. Declared unprefixed —
@@ -84,8 +84,8 @@ _Avoid_: path, directory (both too narrow), input
 ## Example dialogue
 
 > **Dev:** "My middleware isn't being applied."
-> **Domain expert:** "Is the `#[Middleware]` beside an **operation** or a `PathItem`? Anywhere
-> else it has nothing to merge into, and that is an error rather than a silent no-op."
+> **Domain expert:** "Is the `#[Middleware]` beside an **operation** or a `PathItem`? It has
+> nothing to merge into anywhere else, so the scan raises an error."
 
 > **Dev:** "Can I get the OpenAPI document out of the router?"
 > **Domain expert:** "No — this package contributes nothing to it. Run swagger-php over the
