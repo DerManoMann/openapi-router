@@ -31,6 +31,13 @@ final class ParametersTest extends TestCase
     }
 
     #[Test]
+    public function pathItemParameter(): void
+    {
+        $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('shared'));
+        $this->assertSame('/shared/{tenant:[0-9]+}/items', $route->getPattern());
+    }
+
+    #[Test]
     public function typedParameter(): void
     {
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('id'));

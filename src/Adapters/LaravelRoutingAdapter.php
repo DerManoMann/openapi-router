@@ -49,7 +49,10 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
             }
         }
 
-        $controller = str_replace('::__invoke', '', $route->controller);
+        // anchored: only a trailing `::__invoke` is the single-action form
+        $controller = str_ends_with($route->controller, '::__invoke')
+            ? substr($route->controller, 0, -strlen('::__invoke'))
+            : $route->controller;
 
         /** @var Router $router */
         $router = $this->app->get('router');

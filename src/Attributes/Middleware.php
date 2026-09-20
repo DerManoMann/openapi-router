@@ -11,7 +11,9 @@ use OpenApi\Spec\PathItem;
  *
  * Stack beside an `Operation` (per-route) or a `PathItem` (per-controller). Controller-level
  * inheritance is resolved by `OpenApiRouter`, since swagger-php's `PathItems` augmenter does
- * not clone `attachables` down to operations.
+ * not clone `attachables` down to operations. It follows the class hierarchy the same way a
+ * `PathItem` prefix does, so a base controller's middleware applies to every subclass, in
+ * order from the outermost ancestor down to the operation itself.
  *
  *   #[OA\PathItem(prefix: '/users')]
  *   #[Middleware(names: ['auth'])]

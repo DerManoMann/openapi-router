@@ -133,21 +133,21 @@ class OpenApiRouter
             return null;
         }
 
-        $routes = null;
-        if ($this->cache instanceof CacheInterface && !$this->reload) {
-            $routes = $this->cache->get(self::CACHE_KEY_ROUTES);
-        }
+        $cache = $this->reload ? null : $this->cache;
 
-        $routes ??= $this->extractRoutes(
-            $this->builder()->build()->specification() ?? new Specification()
-        );
+        /** @var list<RouteRegistration>|null $routes */
+        $routes = is_array($cached = $cache?->get(self::CACHE_KEY_ROUTES)) ? array_values($cached) : null;
+
+        if ($routes === null) {
+            $routes = $this->extractRoutes(
+                $this->builder()->build()->specification() ?? new Specification()
+            );
+
+            $cache?->set(self::CACHE_KEY_ROUTES, $routes);
+        }
 
         foreach ($routes as $route) {
             $this->routingAdapter->register($route);
-        }
-
-        if ($this->cache instanceof CacheInterface && !$this->reload) {
-            $this->cache->set(self::CACHE_KEY_ROUTES, $routes);
         }
 
         return $routes;
@@ -174,20 +174,14 @@ class OpenApiRouter
             }
 
             $controller = $operation->getClassName() . '::' . $reflector->getName();
-
-            $parameters = [];
-            foreach ($operation->parameters ?? [] as $parameter) {
-                if ('path' === $parameter->in) {
-                    $parameters[] = $parameter;
-                }
-            }
+            $pathItems = $this->governingPathItems($operation->getClassName(), $classToPathItem);
 
             $routes[] = new RouteRegistration(
                 path: $operation->path ?? '',
                 method: strtoupper($operation->method ?? 'GET'),
                 controller: $controller,
-                parameters: $this->parameterMetadata(array_reverse($parameters)),
-                custom: $this->customProperties($operation, $classToPathItem),
+                parameters: $this->parameterMetadata(array_reverse($this->pathParameters($operation, $pathItems))),
+                custom: $this->customProperties($operation, $pathItems),
             );
         }
 
@@ -195,43 +189,97 @@ class OpenApiRouter
     }
 
     /**
+     * The `PathItem` chain governing an operation, outermost ancestor first.
+     *
+     * swagger-php resolves a class without its own `PathItem` against its ancestors — which
+     * is how a base controller's prefix reaches a subclass's operations — so anything read
+     * off a `PathItem` here has to walk the same hierarchy or it silently applies to nothing.
+     *
      * @param array<string, OA\PathItem> $classToPathItem
+     *
+     * @return list<OA\PathItem>
+     */
+    protected function governingPathItems(?string $className, array $classToPathItem): array
+    {
+        if ($className === null || !class_exists($className)) {
+            return [];
+        }
+
+        $pathItems = [];
+        for ($current = new \ReflectionClass($className); $current !== false; $current = $current->getParentClass()) {
+            if (isset($classToPathItem[$current->getName()])) {
+                $pathItems[] = $classToPathItem[$current->getName()];
+            }
+        }
+
+        return array_reverse($pathItems);
+    }
+
+    /**
+     * The path parameters applying to an operation, in path order.
+     *
+     * `PathItem::$parameters` are shared by every operation under it and are emitted at path
+     * level, so swagger-php never copies them onto the operations themselves — but routing
+     * still needs them, or a placeholder declared once for the whole controller ends up with
+     * no type, pattern or optionality. A parameter the operation declares itself wins, while
+     * keeping the position the path item gave it.
+     *
+     * @param list<OA\PathItem> $pathItems
+     *
+     * @return list<OA\Parameter>
+     */
+    protected function pathParameters(OA\Operation $operation, array $pathItems): array
+    {
+        $parameters = [];
+
+        foreach ([...$pathItems, $operation] as $holder) {
+            foreach ($holder->parameters ?? [] as $parameter) {
+                if ('path' === $parameter->in && $parameter->name !== null) {
+                    $parameters[$parameter->name] = $parameter;
+                }
+            }
+        }
+
+        return array_values($parameters);
+    }
+
+    /**
+     * @param list<OA\PathItem> $pathItems
      *
      * @return array<string,mixed>
      */
-    protected function customProperties(OA\Operation $operation, array $classToPathItem): array
+    protected function customProperties(OA\Operation $operation, array $pathItems): array
     {
         // PathItem's own class-level attachables don't clone down to its operations the way
         // tags/security/responses do (swagger-php's `PathItems` augmenter only clones those
         // three) — resolved here instead, so a controller-level `#[Middleware]` still applies
-        // to every operation under it.
-        $attachables = $operation->attachables ?? [];
-        $className = $operation->getClassName();
-        if ($className !== null && isset($classToPathItem[$className])) {
-            $attachables = [...$classToPathItem[$className]->attachables ?? [], ...$attachables];
+        // to every operation under it, inherited ones included.
+        $attachables = [];
+        foreach ([...$pathItems, $operation] as $holder) {
+            $attachables = [...$attachables, ...$holder->attachables ?? []];
         }
 
         $middleware = [];
         foreach ($attachables as $attachable) {
             if ($attachable instanceof Middleware) {
-                $middleware = array_merge($middleware, $attachable->names);
+                $middleware = [...$middleware, ...$attachable->names];
             }
         }
 
-        $custom = [
-            RoutingAdapterInterface::X_NAME => $this->operationIdAsName ? $operation->operationId : null,
+        $name = $this->operationIdAsName ? $operation->operationId : null;
+
+        $x = $operation->x ?? [];
+        if (array_key_exists(RoutingAdapterInterface::X_NAME, $x)) {
+            $name = $x[RoutingAdapterInterface::X_NAME];
+        }
+        if (array_key_exists(RoutingAdapterInterface::X_MIDDLEWARE, $x)) {
+            $middleware = [...$middleware, ...array_values((array) $x[RoutingAdapterInterface::X_MIDDLEWARE])];
+        }
+
+        return [
+            RoutingAdapterInterface::X_NAME => $name,
             RoutingAdapterInterface::X_MIDDLEWARE => array_values(array_unique($middleware)),
         ];
-
-        foreach (array_keys($custom) as $xKey) {
-            if (array_key_exists($xKey, $operation->x ?? [])) {
-                $custom[$xKey] = is_array($custom[$xKey])
-                    ? array_merge($custom[$xKey], (array) $operation->x[$xKey])
-                    : $operation->x[$xKey];
-            }
-        }
-
-        return $custom;
     }
 
     /**

@@ -34,6 +34,15 @@ final class ParametersTest extends LaravelTestCase
     }
 
     #[Test]
+    public function pathItemParameter(): void
+    {
+        $this->assertInstanceOf(Route::class, $route = $this->getRouter()->getRoutes()->getByName('shared'));
+        $this->assertSame('shared/{tenant}/items', $route->uri());
+        $this->assertTrue($route->matches(Request::create('shared/42/items')));
+        $this->assertFalse($route->matches(Request::create('shared/nope/items')));
+    }
+
+    #[Test]
     public function regexParameter(): void
     {
         $this->assertInstanceOf(Route::class, $route = $this->getRouter()->getRoutes()->getByName('hid'));
