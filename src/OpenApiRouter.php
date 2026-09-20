@@ -85,7 +85,7 @@ class OpenApiRouter
      * Bypasses both the configured cache and the adapter's own cached routes. Typically off
      * in production.
      */
-    public function withReload(bool $reload = true): static
+    public function setReload(bool $reload = true): static
     {
         $this->reload = $reload;
 
@@ -93,9 +93,9 @@ class OpenApiRouter
     }
 
     /**
-     * Cache extracted routes here across requests when {@see withReload()} is off.
+     * Cache extracted routes here across requests when {@see setReload()} is off.
      */
-    public function withCache(?CacheInterface $cache): static
+    public function setCache(?CacheInterface $cache): static
     {
         $this->cache = $cache;
 
@@ -107,7 +107,7 @@ class OpenApiRouter
      *
      * When off, only an explicit `x-name` vendor property names a route.
      */
-    public function withOperationIdAsName(bool $operationIdAsName = true): static
+    public function setOperationIdAsName(bool $operationIdAsName = true): static
     {
         $this->operationIdAsName = $operationIdAsName;
 
@@ -117,7 +117,7 @@ class OpenApiRouter
     /**
      * PSR-3 logger for the scan.
      */
-    public function withLogger(?LoggerInterface $logger): static
+    public function setLogger(?LoggerInterface $logger): static
     {
         $this->logger = $logger;
 

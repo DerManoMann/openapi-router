@@ -29,8 +29,8 @@ final class CachingTest extends LaravelTestCase
     public function testReload(?CacheInterface $cache, bool $reload, bool $openapisCached): void
     {
         (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app = $this->getApp())))
-            ->withReload($reload)
-            ->withCache($cache)
+            ->setReload($reload)
+            ->setCache($cache)
             ->registerRoutes();
 
         /** @var Router $router */

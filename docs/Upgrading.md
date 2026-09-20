@@ -116,18 +116,19 @@ The options array is gone; each option is a fluent setter.
 -(new OpenApiRouter($sources, new SlimRoutingAdapter($app), $options))
 -    ->registerRoutes();
 +(new OpenApiRouter($sources, new SlimRoutingAdapter($app)))
-+    ->withReload(false)
-+    ->withCache($cache)
++    ->setReload(false)
++    ->setCache($cache)
 +    ->registerRoutes();
 ```
 
 | 4.x | 5.x |
 |---|---|
-| `OPTION_RELOAD` | `withReload()` |
-| `OPTION_CACHE` | `withCache()` |
-| `OPTION_OA_OPERATION_ID_AS_NAME` | `withOperationIdAsName()` |
+| `OPTION_RELOAD` | `setReload()` |
+| `OPTION_CACHE` | `setCache()` |
+| `OPTION_OA_OPERATION_ID_AS_NAME` | `setOperationIdAsName()` |
 | `OPTION_OA_INFO_INJECT` | removed — declare `OA\Info` yourself, or let document generation handle it |
 | `OPTION_AUTO_REGEX` (adapter options array) | `$autoRegex` constructor argument |
+| — | `withBuilder()` is new: a callable configuring the swagger-php builder |
 | `RoutingAdapterInterface::OPTION_NAMESPACE` | removed with the Lumen adapter in 4.x |
 
 `CACHE_KEY_OPENAPI` is now `CACHE_KEY_ROUTES`: the extracted routes are cached rather than

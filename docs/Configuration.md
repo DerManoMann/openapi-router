@@ -3,32 +3,35 @@
 `OpenApiRouter` is configured with fluent setters, each returning the router so calls chain.
 All are optional.
 
+Prefixes follow swagger-php's convention: `set*` takes a value, `with*` takes a callable that
+configures something.
+
 ```php
 use Radebatz\OpenApi\Routing\Adapters\LaravelRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
 
 (new OpenApiRouter([__DIR__ . '/../src/Controllers'], new LaravelRoutingAdapter($app)))
-    ->withReload(false)
-    ->withCache($psr16Cache)
+    ->setReload(false)
+    ->setCache($psr16Cache)
     ->registerRoutes();
 ```
 
 ## Router
 
-### `withReload(bool $reload = true)`
+### `setReload(bool $reload = true)`
 
 Rescan on every `registerRoutes()` call, bypassing both the configured cache and the
 adapter's own cached routes. Default `true`; turn it off in production.
 
-### `withCache(?CacheInterface $cache)`
+### `setCache(?CacheInterface $cache)`
 
-A PSR-16 cache for the extracted routes, used when `withReload(false)` is set. Default
+A PSR-16 cache for the extracted routes, used when `setReload(false)` is set. Default
 `null`.
 
 Routes are cached rather than the specification, because a `Spec\Operation` holds a live
 `\Reflector` and cannot be serialized.
 
-### `withOperationIdAsName(bool $operationIdAsName = true)`
+### `setOperationIdAsName(bool $operationIdAsName = true)`
 
 Use each operation's `operationId` as the route name. Default `true`. When off, only an
 explicit `x-name` names a route.
@@ -43,7 +46,7 @@ $router->withBuilder(function (Builder $builder): void {
 });
 ```
 
-### `withLogger(?LoggerInterface $logger)`
+### `setLogger(?LoggerInterface $logger)`
 
 A PSR-3 logger for the scan, applied to the builder before the `withBuilder()` hook runs.
 
@@ -94,7 +97,7 @@ routing behaviour — they are read by this package only.
 
 | Property | Effect |
 |---|---|
-| `x-name` | **Replaces** the route name, whatever `withOperationIdAsName()` would have produced |
+| `x-name` | **Replaces** the route name, whatever `setOperationIdAsName()` would have produced |
 | `x-middleware` | **Appends** to the middleware from `#[Middleware]` attributes |
 
 ```php
