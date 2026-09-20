@@ -27,6 +27,8 @@ class OpenApiRouter
 
     protected ?LoggerInterface $logger = null;
 
+    protected ?Builder $builder = null;
+
     /**
      * @param string|list<string>|Finder $sources The directory(s) or filename(s)
      */
@@ -34,6 +36,37 @@ class OpenApiRouter
         protected string|array|Finder $sources,
         protected RoutingAdapterInterface $routingAdapter,
     ) {
+    }
+
+    /**
+     * Scan with a caller-configured builder instead of {@see defaultBuilder()}.
+     *
+     * The builder is used as given — sources, mode and logger included — so start from
+     * `defaultBuilder()` to keep this package's defaults.
+     */
+    public function withBuilder(?Builder $builder): static
+    {
+        $this->builder = $builder;
+
+        return $this;
+    }
+
+    /**
+     * The builder used when none is supplied.
+     *
+     * Public so it can serve as the starting point for a customised one.
+     */
+    public function defaultBuilder(): Builder
+    {
+        $builder = (new Builder())
+            ->addSource($this->sources)
+            ->setMode(Mode::SPEC);
+
+        if ($this->logger instanceof LoggerInterface) {
+            $builder->setLogger($this->logger);
+        }
+
+        return $builder;
     }
 
     /**
@@ -72,7 +105,9 @@ class OpenApiRouter
     }
 
     /**
-     * Receive scan warnings/errors here, from both {@see scan()} and {@see registerRoutes()}.
+     * Logger for {@see defaultBuilder()}.
+     *
+     * Ignored when a builder is supplied via {@see withBuilder()}, which carries its own.
      */
     public function withLogger(?LoggerInterface $logger): static
     {
@@ -248,27 +283,13 @@ class OpenApiRouter
         return count($types) === 1 ? $types[0] : null;
     }
 
+    /**
+     * Build the specification.
+     *
+     * Diagnostics reach the logger through the builder, so they are not re-reported here.
+     */
     public function scan(): Result
     {
-        $builder = (new Builder())
-            ->addSource($this->sources)
-            ->setMode(Mode::SPEC);
-
-        if ($this->logger instanceof LoggerInterface) {
-            $builder->setLogger($this->logger);
-        }
-
-        $result = $builder->build();
-
-        if ($this->logger instanceof LoggerInterface) {
-            foreach ($result->errors() as $error) {
-                $this->logger->error($error);
-            }
-            foreach ($result->warnings() as $warning) {
-                $this->logger->warning($warning);
-            }
-        }
-
-        return $result;
+        return ($this->builder ?? $this->defaultBuilder())->build();
     }
 }
