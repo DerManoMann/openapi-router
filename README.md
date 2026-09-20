@@ -109,9 +109,12 @@ class PetController
 }
 ```
 
-Both apply, class-level first. It is an `Attachable`, so it never appears in the generated
-document. It must sit beside an `OA\Operation` or an `OA\PathItem`; anywhere else raises an
-error.
+Both apply, class-level first. Class-level middleware follows the class hierarchy the same
+way a `PathItem` prefix does, so a base controller's middleware applies to every subclass,
+outermost ancestor first.
+
+It is an `Attachable`, so it never appears in the generated document. It must sit beside an
+`OA\Operation` or an `OA\PathItem`; anywhere else raises an error.
 
 ### Vendor extensions
 
@@ -135,6 +138,20 @@ you want the middleware visible to whatever consumes your spec.
 
 The constants for the unprefixed keys are `RoutingAdapterInterface::X_NAME` and
 `X_MIDDLEWARE`.
+
+### Duplicate names and paths
+
+Nothing here checks that route names or paths are unique — the framework decides, and the two
+disagree:
+
+| Clash | Laravel | Slim |
+|---|---|---|
+| Same **name**, different paths | the first route scanned keeps the name; the later one still dispatches but `route()` cannot reach it | the same, through `getNamedRoute()` |
+| Same **method and path** | only the later route survives; the earlier name may still generate a URL, but it dispatches to the later route | `FastRoute\BadRouteException` on the first request |
+
+"First scanned" means scan order, which for a directory source is filesystem order — not
+something to depend on. Keep `operationId` and `x-name` unique: a clash either silently loses
+a route or resolves to whichever one the scan happened to reach first.
 
 ## Generating the OpenAPI document
 

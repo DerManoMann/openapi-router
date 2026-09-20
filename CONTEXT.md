@@ -74,8 +74,9 @@ _Avoid_: path, directory (both too narrow), input
 ## Relationships
 
 - An **adapter** receives a **registration** per **route** and translates it for its framework
-- A **registration** is derived from one **operation**, plus any **middleware** attached to it
-  or to its containing `PathItem`, plus any **vendor properties**
+- A **registration** is derived from one **operation**, plus the **middleware** and path
+  parameters on the `PathItem` chain governing it — its own and every ancestor's — plus any
+  **vendor properties**
 - **Sources** feed swagger-php's `Builder`, which produces the `Specification` the
   **operations** are read from
 - `withBuilder()` configures that `Builder`; it matters to routing only when it changes
@@ -102,6 +103,5 @@ _Avoid_: path, directory (both too narrow), input
   **processors** (classic) or **augmenters** (spec).
 - "name" — **resolved**: the *route* name, which `setOperationIdAsName()` derives from the
   `operationId` and `x-name` overrides. Not the operation id itself, and not a path.
-- "v2" — **unresolved**, and worth care. The rewrite is called v2 internally and the branch is
-  `v2/spec-pipeline`, but it releases as **5.0** — the last tag is 4.0.0. Say "5.x" in
-  anything public.
+- "version" — **resolved**: this release line is **5.x**, the previous one 4.x. Say "5.x" in
+  anything public; never a milestone or branch name.

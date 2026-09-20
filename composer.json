@@ -1,6 +1,6 @@
 {
     "name": "radebatz/openapi-router",
-    "description": "Routing adapter for OpenApi annotations.",
+    "description": "Configure framework routes from the swagger-php spec attributes describing your API.",
     "license": [
         "MIT"
     ],
@@ -61,6 +61,7 @@
         "rector/rector": "^1.2 || ^2.0",
         "slim/slim": "^4.0",
         "symfony/cache": "^6.0 || ^7.0",
+        "symfony/finder": "^6.4 || ^7.0 || ^8.0",
         "symfony/psr-http-message-bridge": "^6.0 || ^7.0"
     },
     "suggest": {
