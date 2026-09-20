@@ -5,79 +5,99 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Introduction
-Allows to (re-)use [Swagger-PHP](https://github.com/zircote/swagger-php) attributes (docblock annotations are deprecated),
-to configure routes in the following frameworks:
+
+Configure framework routes from the [swagger-php](https://github.com/zircote/swagger-php)
+attributes already describing your API, so the routing table and the OpenAPI document cannot
+drift apart.
+
+Supported frameworks:
 
 * [Laravel](https://github.com/laravel/laravel)
 * [Slim](https://github.com/slimphp/Slim)
 
-
 ## Requirements
-* [PHP 8.1 or higher](http://www.php.net/) - depending on framework version.
+
+* PHP 8.2 or higher
+* `zircote/swagger-php` ^6.9
+
+Attributes are read through swagger-php's spec pipeline (`OpenApi\Spec`). Docblock
+annotations are not supported — see the [upgrade guide](docs/Upgrading.md) if you are
+coming from 4.x.
 
 ## Installation
-
-You can use **composer** or simply **download the release**.
-
-**Composer**
-
-The preferred method is via [composer](https://getcomposer.org). Follow the
-[installation instructions](https://getcomposer.org/doc/00-intro.md) if you do not already have
-composer installed.
-
-Once composer is installed, execute the following command in your project root to install this library:
 
 ```sh
 composer require radebatz/openapi-router
 ```
-After that all required classes should be availabe in your project to add routing support.
 
 ## Basic usage
 
-Example using the `Slim` framework adapter and standard [OpenApi attributes](https://zircote.github.io/swagger-php/guide/attributes) only.
-
 **Controller**
+
 ```php
 <?php
 
 namespace MyApp\Controllers\V1;
 
-use OpenApi\Attributes as OA;
-use Radebatz\OpenApi\Extras\Attributes as OAX;
+use OpenApi\Spec as OA;
+use Radebatz\OpenApi\Routing\Attributes\Middleware;
 
-/* Things shared by all endpoints in this controller.*/
-#[OAX\Controller(prefix: '/api/v1')]
+#[OA\PathItem(prefix: '/api/v1')]
 #[OA\Response(response: 200, description: 'OK')]
-#[OAX\Middleware(names: ['auth', 'admin'])]
+#[Middleware(names: ['auth', 'admin'])]
 class GetController
 {
-    #[OA\Get(path: '/getme', operationId: 'getme')]
+    #[OA\Operation\Get(path: '/getme', operationId: 'getme')]
     #[OA\Response(response: 400, description: 'Not good enough')]
-    public function getme($request, $response) {
+    public function getme($request, $response)
+    {
         return $response->write('Get me');
     }
 }
 ```
 
+`PathItem` applies to every operation in the class: `prefix` composes into their paths, and
+`tags`, `security` and `responses` are shared with them. It composes along the class
+hierarchy, so a base controller can carry what its subclasses have in common.
+
+`Middleware` is this package's own attribute — middleware is a routing concern and has no
+place in the OpenAPI document, so it never appears in the output. Stack it on the class for
+every route in it, or on a single method.
+
 **index.php**
+
 ```php
 <?php
 
 use Radebatz\OpenApi\Routing\Adapters\SlimRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
-use Slim\App;
+use Slim\Factory\AppFactory;
 
 require '../vendor/autoload.php';
 
-$app = new App();
+$app = AppFactory::create();
+
 (new OpenApiRouter([__DIR__ . '/../src/controllers'], new SlimRoutingAdapter($app)))
     ->registerRoutes();
 
 $app->run();
 ```
 
+## Generating the OpenAPI document
+
+Use swagger-php directly — its CLI or `Builder` over the same sources:
+
+```sh
+./vendor/bin/openapi --mode spec -o openapi.yaml src/controllers
+```
+
+This package contributes nothing to the document, so routing it through here would only add
+a layer.
+
 ## Documentation
+
 * [Configuration](docs/Configuration.md)
+* [Upgrading to 5.x](docs/Upgrading.md)
 
 ## License
 

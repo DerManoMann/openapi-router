@@ -12,8 +12,11 @@ namespace Radebatz\OpenApi\Routing;
 final readonly class RouteRegistration
 {
     /**
-     * @param array<string,array{required: bool, type: ?string, pattern: ?string}> $parameters URI parameter metadata, keyed by name, in reverse declaration order
-     * @param array<string,mixed>                                                  $custom     `RoutingAdapterInterface::X_*` keys
+     * @param string                                                               $path       URL path with OpenAPI placeholders, prefixes already composed — `/api/v1/pets/{id}`
+     * @param string                                                               $method     HTTP method, upper case
+     * @param string                                                               $controller `Fully\Qualified\Class::method`; `__invoke` for a single-action controller
+     * @param array<string,array{required: bool, type: ?string, pattern: ?string}> $parameters path parameter metadata keyed by name, in **reverse** declaration order — consecutive optional parameters nest (`/multi[/{foo}[/{bar}]]`), which requires bracketing the last one first. `type` is `string`, `integer`, `regex` or `null`; `pattern` accompanies `regex`
+     * @param array<string,mixed>                                                  $custom     keyed by the `RoutingAdapterInterface::X_*` constants — `X_NAME` (`?string`) and `X_MIDDLEWARE` (`list<string>`) are always present
      */
     public function __construct(
         public string $path,
