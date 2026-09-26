@@ -2,149 +2,260 @@
 
 namespace Radebatz\OpenApi\Routing;
 
-use OpenApi\Analysis;
-use OpenApi\Annotations as OA;
-use OpenApi\Context;
-use OpenApi\Generator;
+use OpenApi\Builder;
+use OpenApi\Builder\Mode;
+use OpenApi\Spec as OA;
+use OpenApi\Specification;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
-use Radebatz\OpenApi\Extras\OpenApiBuilder;
-use Radebatz\OpenApi\Extras\Annotations\Middleware;
-use Symfony\Component\Finder\Finder;
+use Radebatz\OpenApi\Routing\Attributes\Middleware;
 
 /**
  * OpenApi router.
  */
 class OpenApiRouter
 {
-    public const OPTION_RELOAD = 'relaod';
-    public const OPTION_CACHE = 'cache';
-    public const OPTION_OA_INFO_INJECT = 'oa_info_inject';
-    public const OPTION_OA_OPERATION_ID_AS_NAME = 'oa_operation_id_as_name';
+    public const CACHE_KEY_ROUTES = 'openapi-router.routes';
 
-    public const CACHE_KEY_OPENAPI = 'openapi-router.openapi';
+    protected bool $reload = true;
 
-    protected string|array|Finder $sources;
-    protected ?OA\OpenApi $openapi;
-    protected RoutingAdapterInterface $routingAdapter;
-    protected array $options;
+    protected ?CacheInterface $cache = null;
+
+    protected bool $operationIdAsName = true;
+
+    protected ?LoggerInterface $logger = null;
+
+    /** @var (callable(Builder): (Builder|void))|null */
+    protected $builderHook;
 
     /**
-     * Create new routes.
-     *
-     * @param string|array|Finder     $sources        The directory(s) or filename(s)
-     * @param RoutingAdapterInterface $routingAdapter the framework adapter
-     * @param array                   $options        Optional configuration options
+     * @param string|\SplFileInfo|\Reflector|iterable<mixed> $sources directories, filenames or reflectors to scan — whatever `Builder::addSource()` accepts
      */
-    public function __construct($sources, RoutingAdapterInterface $routingAdapter, array $options = [])
-    {
-        $this->sources = $sources;
-        $this->routingAdapter = $routingAdapter;
-        $this->options = $options + [
-                self::OPTION_RELOAD => true,
-                self::OPTION_CACHE => null,
-                self::OPTION_OA_INFO_INJECT => false,
-                self::OPTION_OA_OPERATION_ID_AS_NAME => true,
-            ];
+    public function __construct(
+        protected string|\SplFileInfo|\Reflector|iterable $sources,
+        protected RoutingAdapterInterface $routingAdapter,
+    ) {
     }
 
-    public function registerRoutes(): ?OA\OpenApi
+    /**
+     * Configure the builder before it runs.
+     *
+     * The hook receives a builder already carrying this package's sources, spec mode and
+     * logger, and may modify it in place or return a replacement — the same shape as
+     * swagger-php's own `withResolver()` and `withAugmenters()`.
+     *
+     * Relevant to routing when it changes which operations are discovered; configuration
+     * that only shapes the document belongs in a direct swagger-php call.
+     *
+     * @param callable(Builder): (Builder|void) $hook
+     */
+    public function withBuilder(callable $hook): static
     {
-        if (!$this->options[self::OPTION_RELOAD] && $this->routingAdapter->registerCached()) {
+        $this->builderHook = $hook;
+
+        return $this;
+    }
+
+    /**
+     * The builder for this scan, hook applied.
+     */
+    protected function builder(): Builder
+    {
+        $builder = (new Builder())
+            ->addSource($this->sources)
+            ->setMode(Mode::SPEC);
+
+        if ($this->logger instanceof LoggerInterface) {
+            $builder->setLogger($this->logger);
+        }
+
+        if ($this->builderHook !== null) {
+            $customised = ($this->builderHook)($builder);
+            if ($customised instanceof Builder) {
+                $builder = $customised;
+            }
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Rescan on every {@see registerRoutes()} call.
+     *
+     * Bypasses both the configured cache and the adapter's own cached routes. Typically off
+     * in production.
+     */
+    public function setReload(bool $reload = true): static
+    {
+        $this->reload = $reload;
+
+        return $this;
+    }
+
+    /**
+     * Cache extracted routes here across requests when {@see setReload()} is off.
+     */
+    public function setCache(?CacheInterface $cache): static
+    {
+        $this->cache = $cache;
+
+        return $this;
+    }
+
+    /**
+     * Use the operation's `operationId` as the route name.
+     *
+     * When off, only an explicit `x-name` vendor property names a route.
+     */
+    public function setOperationIdAsName(bool $operationIdAsName = true): static
+    {
+        $this->operationIdAsName = $operationIdAsName;
+
+        return $this;
+    }
+
+    /**
+     * PSR-3 logger for the scan.
+     */
+    public function setLogger(?LoggerInterface $logger): static
+    {
+        $this->logger = $logger;
+
+        return $this;
+    }
+
+    /**
+     * @return list<RouteRegistration>|null `null` when the adapter's own route cache was used instead
+     */
+    public function registerRoutes(): ?array
+    {
+        if (!$this->reload && $this->routingAdapter->registerCached()) {
             return null;
         }
 
-        $openapi = null;
-        /** @var CacheInterface $cache */
-        if (($cache = $this->options[self::OPTION_CACHE]) && !$this->options[self::OPTION_RELOAD]) {
-            // try cache
-            $openapi = $cache->get(self::CACHE_KEY_OPENAPI);
+        $cache = $this->reload ? null : $this->cache;
+
+        /** @var list<RouteRegistration>|null $routes */
+        $routes = is_array($cached = $cache?->get(self::CACHE_KEY_ROUTES)) ? array_values($cached) : null;
+
+        if ($routes === null) {
+            $routes = $this->extractRoutes(
+                $this->builder()->build()->specification() ?? new Specification()
+            );
+
+            $cache?->set(self::CACHE_KEY_ROUTES, $routes);
         }
 
-        $this->registerOpenApi($openapi ?: ($openapi = $this->scan()));
-
-        if ($cache && !$this->options[self::OPTION_RELOAD]) {
-            $cache->set(self::CACHE_KEY_OPENAPI, $openapi);
+        foreach ($routes as $route) {
+            $this->routingAdapter->register($route);
         }
 
-        return $openapi;
-    }
-
-    protected function registerOpenApi(OA\OpenApi $openapi)
-    {
-        $methods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
-
-        foreach ($openapi->paths as $pathItem) {
-            foreach ($methods as $method) {
-                $operation = null;
-                /** @var OA\Parameter[] $parameters */
-                $parameters = [];
-
-                if (Generator::UNDEFINED !== $pathItem->{$method}) {
-                    /** @var OA\Operation $operation */
-                    $operation = $pathItem->{$method};
-
-                    if ($operation) {
-                        if (!Generator::isDefault($operation->parameters)) {
-                            foreach ($operation->parameters as $parameter) {
-                                if ('path' == $parameter->in) {
-                                    $parameters[] = $parameter;
-                                }
-                            }
-                        }
-
-                        $controller = null;
-                        $context = $operation->_context;
-                        if ($context && $context->method) {
-                            if ($context->class) {
-                                if ($context->namespace) {
-                                    $controller = $context->namespace . '\\' . $context->class . '::' . $context->method;
-                                } else {
-                                    $controller = $context->class . '::' . $context->method;
-                                }
-                            } else {
-                                $controller = $context->method;
-                            }
-                        }
-
-                        $middleware = [];
-                        if (!Generator::isDefault($operation->attachables)) {
-                            foreach ($operation->attachables as $attachable) {
-                                if ($attachable instanceof Middleware) {
-                                    $middleware = array_merge($middleware, $attachable->names);
-                                }
-                            }
-                        }
-                        $middleware = array_unique($middleware);
-
-                        $custom = [
-                            RoutingAdapterInterface::X_NAME => $this->options[self::OPTION_OA_OPERATION_ID_AS_NAME] ? $operation->operationId : null,
-                            RoutingAdapterInterface::X_MIDDLEWARE => $middleware,
-                        ];
-                        if (!Generator::isDefault($operation->x)) {
-                            foreach (array_keys($custom) as $xKey) {
-                                if (array_key_exists($xKey, $operation->x)) {
-                                    $custom[$xKey] = is_array($custom[$xKey]) ? array_merge($custom[$xKey], $operation->x[$xKey]) : $operation->x[$xKey];
-                                }
-                            }
-                        }
-
-                        $this->routingAdapter->register(
-                            $operation,
-                            $controller,
-                            $this->parameterMetadata(array_reverse($parameters)),
-                            $custom
-                        );
-                    }
-                }
-            }
-        }
+        return $routes;
     }
 
     /**
-     * Extract (uri) parameter meta data.
+     * @return list<RouteRegistration>
+     */
+    protected function extractRoutes(Specification $specification): array
+    {
+        $hierarchy = $specification->buildPathItemHierarchy();
+
+        $routes = [];
+        foreach ($specification->operations as $operation) {
+            $reflector = $operation->getReflector();
+            if (!$reflector instanceof \ReflectionMethod) {
+                // no declaring method to dispatch to (e.g. a plain function) — nothing to register
+                continue;
+            }
+
+            $controller = $operation->getClassName() . '::' . $reflector->getName();
+            $pathItems = $hierarchy->forOperation($operation);
+
+            $routes[] = new RouteRegistration(
+                path: $operation->path ?? '',
+                method: strtoupper($operation->method ?? 'GET'),
+                controller: $controller,
+                parameters: $this->parameterMetadata(array_reverse($this->pathParameters($operation, $pathItems))),
+                custom: $this->customProperties($operation, $pathItems),
+            );
+        }
+
+        return $routes;
+    }
+
+    /**
+     * The path parameters applying to an operation, in path order.
      *
-     * @param OA\Parameter[] $parameters
+     * `PathItem::$parameters` are shared by every operation under it and are emitted at path
+     * level, so swagger-php never copies them onto the operations themselves — but routing
+     * still needs them, or a placeholder declared once for the whole controller ends up with
+     * no type, pattern or optionality. A parameter the operation declares itself wins, while
+     * keeping the position the path item gave it.
+     *
+     * @param list<OA\PathItem> $pathItems
+     *
+     * @return list<OA\Parameter>
+     */
+    protected function pathParameters(OA\Operation $operation, array $pathItems): array
+    {
+        $parameters = [];
+
+        foreach ([...$pathItems, $operation] as $holder) {
+            foreach ($holder->parameters ?? [] as $parameter) {
+                if ('path' === $parameter->in && $parameter->name !== null) {
+                    $parameters[$parameter->name] = $parameter;
+                }
+            }
+        }
+
+        return array_values($parameters);
+    }
+
+    /**
+     * @param list<OA\PathItem> $pathItems
+     *
+     * @return array<string,mixed>
+     */
+    protected function customProperties(OA\Operation $operation, array $pathItems): array
+    {
+        // PathItem's own class-level attachables don't clone down to its operations the way
+        // tags/security/responses do (swagger-php's `PathItems` augmenter only clones those
+        // three) — resolved here instead, so a controller-level `#[Middleware]` still applies
+        // to every operation under it, inherited ones included.
+        $attachables = [];
+        foreach ([...$pathItems, $operation] as $holder) {
+            $attachables = [...$attachables, ...$holder->attachables ?? []];
+        }
+
+        $middleware = [];
+        foreach ($attachables as $attachable) {
+            if ($attachable instanceof Middleware) {
+                $middleware = [...$middleware, ...$attachable->names];
+            }
+        }
+
+        $name = $this->operationIdAsName ? $operation->operationId : null;
+
+        $x = $operation->x ?? [];
+        if (array_key_exists(RoutingAdapterInterface::X_NAME, $x)) {
+            $name = $x[RoutingAdapterInterface::X_NAME];
+        }
+        if (array_key_exists(RoutingAdapterInterface::X_MIDDLEWARE, $x)) {
+            $middleware = [...$middleware, ...array_values((array) $x[RoutingAdapterInterface::X_MIDDLEWARE])];
+        }
+
+        return [
+            RoutingAdapterInterface::X_NAME => $name,
+            RoutingAdapterInterface::X_MIDDLEWARE => array_values(array_unique($middleware)),
+        ];
+    }
+
+    /**
+     * Extract URI parameter metadata.
+     *
+     * @param list<OA\Parameter> $parameters
+     *
+     * @return array<string,array{required: bool, type: ?string, pattern: ?string}>
      */
     protected function parameterMetadata(array $parameters): array
     {
@@ -154,23 +265,22 @@ class OpenApiRouter
             $name = $parameter->name;
 
             $metadata[$name] = [
-                'required' => !Generator::isDefault($parameter->required) && $parameter->required,
+                'required' => (bool) $parameter->required,
                 'type' => null,
                 'pattern' => null,
             ];
 
-            if (!Generator::isDefault($parameter->schema)) {
-                $schema = $parameter->schema;
-                switch ($schema->type) {
+            if ($schema = $parameter->schema) {
+                switch ($this->routableType($schema->type)) {
                     case 'string':
-                        $metadata[$name]['type'] = $schema->type;
-                        if (!Generator::isDefault($pattern = $schema->pattern)) {
+                        $metadata[$name]['type'] = 'string';
+                        if ($pattern = $schema->pattern) {
                             $metadata[$name]['type'] = 'regex';
                             $metadata[$name]['pattern'] = $pattern;
                         }
                         break;
                     case 'integer':
-                        $metadata[$name]['type'] = $schema->type;
+                        $metadata[$name]['type'] = 'integer';
                         break;
                 }
             }
@@ -179,20 +289,23 @@ class OpenApiRouter
         return $metadata;
     }
 
-    public function scan(?LoggerInterface $logger = null): OA\OpenApi
+    /**
+     * Reduce a schema type to the single scalar type routing cares about.
+     *
+     * OpenAPI 3.1 allows a list of types, which is how nullability is expressed
+     * (`['integer', 'null']`). `null` is not a routable type, so it is dropped; anything
+     * still ambiguous after that (a genuine union) has no single constraint to apply.
+     *
+     * @param string|list<string>|null $type
+     */
+    protected function routableType(string|array|null $type): ?string
     {
-        $generator = (new OpenApiBuilder())->build($logger);
+        if (!is_array($type)) {
+            return $type;
+        }
 
-        // provide default @OA\Info in case we need to do some scanning
-        $analysis = $generator->withContext(function (Generator $generator, Analysis $analysis, Context $context) {
-            if ($this->options[self::OPTION_OA_INFO_INJECT]) {
-                $analysis->addAnnotation(new OA\Info(['title' => 'OpenApi', 'version' => '1.0']), $context);
-            }
+        $types = array_values(array_filter($type, static fn (string $candidate): bool => $candidate !== 'null'));
 
-            return $analysis;
-        });
-
-        return $generator
-            ->generate($this->sources, $analysis);
+        return count($types) === 1 ? $types[0] : null;
     }
 }

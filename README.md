@@ -5,79 +5,169 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Introduction
-Allows to (re-)use [Swagger-PHP](https://github.com/zircote/swagger-php) attributes (docblock annotations are deprecated),
-to configure routes in the following frameworks:
+
+Configure framework routes from the [swagger-php](https://github.com/zircote/swagger-php)
+attributes describing your API, so the routing table and the OpenAPI document cannot drift
+apart.
+
+**Spec attributes only.** Routes are read from the `OpenApi\Spec` namespace — swagger-php's
+spec pipeline. The classic `OpenApi\Attributes` namespace and docblock annotations are not
+read at all, so a codebase on classic needs converting first; see the
+[upgrade guide](docs/UpgradingTo5.md) if you are coming from 4.x. Spec attributes are
+[marked beta upstream](https://zircote.github.io/swagger-php/guide/spec-attributes) and their
+API may still change.
+
+Supported frameworks:
 
 * [Laravel](https://github.com/laravel/laravel)
 * [Slim](https://github.com/slimphp/Slim)
 
-
 ## Requirements
-* [PHP 8.1 or higher](http://www.php.net/) - depending on framework version.
+
+* PHP 8.2 or higher
+* `zircote/swagger-php` ^6.9
 
 ## Installation
-
-You can use **composer** or simply **download the release**.
-
-**Composer**
-
-The preferred method is via [composer](https://getcomposer.org). Follow the
-[installation instructions](https://getcomposer.org/doc/00-intro.md) if you do not already have
-composer installed.
-
-Once composer is installed, execute the following command in your project root to install this library:
 
 ```sh
 composer require radebatz/openapi-router
 ```
-After that all required classes should be availabe in your project to add routing support.
 
 ## Basic usage
 
-Example using the `Slim` framework adapter and standard [OpenApi attributes](https://zircote.github.io/swagger-php/guide/attributes) only.
-
 **Controller**
+
 ```php
 <?php
 
 namespace MyApp\Controllers\V1;
 
-use OpenApi\Attributes as OA;
-use Radebatz\OpenApi\Extras\Attributes as OAX;
+use OpenApi\Spec as OA;
+use Radebatz\OpenApi\Routing\Attributes\Middleware;
 
-/* Things shared by all endpoints in this controller.*/
-#[OAX\Controller(prefix: '/api/v1')]
+#[OA\PathItem(prefix: '/api/v1')]
 #[OA\Response(response: 200, description: 'OK')]
-#[OAX\Middleware(names: ['auth', 'admin'])]
+#[Middleware(names: ['auth', 'admin'])]
 class GetController
 {
-    #[OA\Get(path: '/getme', operationId: 'getme')]
+    #[OA\Operation\Get(path: '/getme', operationId: 'getme')]
     #[OA\Response(response: 400, description: 'Not good enough')]
-    public function getme($request, $response) {
+    public function getme($request, $response)
+    {
         return $response->write('Get me');
     }
 }
 ```
 
+`PathItem` applies to every operation in the class: `prefix` composes into their paths, and
+`tags`, `security` and `responses` are shared with them. It composes along the class
+hierarchy, so a base controller can carry what its subclasses have in common.
+
 **index.php**
+
 ```php
 <?php
 
 use Radebatz\OpenApi\Routing\Adapters\SlimRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
-use Slim\App;
+use Slim\Factory\AppFactory;
 
 require '../vendor/autoload.php';
 
-$app = new App();
+$app = AppFactory::create();
+
 (new OpenApiRouter([__DIR__ . '/../src/controllers'], new SlimRoutingAdapter($app)))
     ->registerRoutes();
 
 $app->run();
 ```
 
+## Writing the attributes
+
+Every attribute except `#[Middleware]` is swagger-php's, and documented there:
+
+* [Using spec attributes](https://zircote.github.io/swagger-php/guide/spec-attributes) — how
+  to write them
+* [Spec attribute reference](https://zircote.github.io/swagger-php/reference/spec-attributes)
+  — every attribute and its parameters
+* [Modes](https://zircote.github.io/swagger-php/guide/modes) — how the spec pipeline differs
+  from classic
+
+### `#[Middleware]`
+
+The one attribute this package defines. Names middleware in whatever form the framework
+expects — a class-string, or an alias such as Laravel's `auth`.
+
+```php
+#[OA\PathItem(prefix: '/pets')]
+#[Middleware(names: ['auth'])]              // every route in the controller
+class PetController
+{
+    #[OA\Operation\Get(path: '/{id}')]
+    #[Middleware(names: ['throttle:60,1'])] // this route only
+    public function show(string $id) {}
+}
+```
+
+Both apply, class-level first. Class-level middleware follows the class hierarchy the same
+way a `PathItem` prefix does, so a base controller's middleware applies to every subclass,
+outermost ancestor first.
+
+It is an `Attachable`, so it never appears in the generated document. It must sit beside an
+`OA\Operation` or an `OA\PathItem`; anywhere else raises an error.
+
+### Vendor extensions
+
+Two keys on an operation's `x` argument feed the router. Write them **without** the `x-`
+prefix; swagger-php adds it when emitting.
+
+```php
+#[OA\Operation\Get(path: '/pets', operationId: 'listPets', x: [
+    'name' => 'pets.index',
+    'middleware' => ['throttle:60,1'],
+])]
+```
+
+| Key | In the document | Effect |
+|---|---|---|
+| `name` | `x-name` | **Replaces** the route name |
+| `middleware` | `x-middleware` | **Appends** to the `#[Middleware]` attributes |
+
+Unlike `#[Middleware]`, these **are** emitted into the document. Prefer the attribute unless
+you want the middleware visible to whatever consumes your spec.
+
+The constants for the unprefixed keys are `RoutingAdapterInterface::X_NAME` and
+`X_MIDDLEWARE`.
+
+### Duplicate names and paths
+
+Nothing here checks that route names or paths are unique — the framework decides, and the two
+disagree:
+
+| Clash | Laravel | Slim |
+|---|---|---|
+| Same **name**, different paths | the first route scanned keeps the name; the later one still dispatches but `route()` cannot reach it | the same, through `getNamedRoute()` |
+| Same **method and path** | only the later route survives; the earlier name may still generate a URL, but it dispatches to the later route | `FastRoute\BadRouteException` on the first request |
+
+"First scanned" means scan order, which for a directory source is filesystem order — not
+something to depend on. Keep `operationId` and `x-name` unique: a clash either silently loses
+a route or resolves to whichever one the scan happened to reach first.
+
+## Generating the OpenAPI document
+
+Use swagger-php directly — its CLI or `Builder` over the same sources:
+
+```sh
+./vendor/bin/openapi --mode spec -o openapi.yaml src/controllers
+```
+
+The output is identical either way — this package adds nothing to the document.
+
 ## Documentation
+
 * [Configuration](docs/Configuration.md)
+* [Upgrading to 5.x](docs/UpgradingTo5.md)
+* [Terminology](CONTEXT.md) — the words this package uses, and the ones it avoids
 
 ## License
 

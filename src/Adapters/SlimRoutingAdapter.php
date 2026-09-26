@@ -2,7 +2,8 @@
 
 namespace Radebatz\OpenApi\Routing\Adapters;
 
-use OpenApi\Annotations as OA;
+use Psr\Container\ContainerInterface;
+use Radebatz\OpenApi\Routing\RouteRegistration;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
 use Slim\App;
 
@@ -11,30 +12,28 @@ use Slim\App;
  */
 class SlimRoutingAdapter implements RoutingAdapterInterface
 {
-    protected App $app;
-    protected array $options;
-
-    public function __construct(App $app, array $options = [])
-    {
-        $this->app = $app;
-        $this->options = array_merge([
-            static::OPTION_AUTO_REGEX => true,
-        ], $options);
+    /**
+     * @param App<ContainerInterface|null> $app
+     * @param bool                         $autoRegex Constrain an `integer`-typed path parameter to `[0-9]+`
+     */
+    public function __construct(
+        protected App $app,
+        protected bool $autoRegex = true,
+    ) {
     }
 
     /**
      * @inheritdoc
      */
-    public function register(OA\Operation $operation, string $controller, array $parameters, array $custom): void
+    public function register(RouteRegistration $route): void
     {
-        $path = $operation->path;
+        $path = $route->path;
 
-        $controller = str_replace('::', ':', $controller);
+        $controller = str_replace('::', ':', $route->controller);
 
-        /** @var OA\Parameter $parameter */
-        foreach ($parameters as $name => $parameter) {
+        foreach ($route->parameters as $name => $parameter) {
             if (!$parameter['required']) {
-                if (false !== strpos($path, $needle = "/{{$name}}[/{")) {
+                if (str_contains($path, $needle = "/{{$name}}[/{")) {
                     // multiple optional parameters
                     $path = preg_replace("#/{{$name}}(\[?.*}\])#", "[/{{$name}}$1]", $path);
                 } else {
@@ -50,20 +49,20 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
                     break;
 
                 case 'integer':
-                    if ($this->options[static::OPTION_AUTO_REGEX]) {
+                    if ($this->autoRegex) {
                         $path = str_replace("{{$name}}", "{{$name}:[0-9]+}", $path);
                     }
                     break;
             }
         }
 
-        $route = $this->app->map([strtoupper($operation->method)], $path, $controller);
-        if ($custom[static::X_NAME]) {
-            $route->setName($custom[static::X_NAME]);
+        $slimRoute = $this->app->map([strtoupper($route->method)], $path, $controller);
+        if ($route->custom[static::X_NAME]) {
+            $slimRoute->setName($route->custom[static::X_NAME]);
         }
 
-        foreach ($custom[static::X_MIDDLEWARE] as $middleware) {
-            $route->add($middleware);
+        foreach ($route->custom[static::X_MIDDLEWARE] as $middleware) {
+            $slimRoute->add($middleware);
         }
     }
 

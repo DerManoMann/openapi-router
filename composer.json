@@ -1,6 +1,6 @@
 {
     "name": "radebatz/openapi-router",
-    "description": "Routing adapter for OpenApi annotations.",
+    "description": "Configure framework routes from the swagger-php spec attributes describing your API.",
     "license": [
         "MIT"
     ],
@@ -13,16 +13,19 @@
     ],
     "prefer-stable": true,
     "scripts": {
-        "cs": "php-cs-fixer fix --allow-risky=yes",
+        "cs": "export XDEBUG_MODE=off && php-cs-fixer fix --allow-risky=yes",
         "rector": "rector process src tests",
         "lint": [
             "@cs --dry-run",
             "@rector --dry-run"
         ],
-        "test": [
-          "phpunit",
-          "@lint"
+        "test": "export XDEBUG_MODE=off && phpunit",
+        "analyse": [
+            "export XDEBUG_MODE=off && phpstan analyse --memory-limit=2G"
         ]
+    },
+    "scripts-descriptions": {
+        "analyse": "Run static analysis (phpstan)"
     },
     "config": {
         "sort-packages": true
@@ -39,30 +42,29 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "3.x-dev"
+            "dev-main": "5.x-dev"
         }
     },
     "require": {
         "php": ">=8.2",
         "psr/log": "^1.1 || ^2.0 || ^3.0",
         "psr/simple-cache": "^1.0 || ^2.0 || ^3.0",
-        "radebatz/openapi-extras": "^4.2",
-        "zircote/swagger-php": "^4.11.1 || ^5.0.2 || ^6.0"
+        "zircote/swagger-php": "^6.11"
     },
     "require-dev": {
-        "doctrine/annotations": "^2.0",
         "friendsofphp/php-cs-fixer": "^3.62.0",
+        "laravel/laravel": "^12.0 || ^13.0",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
-        "phpunit/phpunit": "^9.0 || ^10.5",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5",
         "rector/rector": "^1.2 || ^2.0",
+        "slim/slim": "^4.0",
         "symfony/cache": "^6.0 || ^7.0",
+        "symfony/finder": "^6.4 || ^7.0 || ^8.0",
         "symfony/psr-http-message-bridge": "^6.0 || ^7.0"
     },
     "suggest": {
         "radebatz/openapi-verifier": "Allows your PHPUnit tests to validate your controller response against your OpenAPI spec."
-    },
-    "conflict": {
-        "zircote/swagger-php": "5.3.0"
     }
 }

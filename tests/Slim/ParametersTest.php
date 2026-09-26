@@ -2,44 +2,52 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Slim;
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class ParametersTest extends TestCase
+final class ParametersTest extends TestCase
 {
     use CallsControllerTrait;
 
-    /** @test */
-    public function parameter()
+    #[Test]
+    public function parameter(): void
     {
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('hey'));
-        $this->assertEquals('/hey/{name}', $route->getPattern());
+        $this->assertSame('/hey/{name}', $route->getPattern());
     }
 
-    /** @test */
-    public function optionalParameter()
+    #[Test]
+    public function optionalParameter(): void
     {
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('oi'));
-        $this->assertEquals('/oi[/{name}]', $route->getPattern());
+        $this->assertSame('/oi[/{name}]', $route->getPattern());
     }
 
-    /** @test */
-    public function multiOptionalParameter()
+    #[Test]
+    public function multiOptionalParameter(): void
     {
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('multi'));
-        $this->assertEquals('/multi[/{foo}[/{bar}]]', $route->getPattern());
+        $this->assertSame('/multi[/{foo}[/{bar}]]', $route->getPattern());
     }
 
-    /** @test */
-    public function typedParameter()
+    #[Test]
+    public function pathItemParameter(): void
+    {
+        $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('shared'));
+        $this->assertSame('/shared/{tenant:[0-9]+}/items', $route->getPattern());
+    }
+
+    #[Test]
+    public function typedParameter(): void
     {
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('id'));
-        $this->assertEquals('/id/{id:[0-9]+}', $route->getPattern());
+        $this->assertSame('/id/{id:[0-9]+}', $route->getPattern());
     }
 
-    /** @test */
-    public function regexParameter()
+    #[Test]
+    public function regexParameter(): void
     {
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('hid'));
-        $this->assertEquals('/hid/{hid:[0-9a-f]+}', $route->getPattern());
+        $this->assertSame('/hid/{hid:[0-9a-f]+}', $route->getPattern());
     }
 }

@@ -18,14 +18,16 @@ trait CallsApplicationTrait
 
     protected function setUp(): void
     {
-        if (!class_exists('\\Illuminate\\Foundation\\Application')) {
+        if (!class_exists(Application::class)) {
             $this->markTestSkipped('not installed.');
         }
 
         parent::setUp();
     }
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     */
     public function createApplication()
     {
         if (!$this->app) {
@@ -37,14 +39,8 @@ trait CallsApplicationTrait
             ]);
             Facade::setFacadeApplication($app);
 
-            $options = [
-                OpenApiRouter::OPTION_OA_INFO_INJECT => true,
-            ];
-            (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app), $options))
+            (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app)))
                 ->registerRoutes();
-            $openapi = (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app), $options))
-                ->scan();
-            file_put_contents(__DIR__ . '/openapi.yaml', $openapi->toYaml());
 
             $this->app = $app;
         }
@@ -59,7 +55,10 @@ trait CallsApplicationTrait
         return $app['router'];
     }
 
-    protected function route(string $name, $parameters = [], bool $absolute = true): string
+    /**
+     * @param array<string,mixed>|string $parameters
+     */
+    protected function route(string $name, array|string $parameters = [], bool $absolute = true): string
     {
         return $this->createApplication()['url']->route($name, $parameters, $absolute);
     }
