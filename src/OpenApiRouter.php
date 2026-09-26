@@ -158,12 +158,7 @@ class OpenApiRouter
      */
     protected function extractRoutes(Specification $specification): array
     {
-        $classToPathItem = [];
-        foreach ($specification->pathItems as $pathItem) {
-            if (($className = $pathItem->getClassName()) !== null) {
-                $classToPathItem[$className] = $pathItem;
-            }
-        }
+        $hierarchy = $specification->buildPathItemHierarchy();
 
         $routes = [];
         foreach ($specification->operations as $operation) {
@@ -174,7 +169,7 @@ class OpenApiRouter
             }
 
             $controller = $operation->getClassName() . '::' . $reflector->getName();
-            $pathItems = $this->governingPathItems($operation->getClassName(), $classToPathItem);
+            $pathItems = $hierarchy->forOperation($operation);
 
             $routes[] = new RouteRegistration(
                 path: $operation->path ?? '',
@@ -186,33 +181,6 @@ class OpenApiRouter
         }
 
         return $routes;
-    }
-
-    /**
-     * The `PathItem` chain governing an operation, outermost ancestor first.
-     *
-     * swagger-php resolves a class without its own `PathItem` against its ancestors — which
-     * is how a base controller's prefix reaches a subclass's operations — so anything read
-     * off a `PathItem` here has to walk the same hierarchy or it silently applies to nothing.
-     *
-     * @param array<string, OA\PathItem> $classToPathItem
-     *
-     * @return list<OA\PathItem>
-     */
-    protected function governingPathItems(?string $className, array $classToPathItem): array
-    {
-        if ($className === null || !class_exists($className)) {
-            return [];
-        }
-
-        $pathItems = [];
-        for ($current = new \ReflectionClass($className); $current !== false; $current = $current->getParentClass()) {
-            if (isset($classToPathItem[$current->getName()])) {
-                $pathItems[] = $classToPathItem[$current->getName()];
-            }
-        }
-
-        return array_reverse($pathItems);
     }
 
     /**
