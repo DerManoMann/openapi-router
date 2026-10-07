@@ -32,6 +32,11 @@ composer require radebatz/openapi-router
 ```
 After that all required classes should be availabe in your project to add routing support.
 
+> [!NOTE]
+> Composer reports `radebatz/openapi-extras` as abandoned when installing this package. That is
+> expected: 4.x depends on it, and nothing needs doing on your side. The upcoming
+> openapi-router 5.0 is built on swagger-php's spec attributes and drops the dependency.
+
 ## Basic usage
 
 Example using the `Slim` framework adapter and standard [OpenApi attributes](https://zircote.github.io/swagger-php/guide/attributes) only.
