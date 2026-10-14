@@ -1,113 +1,90 @@
 # Configuration
 
-## Global Configuration
-The `OpenApiRouter` class takes an array (map) as optional third constructor argument which allows to customise
-its behaviour.
+`OpenApiRouter` is configured with fluent setters, each returning the router so calls chain.
+All are optional.
 
-All option names (keys) are defined as class constants in `Radebatz\OpenApi\Routing\OpenApiRouter`.
-
-**`OPTION_RELOAD`**
----
-Enforces loading of route annotations on each request.
-
-Typically you want this turned off on production. Requires a cache confgured (annotation caching) or caching support implemented by the used adapter. 
-
-**Note**: When using a framework it is recommended to rely on the framework caching rather than using the (simple) build in cache. 
-
-Default: `true`
-
-**`OPTION_CACHE`**
----
-Instance of a PSR-16 simple cache.
-
-Used for caching of parsed OpenApi annotations if the `reload` option is disabled.
-
-Default: `null`
-
-**`OPTION_OA_INFO_INJECT`**
----
-Controls whether to inject a default `@OA\Info` instance while scanning.
-
-This can be useful for testing or small projects.
-
-Default: `false`
-
-**`OPTION_OA_OPERATION_ID_AS_NAME`**
----
-Controls whether to use the configured `operationId` as the route name. If disabled the adapter will look for a vendor property
-`x-name` on the operation (`Get`, `Post`, etc.) attribute.
-
-Allows to set the route name via the standard `operationId` rather than the vendor `x-name`.
-
-**Note**: The default for `operationId` in `swagger-php` is to generate an operationId and hash it if it is explicitely set. generated 
-
-Default: `true`
-
-### Example use
-```php
-<?php
-
-use Radebatz\OpenApi\Routing\Adapters\LaravelRoutingAdapter;
-use Radebatz\OpenApi\Routing\OpenApiRouter;
-use Symfony\Component\Cache\Simple\ArrayCache;
-
-    $options = [
-        OpenApiRouter::OPTION_RELOAD => true,
-        OpenApiRouter::OPTION_CACHE => new ArrayCache(),
-    ];
-    
-    (new OpenApiRouter([__DIR__ . '/Fixtures/Laravel'], new LaravelRoutingAdapter($app), $options))
-        ->registerRoutes();
-```
-
-## Adapter Configuration
-Each framework is different and that means that not all features are available in all adapters.
-Adapter configuration keys are available as constants on the `RoutingAdapterInterface` interface.
-
-Right now these options are available:
-
-**`OPTION_AUTO_REGEX`**
----
-When enabled the adapter will automatically configure a `[0-9]+` regex for any path elements defined as integer. 
-
-Available for:
-* All adapters
-
-   default: `true`
-
-**`OPTION_NAMESPACE`**
----
-Specifies a base namespace for all controllers. If set this will be removed from the controller classes passed into the
-framework router.
-
-Available for:
-* `LaravelRouteringAdapter`
-
-   default: `'App\\Http\\Controllers\\'`
-* `LumneRoutingAdapter`
- 
-   default: `'App\\Http\\Controllers\\'`
-
-### Example use
+Prefixes follow swagger-php's convention: `set*` takes a value, `with*` takes a callable that
+configures something.
 
 ```php
-<?php
-
 use Radebatz\OpenApi\Routing\Adapters\LaravelRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
-use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
-use Symfony\Component\Cache\Simple\ArrayCache;
 
-    $options = [
-        OpenApiRouter::OPTION_RELOAD => true,
-        OpenApiRouter::OPTION_CACHE => new ArrayCache(),
-    ];
-    
-    $adapterOptions = [
-        RoutingAdapterInterface::OPTION_AUTO_REGEX => false,
-        RoutingAdapterInterface::OPTION_NAMESPACE => 'My\\App',
-    ];
-    
-    (new OpenApiRouter([__DIR__ . '/Fixtures/Laravel'], new LaravelRoutingAdapter($app, $adapterOptions), $options))
-        ->registerRoutes();
+(new OpenApiRouter([__DIR__ . '/../src/Controllers'], new LaravelRoutingAdapter($app)))
+    ->setReload(false)
+    ->setCache($psr16Cache)
+    ->registerRoutes();
 ```
+
+## Router
+
+### `setReload(bool $reload = true)`
+
+Rescan on every `registerRoutes()` call, bypassing both the configured cache and the
+adapter's own cached routes. Default `true`; turn it off in production.
+
+### `setCache(?CacheInterface $cache)`
+
+A PSR-16 cache for the extracted routes, used when `setReload(false)` is set. Default
+`null`.
+
+It holds the routes, not the specification — a `Spec\Operation` carries a live `\Reflector`
+and cannot be serialized.
+
+### `setOperationIdAsName(bool $operationIdAsName = true)`
+
+Use each operation's `operationId` as the route name. Default `true`. When off, only an
+explicit `x-name` names a route.
+
+swagger-php hashes generated operation ids by default, so relying on this without declaring
+`operationId` yourself produces hashed route names. Either declare them, or turn
+hashing off through the builder:
+
+```php
+$router->withBuilder(function (Builder $builder): void {
+    $builder->getAugmenters()->get(OpenApi\Augmenter\OperationIds::class)?->setHash(false);
+});
+```
+
+### `setLogger(?LoggerInterface $logger)`
+
+A PSR-3 logger for the scan, applied to the builder before the `withBuilder()` hook runs.
+
+### `withBuilder(callable $hook)`
+
+Configure the `OpenApi\Builder` before it runs. The hook receives one already carrying this
+package's sources, spec mode and logger, and may modify it in place or return a replacement —
+the same shape as swagger-php's own `withResolver()` and `withAugmenters()`.
+
+```php
+$router->withBuilder(function (Builder $builder): void {
+    $builder->withAttributeFactory(
+        fn ($factory) => $factory->withTranslators(
+            fn ($translators) => $translators->add(new MyTranslator())
+        )
+    );
+})->registerRoutes();
+```
+
+The router applies sources and mode itself, so the hook does not need to.
+
+Use it for configuration that changes *which operations are discovered* — a translator
+turning a framework-native attribute into a `Spec\Operation` adds routes. Configuration that
+only shapes the document belongs in a direct swagger-php call.
+
+## Adapters
+
+Both adapters take the framework application and one option:
+
+```php
+new LaravelRoutingAdapter($app, autoRegex: false);
+new SlimRoutingAdapter($app, autoRegex: false);
+```
+
+### `$autoRegex`
+
+Constrain a path parameter declared `type: 'integer'` to `[0-9]+`. Default `true`.
+
+Laravel expresses this as a `where()` constraint, Slim as a `{id:[0-9]+}` placeholder. A
+parameter whose schema carries an explicit `pattern` uses that instead, regardless of this
+setting.

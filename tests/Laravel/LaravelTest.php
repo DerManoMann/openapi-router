@@ -2,30 +2,32 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Laravel;
 
+use Illuminate\Routing\Route;
+use PHPUnit\Framework\Attributes\Test;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\BarMiddleware;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\FooMiddleware;
 
-class LaravelTest extends LaravelTestCase
+final class LaravelTest extends LaravelTestCase
 {
     use CallsApplicationTrait;
 
-    /** @test */
-    public function namedRoute()
+    #[Test]
+    public function namedRoute(): void
     {
-        $this->assertNotNull($this->getRouter()->getRoutes()->getByName('getya'));
+        $this->assertInstanceOf(Route::class, $this->getRouter()->getRoutes()->getByName('getya'));
     }
 
-    /** @test */
-    public function invoke()
+    #[Test]
+    public function invoke(): void
     {
-        $this->assertNotNull($this->getRouter()->getRoutes()->getByName('invoke'));
+        $this->assertInstanceOf(Route::class, $this->getRouter()->getRoutes()->getByName('invoke'));
 
         $response = $this->get($this->route('invoke', 'joe'));
         $response->assertStatus(200);
     }
 
-    /** @test */
-    public function prefixed()
+    #[Test]
+    public function prefixed(): void
     {
         $response = $this->get($this->route('prefixed'));
         $response->assertStatus(200);
@@ -34,28 +36,29 @@ class LaravelTest extends LaravelTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     *
-     * @requires PHP 8.1
-     */
-    public function attributesPrefixed()
+    #[Test]
+    public function attributesPrefixed(): void
     {
         $response = $this->get('attributes/prefixed');
-        echo $response->getContent();
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     *
-     * @requires PHP 8.1
-     */
-    public function attributesMiddleware()
+    #[Test]
+    public function attributesMiddleware(): void
     {
         $route = $this->getRouter()->getRoutes()->getByName('attributes');
 
-        $this->assertNotNull($route);
+        $this->assertInstanceOf(Route::class, $route);
+        $this->assertSame([FooMiddleware::class, BarMiddleware::class], $route->gatherMiddleware());
+    }
+
+    #[Test]
+    public function inheritedMiddleware(): void
+    {
+        $route = $this->getRouter()->getRoutes()->getByName('inherited');
+
+        $this->assertInstanceOf(Route::class, $route);
+        $this->assertSame('base/inherited', $route->uri());
         $this->assertSame([FooMiddleware::class, BarMiddleware::class], $route->gatherMiddleware());
     }
 }

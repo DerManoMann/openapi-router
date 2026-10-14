@@ -2,12 +2,14 @@
 
 namespace Radebatz\OpenApi\Routing\Tests\Laravel;
 
-if (class_exists('\\Illuminate\\Foundation\\Testing\\TestCase')) {
+use PHPUnit\Framework\TestCase;
+
+if (class_exists(\Illuminate\Foundation\Testing\TestCase::class)) {
     abstract class LaravelTestCase extends \Illuminate\Foundation\Testing\TestCase
     {
     }
 } else {
-    class LaravelTestCase extends \PHPUnit\Framework\TestCase
+    class LaravelTestCase extends TestCase
     {
     }
 }
