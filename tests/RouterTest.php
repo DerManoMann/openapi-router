@@ -17,6 +17,8 @@ use Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers\SharedParameterControlle
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\BarMiddleware;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\FooMiddleware;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Routing\OperationIdController;
+use Radebatz\OpenApi\Routing\Tests\Fixtures\Routing\RefParameterController;
+use Radebatz\OpenApi\Routing\Tests\Fixtures\Routing\TenantParameter;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Routing\UnionTypeController;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
@@ -53,6 +55,20 @@ final class RouterTest extends TestCase
         $this->assertSame(
             ['tenant' => ['required' => true, 'type' => 'integer', 'pattern' => null]],
             $route->parameters,
+        );
+    }
+
+    #[Test]
+    public function readsAPathParameterThePathItemDeclaresByReference(): void
+    {
+        $route = $this->register(TenantParameter::class, RefParameterController::class)->route('ref');
+
+        $this->assertInstanceOf(RouteRegistration::class, $route);
+        $this->assertSame('/ref/{tenant}/items', $route->path);
+        $this->assertSame(
+            ['tenant' => ['required' => true, 'type' => 'integer', 'pattern' => null]],
+            $route->parameters,
+            'the schema and `required` come from the component the reference points to',
         );
     }
 
@@ -215,12 +231,12 @@ final class RouterTest extends TestCase
     }
 
     /**
-     * @param class-string $class
+     * @param class-string ...$classes
      */
-    private function register(string $class): RecordingAdapter
+    private function register(string ...$classes): RecordingAdapter
     {
         $adapter = new RecordingAdapter();
-        (new OpenApiRouter($this->reflect($class), $adapter))->registerRoutes();
+        (new OpenApiRouter(array_merge(...array_map($this->reflect(...), $classes)), $adapter))->registerRoutes();
 
         return $adapter;
     }

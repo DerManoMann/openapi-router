@@ -6,6 +6,8 @@ use OpenApi\Builder;
 use OpenApi\Builder\Mode;
 use OpenApi\Spec as OA;
 use OpenApi\Specification;
+use OpenApi\Specification\ComponentIndex;
+use OpenApi\Specification\PathItemHierarchy;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Radebatz\OpenApi\Routing\Attributes\Middleware;
@@ -159,6 +161,7 @@ class OpenApiRouter
     protected function extractRoutes(Specification $specification): array
     {
         $hierarchy = $specification->buildPathItemHierarchy();
+        $index = $specification->buildComponentIndex();
 
         $routes = [];
         foreach ($specification->operations as $operation) {
@@ -175,7 +178,7 @@ class OpenApiRouter
                 path: $operation->path ?? '',
                 method: strtoupper($operation->method ?? 'GET'),
                 controller: $controller,
-                parameters: $this->parameterMetadata(array_reverse($this->pathParameters($operation, $pathItems))),
+                parameters: $this->parameterMetadata(array_reverse($this->pathParameters($operation, $hierarchy, $index))),
                 custom: $this->customProperties($operation, $pathItems),
             );
         }
@@ -192,23 +195,30 @@ class OpenApiRouter
      * no type, pattern or optionality. A parameter the operation declares itself wins, while
      * keeping the position the path item gave it.
      *
-     * @param list<OA\PathItem> $pathItems
+     * A parameter that is only a `ref` is returned as the component it points to, since that
+     * is where its schema and `required` are.
      *
      * @return list<OA\Parameter>
      */
-    protected function pathParameters(OA\Operation $operation, array $pathItems): array
+    protected function pathParameters(OA\Operation $operation, PathItemHierarchy $hierarchy, ComponentIndex $index): array
     {
-        $parameters = [];
-
-        foreach ([...$pathItems, $operation] as $holder) {
-            foreach ($holder->parameters ?? [] as $parameter) {
-                if ('path' === $parameter->in && $parameter->name !== null) {
-                    $parameters[$parameter->name] = $parameter;
-                }
+        $parameters = $hierarchy->parametersFor($operation);
+        foreach ($operation->parameters ?? [] as $parameter) {
+            if (($key = $index->parameterKey($parameter)) !== null) {
+                $parameters[$key] = $parameter;
             }
         }
 
-        return array_values($parameters);
+        $pathParameters = [];
+        foreach ($parameters as $parameter) {
+            $ref = $parameter->ref instanceof OA\Schema\Ref ? $parameter->ref->ref : $parameter->ref;
+            $parameter = (is_string($ref) ? $index->findParameter($ref) : null) ?? $parameter;
+            if ('path' === $parameter->in && $parameter->name !== null) {
+                $pathParameters[] = $parameter;
+            }
+        }
+
+        return $pathParameters;
     }
 
     /**
