@@ -42,7 +42,7 @@ jobs:
           coverage: pcov
 
       - name: Pin Laravel version
-        run: composer require --dev laravel/laravel "^${{ matrix.laravel }}" -W --no-update
+        run: composer require --dev laravel/framework "^${{ matrix.laravel }}" -W --no-update
 
       - name: Composer install
         uses: ramsey/composer-install@v4

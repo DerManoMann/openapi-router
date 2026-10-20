@@ -23,8 +23,8 @@ the upgrade guide.
 
 Supported frameworks:
 
-* [Laravel](https://github.com/laravel/laravel)
-* [Slim](https://github.com/slimphp/Slim)
+* [Laravel](https://github.com/laravel/framework) 12 and 13
+* [Slim](https://github.com/slimphp/Slim) 4
 
 ## Requirements
 
@@ -58,7 +58,9 @@ class GetController
     #[OA\Response(response: 400, description: 'Not good enough')]
     public function getme($request, $response)
     {
-        return $response->write('Get me');
+        $response->getBody()->write('Get me');
+
+        return $response;
     }
 }
 ```

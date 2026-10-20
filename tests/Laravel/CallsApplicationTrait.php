@@ -31,7 +31,12 @@ trait CallsApplicationTrait
     public function createApplication()
     {
         if (!$this->app) {
-            $app = require __DIR__ . '/../../vendor/laravel/laravel/bootstrap/app.php';
+            // a bare application; the base path only needs somewhere to write its bootstrap cache
+            $basePath = sys_get_temp_dir() . '/openapi-router-laravel';
+            if (!is_dir($basePath . '/bootstrap/cache')) {
+                mkdir($basePath . '/bootstrap/cache', 0777, true);
+            }
+            $app = Application::configure(basePath: $basePath)->create();
             $app->make(Kernel::class)->bootstrap();
             $app['config']->set([
                 'app.environment' => 'local',
