@@ -31,6 +31,9 @@ several things it could not.
  class PetController
 ```
 
+`OpenApi\Spec` is the spec namespace in swagger-php 6.x and 7.x. In v8 it becomes
+`OpenApi\Attributes`, see [below](#swagger-php-v7-and-v8).
+
 `prefix`, `tags` and `responses` behave as before. `PathItem` adds what `Controller` had no
 way to express:
 
@@ -165,3 +168,14 @@ arguments:
 
 The values are the same, as properties: `$route->path`, `->method`, `->controller`,
 `->parameters`, `->custom`. Adapters no longer depend on swagger-php at all.
+
+## swagger-php v7 and v8
+
+- **v7** makes hybrid the default mode and deprecates classic. This package sets spec mode
+  itself, so nothing changes here. Code that still uses classic gets swagger-php's deprecation
+  notices.
+- **v8** removes classic and moves the spec attributes from `OpenApi\Spec` to
+  `OpenApi\Attributes`. In a controller that is one `use` line, and swagger-php plans a rector
+  rule for it. This package reads the spec attributes itself, so it moves too.
+
+openapi-router 5.x covers swagger-php 6.x and 7.x. openapi-router 6.0 follows swagger-php v8.

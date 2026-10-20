@@ -11,11 +11,15 @@ attributes describing your API, so the routing table and the OpenAPI document ca
 apart.
 
 **Spec attributes only.** Routes are read from the `OpenApi\Spec` namespace — swagger-php's
-spec pipeline. The classic `OpenApi\Attributes` namespace and docblock annotations are not
-read at all, so a codebase on classic needs converting first; see the
-[upgrade guide](docs/UpgradingTo5.md) if you are coming from 4.x. Spec attributes are
-[marked beta upstream](https://zircote.github.io/swagger-php/guide/spec-attributes) and their
-API may still change.
+spec pipeline. In swagger-php 6.x and 7.x, the classic `OpenApi\Attributes` namespace and
+docblock annotations are not read at all, so a codebase on classic needs converting first; see
+the [upgrade guide](docs/UpgradingTo5.md) if you are coming from 4.x. The spec attribute API is
+frozen since swagger-php 6.18.0, and spec mode is
+[marked beta upstream](https://zircote.github.io/swagger-php/guide/modes) until v7.
+
+swagger-php v8 moves the spec attributes to `OpenApi\Attributes`, and this package follows
+with a 6.0 release. [What v7 and v8 change](docs/UpgradingTo5.md#swagger-php-v7-and-v8) is in
+the upgrade guide.
 
 Supported frameworks:
 
