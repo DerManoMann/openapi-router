@@ -12,11 +12,11 @@ namespace Radebatz\OpenApi\Routing;
 final readonly class RouteRegistration
 {
     /**
-     * @param string                                                               $path       URL path with OpenAPI placeholders, prefixes already composed — `/api/v1/pets/{id}`
-     * @param string                                                               $method     HTTP method, upper case
-     * @param string                                                               $controller `Fully\Qualified\Class::method`; `__invoke` for a single-action controller
-     * @param array<string,array{required: bool, type: ?string, pattern: ?string}> $parameters path parameter metadata keyed by name, merged from the governing `PathItem` chain and the operation, in **reverse** path order — consecutive optional parameters nest (`/multi[/{foo}[/{bar}]]`), which requires bracketing the last one first. `type` is `string`, `integer`, `regex` or `null`; `pattern` accompanies `regex`
-     * @param array<string,mixed>                                                  $custom     keyed by the `RoutingAdapterInterface::X_*` constants — `X_NAME` (`?string`) and `X_MIDDLEWARE` (`list<string>`) are always present
+     * @param string                                                                                               $path       URL path with OpenAPI placeholders, prefixes already composed — `/api/v1/pets/{id}`
+     * @param string                                                                                               $method     HTTP method, upper case
+     * @param string                                                                                               $controller `Fully\Qualified\Class::method`; `__invoke` for a single-action controller
+     * @param array<string,array{required: bool, type: ?string, pattern: ?string, default: int|float|string|null}> $parameters path parameter metadata keyed by name, merged from the governing `PathItem` chain and the operation, in **reverse** path order — consecutive optional parameters nest (`/multi[/{foo}[/{bar}]]`), which requires bracketing the last one first. `type` is `string`, `integer`, `regex` or `null`; `pattern` accompanies `regex`, from the schema's `pattern`, `enum` or `format`; `default` is the schema's default, if it has a place in a URL
+     * @param array<string,mixed>                                                                                  $custom     keyed by the `RoutingAdapterInterface::X_*` constants — `X_NAME` (`?string`) and `X_MIDDLEWARE` (`list<string>`) are always present
      */
     public function __construct(
         public string $path,

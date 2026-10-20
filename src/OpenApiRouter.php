@@ -8,6 +8,7 @@ use OpenApi\Spec as OA;
 use OpenApi\Specification;
 use OpenApi\Specification\ComponentIndex;
 use OpenApi\Specification\PathItemHierarchy;
+use OpenApi\Undefined;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Radebatz\OpenApi\Routing\Attributes\Middleware;
@@ -178,7 +179,7 @@ class OpenApiRouter
                 path: $operation->path ?? '',
                 method: strtoupper($operation->method ?? 'GET'),
                 controller: $controller,
-                parameters: $this->parameterMetadata(array_reverse($this->pathParameters($operation, $hierarchy, $index))),
+                parameters: $this->parameterMetadata(array_reverse($this->pathParameters($operation, $hierarchy, $index)), $index),
                 custom: $this->customProperties($operation, $pathItems),
             );
         }
@@ -211,8 +212,7 @@ class OpenApiRouter
 
         $pathParameters = [];
         foreach ($parameters as $parameter) {
-            $ref = $parameter->ref instanceof OA\Schema\Ref ? $parameter->ref->ref : $parameter->ref;
-            $parameter = (is_string($ref) ? $index->findParameter($ref) : null) ?? $parameter;
+            $parameter = (is_string($parameter->ref) ? $index->findParameter($parameter->ref) : null) ?? $parameter;
             if ('path' === $parameter->in && $parameter->name !== null) {
                 $pathParameters[] = $parameter;
             }
@@ -263,11 +263,14 @@ class OpenApiRouter
     /**
      * Extract URI parameter metadata.
      *
+     * A schema that is only a `ref` is read from the component it points to, as a backed enum
+     * parameter usually is.
+     *
      * @param list<OA\Parameter> $parameters
      *
-     * @return array<string,array{required: bool, type: ?string, pattern: ?string}>
+     * @return array<string,array{required: bool, type: ?string, pattern: ?string, default: int|float|string|null}>
      */
-    protected function parameterMetadata(array $parameters): array
+    protected function parameterMetadata(array $parameters, ComponentIndex $index): array
     {
         $metadata = [];
 
@@ -278,25 +281,70 @@ class OpenApiRouter
                 'required' => (bool) $parameter->required,
                 'type' => null,
                 'pattern' => null,
+                'default' => null,
             ];
 
             if ($schema = $parameter->schema) {
-                switch ($this->routableType($schema->type)) {
-                    case 'string':
-                        $metadata[$name]['type'] = 'string';
-                        if ($pattern = $schema->pattern) {
-                            $metadata[$name]['type'] = 'regex';
-                            $metadata[$name]['pattern'] = $pattern;
-                        }
-                        break;
-                    case 'integer':
-                        $metadata[$name]['type'] = 'integer';
-                        break;
+                $schema = (is_string($schema->ref) ? $index->findSchema($schema->ref) : null) ?? $schema;
+
+                $type = $this->routableType($schema->type);
+                if (in_array($type, ['string', 'integer'], true)) {
+                    $metadata[$name]['type'] = $type;
                 }
+
+                if (($pattern = $this->constraint($schema)) !== null) {
+                    $metadata[$name]['type'] = 'regex';
+                    $metadata[$name]['pattern'] = $pattern;
+                }
+
+                $metadata[$name]['default'] = $this->routeValue($schema->default);
             }
         }
 
         return $metadata;
+    }
+
+    /**
+     * The regex a schema constrains a path parameter to.
+     *
+     * An explicit `pattern` wins, then `enum`, then a `format` with a known shape. The `uuid`
+     * and `ulid` expressions are the ones Laravel's `whereUuid()` and `whereUlid()` use.
+     */
+    protected function constraint(OA\Schema $schema): ?string
+    {
+        if ($schema->pattern) {
+            return $schema->pattern;
+        }
+
+        $values = array_filter(
+            array_map($this->routeValue(...), $schema->enum ?? []),
+            static fn (int|float|string|null $value): bool => $value !== null,
+        );
+        if ($values !== []) {
+            return implode('|', array_map(static fn (int|float|string $value): string => preg_quote((string) $value), $values));
+        }
+
+        return match ($schema->format) {
+            'uuid' => '[\da-fA-F]{8}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{12}',
+            'ulid' => '[0-7][0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]{25}',
+            default => null,
+        };
+    }
+
+    /**
+     * A schema value as it appears in a URL: a scalar, or an enum case's value or name.
+     *
+     * `null`, booleans, arrays and an undefined value have no place in a path.
+     */
+    protected function routeValue(mixed $value): int|float|string|null
+    {
+        return match (true) {
+            $value instanceof \BackedEnum => $value->value,
+            $value instanceof \UnitEnum => $value->name,
+            Undefined::isDefault($value) => null,
+            is_int($value), is_float($value), is_string($value) => $value,
+            default => null,
+        };
     }
 
     /**

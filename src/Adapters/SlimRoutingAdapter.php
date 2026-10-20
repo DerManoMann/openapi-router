@@ -61,6 +61,12 @@ class SlimRoutingAdapter implements RoutingAdapterInterface
             $slimRoute->setName($route->custom[static::X_NAME]);
         }
 
+        foreach ($route->parameters as $name => $parameter) {
+            if ($parameter['default'] !== null) {
+                $slimRoute->setArgument($name, (string) $parameter['default']);
+            }
+        }
+
         foreach ($route->custom[static::X_MIDDLEWARE] as $middleware) {
             $slimRoute->add($middleware);
         }

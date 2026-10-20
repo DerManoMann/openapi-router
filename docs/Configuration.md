@@ -86,5 +86,6 @@ new SlimRoutingAdapter($app, autoRegex: false);
 Constrain a path parameter declared `type: 'integer'` to `[0-9]+`. Default `true`.
 
 Laravel expresses this as a `where()` constraint, Slim as a `{id:[0-9]+}` placeholder. A
-parameter whose schema carries an explicit `pattern` uses that instead, regardless of this
-setting.
+parameter whose schema carries a `pattern`, an `enum` or a `uuid` or `ulid` format is
+constrained by that instead, regardless of this setting. See
+[Path parameters](../README.md#path-parameters).

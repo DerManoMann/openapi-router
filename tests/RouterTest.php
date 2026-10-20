@@ -3,6 +3,7 @@
 namespace Radebatz\OpenApi\Routing\Tests;
 
 use OpenApi\Builder;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -16,6 +17,8 @@ use Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers\NamedRouteController;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Controllers\SharedParameterController;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\BarMiddleware;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Middleware\FooMiddleware;
+use Radebatz\OpenApi\Routing\Tests\Fixtures\Routing\FacetsController;
+use Radebatz\OpenApi\Routing\Tests\Fixtures\Routing\Lang;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Routing\OperationIdController;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Routing\RefParameterController;
 use Radebatz\OpenApi\Routing\Tests\Fixtures\Routing\TenantParameter;
@@ -53,7 +56,7 @@ final class RouterTest extends TestCase
         $this->assertInstanceOf(RouteRegistration::class, $route);
         $this->assertSame('/shared/{tenant}/items', $route->path);
         $this->assertSame(
-            ['tenant' => ['required' => true, 'type' => 'integer', 'pattern' => null]],
+            ['tenant' => ['required' => true, 'type' => 'integer', 'pattern' => null, 'default' => null]],
             $route->parameters,
         );
     }
@@ -66,7 +69,7 @@ final class RouterTest extends TestCase
         $this->assertInstanceOf(RouteRegistration::class, $route);
         $this->assertSame('/ref/{tenant}/items', $route->path);
         $this->assertSame(
-            ['tenant' => ['required' => true, 'type' => 'integer', 'pattern' => null]],
+            ['tenant' => ['required' => true, 'type' => 'integer', 'pattern' => null, 'default' => null]],
             $route->parameters,
             'the schema and `required` come from the component the reference points to',
         );
@@ -79,7 +82,7 @@ final class RouterTest extends TestCase
 
         $this->assertInstanceOf(RouteRegistration::class, $route);
         $this->assertSame(
-            ['id' => ['required' => true, 'type' => 'integer', 'pattern' => null]],
+            ['id' => ['required' => true, 'type' => 'integer', 'pattern' => null, 'default' => null]],
             $route->parameters,
             'OpenAPI 3.1 spells nullability as a type list; `null` is not routable, so it drops out',
         );
@@ -92,10 +95,39 @@ final class RouterTest extends TestCase
 
         $this->assertInstanceOf(RouteRegistration::class, $route);
         $this->assertSame(
-            ['id' => ['required' => true, 'type' => null, 'pattern' => null]],
+            ['id' => ['required' => true, 'type' => null, 'pattern' => null, 'default' => null]],
             $route->parameters,
             'two routable types leave no single constraint to apply',
         );
+    }
+
+    /**
+     * @return iterable<string,array{string,array{required: bool, type: ?string, pattern: ?string, default: int|float|string|null}}>
+     */
+    public static function facets(): iterable
+    {
+        $uuid = '[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}';
+
+        yield 'enum' => ['enum', ['required' => true, 'type' => 'regex', 'pattern' => 'en|de', 'default' => null]];
+        yield 'enum by reference' => ['backed', ['required' => true, 'type' => 'regex', 'pattern' => 'en|de', 'default' => null]];
+        yield 'integer enum' => ['number', ['required' => true, 'type' => 'regex', 'pattern' => '1|2', 'default' => null]];
+        yield 'pattern wins over enum' => ['pattern', ['required' => true, 'type' => 'regex', 'pattern' => '[a-z]{2}', 'default' => null]];
+        yield 'uuid' => ['uuid', ['required' => true, 'type' => 'regex', 'pattern' => $uuid, 'default' => null]];
+        yield 'ulid' => ['ulid', ['required' => true, 'type' => 'regex', 'pattern' => '[0-7][0-9a-hjkmnp-tv-zA-HJKMNP-TV-Z]{25}', 'default' => null]];
+        yield 'default' => ['page', ['required' => false, 'type' => 'integer', 'pattern' => null, 'default' => 1]];
+    }
+
+    /**
+     * @param array{required: bool, type: ?string, pattern: ?string, default: int|float|string|null} $expected
+     */
+    #[Test]
+    #[DataProvider('facets')]
+    public function schemaFacetsBecomeRouteConstraints(string $name, array $expected): void
+    {
+        $route = $this->register(Lang::class, FacetsController::class)->route($name);
+
+        $this->assertInstanceOf(RouteRegistration::class, $route);
+        $this->assertSame([array_key_first($route->parameters) => $expected], $route->parameters);
     }
 
     #[Test]

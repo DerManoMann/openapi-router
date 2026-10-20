@@ -145,6 +145,32 @@ you want the middleware visible to whatever consumes your spec.
 The constants for the unprefixed keys are `RoutingAdapterInterface::X_NAME` and
 `X_MIDDLEWARE`.
 
+### Path parameters
+
+A path parameter's schema becomes the route's constraint, so a URL the document does not allow
+does not match:
+
+| Schema | Constraint |
+|---|---|
+| `pattern: '[0-9a-f]+'` | the pattern as written |
+| `enum: ['en', 'de']` | `en\|de` |
+| `format: 'uuid'` or `'ulid'` | the expressions Laravel's `whereUuid()` and `whereUlid()` use |
+| `type: 'integer'` | `[0-9]+`, unless [`$autoRegex`](docs/Configuration.md#autoregex) is off |
+
+The first one that applies wins. A schema that is a `$ref`, such as a backed enum with its own
+`#[OA\Schema]`, is read from the component it points to.
+
+A `default` on the schema becomes the route's default, through `defaults()` in Laravel and a
+route argument in Slim. That is mostly useful for an optional parameter:
+
+```php
+#[OA\Operation\Get(path: '/pets/{page}')]
+public function list(
+    #[OA\Parameter\Path(required: false, schema: new OA\Schema(type: 'integer', default: 1))]
+    $page
+) {}
+```
+
 ### Duplicate names and paths
 
 Nothing here checks that route names or paths are unique — the framework decides, and the two

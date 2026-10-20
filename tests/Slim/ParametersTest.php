@@ -50,4 +50,26 @@ final class ParametersTest extends TestCase
         $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('hid'));
         $this->assertSame('/hid/{hid:[0-9a-f]+}', $route->getPattern());
     }
+
+    #[Test]
+    public function enumParameter(): void
+    {
+        $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('lang'));
+        $this->assertSame('/lang/{lang:en|de}', $route->getPattern());
+    }
+
+    #[Test]
+    public function uuidParameter(): void
+    {
+        $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('item'));
+        $this->assertSame('/item/{id:[\\da-fA-F]{8}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{4}-[\\da-fA-F]{12}}', $route->getPattern());
+    }
+
+    #[Test]
+    public function defaultParameter(): void
+    {
+        $this->assertNotNull($route = $this->getRouteCollector()->getNamedRoute('list'));
+        $this->assertSame('/list[/{page:[0-9]+}]', $route->getPattern());
+        $this->assertSame('1', $route->getArgument('page'));
+    }
 }

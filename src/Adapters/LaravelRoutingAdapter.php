@@ -29,6 +29,7 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         $path = $route->path;
 
         $where = [];
+        $defaults = [];
         foreach ($route->parameters as $name => $parameter) {
             if (!$parameter['required'] && str_contains($path, $needle = "/{{$name}}")) {
                 $path = str_replace($needle, "/{{$name}?}", $path);
@@ -46,6 +47,10 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
                         $where[$name] = '[0-9]+';
                     }
                     break;
+            }
+
+            if ($parameter['default'] !== null) {
+                $defaults[$name] = $parameter['default'];
             }
         }
 
@@ -69,6 +74,9 @@ class LaravelRoutingAdapter implements RoutingAdapterInterface
         $laravelRoute = $router->addRoute(strtoupper($route->method), $path, $action);
         $laravelRoute->middleware($route->custom[static::X_MIDDLEWARE]);
         $laravelRoute->where($where);
+        foreach ($defaults as $name => $default) {
+            $laravelRoute->defaults($name, $default);
+        }
     }
 
     /**

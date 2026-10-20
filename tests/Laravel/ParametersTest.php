@@ -49,4 +49,28 @@ final class ParametersTest extends LaravelTestCase
         $this->assertTrue($route->matches(Request::create('hid/a1b2c3')));
         $this->assertFalse($route->matches(Request::create('hid/z12x3')));
     }
+
+    #[Test]
+    public function enumParameter(): void
+    {
+        $this->assertInstanceOf(Route::class, $route = $this->getRouter()->getRoutes()->getByName('lang'));
+        $this->assertTrue($route->matches(Request::create('lang/en')));
+        $this->assertFalse($route->matches(Request::create('lang/fr')));
+    }
+
+    #[Test]
+    public function uuidParameter(): void
+    {
+        $this->assertInstanceOf(Route::class, $route = $this->getRouter()->getRoutes()->getByName('item'));
+        $this->assertTrue($route->matches(Request::create('item/0b5e7a6c-3f1d-4c2a-9e8b-7d6f5a4b3c2d')));
+        $this->assertFalse($route->matches(Request::create('item/123')));
+    }
+
+    #[Test]
+    public function defaultParameter(): void
+    {
+        $this->assertInstanceOf(Route::class, $route = $this->getRouter()->getRoutes()->getByName('list'));
+        $this->assertSame(['page' => 1], $route->defaults);
+        $this->get('list')->assertSee('Page: 1');
+    }
 }
