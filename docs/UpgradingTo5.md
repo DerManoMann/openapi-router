@@ -12,7 +12,7 @@ several things it could not.
 | | 4.x | 5.x |
 |---|---|---|
 | PHP | 8.1+ | 8.2+ |
-| swagger-php | `^4.11 \|\| ^5.0 \|\| ^6.0` | `^6.13` |
+| swagger-php | `^4.11 \|\| ^5.0 \|\| ^6.0` | `^6.13 \|\| ^7.0` |
 | `radebatz/openapi-extras` | required | removed |
 | docblock annotations | supported | not read at all |
 

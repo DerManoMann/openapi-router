@@ -29,7 +29,7 @@ Supported frameworks:
 ## Requirements
 
 * PHP 8.2 or higher
-* `zircote/swagger-php` ^6.13
+* `zircote/swagger-php` ^6.13 or ^7.0
 
 ## Installation
 
