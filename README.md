@@ -195,6 +195,23 @@ Use swagger-php directly — its CLI or `Builder` over the same sources:
 
 The output is identical either way — this package adds nothing to the document.
 
+## Verifying responses
+
+The routes are built from the attributes, so they match the document.
+[openapi-verifier](https://github.com/DerManoMann/openapi-verifier) checks the other half: that
+the responses match it too. It has adapters for Laravel and Slim tests, PSR-15 middleware and
+Guzzle or PSR-18 clients.
+
+Give it the document generated above. Its Laravel and Slim adapters look for
+`tests/openapi.json` first, so generating there needs no further setup:
+
+```sh
+./vendor/bin/openapi --mode spec -o tests/openapi.json src/controllers
+```
+
+Without a document, the verifier generates one in swagger-php's default mode, which on 6.x
+reads no spec attributes.
+
 ## Documentation
 
 * [Configuration](docs/Configuration.md)
