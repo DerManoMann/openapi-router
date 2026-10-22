@@ -65,6 +65,6 @@
         "symfony/psr-http-message-bridge": "^6.0 || ^7.0"
     },
     "suggest": {
-        "radebatz/openapi-verifier": "Allows your PHPUnit tests to validate your controller response against your OpenAPI spec."
+        "radebatz/openapi-verifier": "Verifies responses against the document, in Laravel and Slim tests, as PSR-15 middleware or in Guzzle and PSR-18 clients"
     }
 }
