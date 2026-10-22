@@ -1,0 +1,11 @@
+parameters:
+    phpVersion: 80200
+    level: 7
+    paths:
+        - src
+        - tests
+    parallel:
+        processTimeout: 300.0
+    excludePaths:
+        - 'tests/Fixtures/*'
+    treatPhpDocTypesAsCertain: false

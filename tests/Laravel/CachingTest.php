@@ -3,47 +3,45 @@
 namespace Radebatz\OpenApi\Routing\Tests\Laravel;
 
 use Illuminate\Foundation\Application;
+use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Facade;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\SimpleCache\CacheInterface;
 use Radebatz\OpenApi\Routing\Adapters\LaravelRoutingAdapter;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
-class CachingTest extends LaravelTestCase
+final class CachingTest extends LaravelTestCase
 {
     use CallsApplicationTrait;
 
-    public static function reloadTests(): iterable
+    /**
+     * Named arguments: two adjacent bools are too easy to transpose positionally, and a
+     * transposed pair still passes — it just asserts the opposite of what the name says.
+     */
+    public static function reloadTests(): \Iterator
     {
-        return [
-            'no-cache-reload' => [null, true, false],
-            'no-cache-no-reload' => [null, false, false],
-            'cache-reload' => [new Psr16Cache(new ArrayAdapter()), false, true],
-            'cache-no-reload' => [new Psr16Cache(new ArrayAdapter()), true, false],
-        ];
+        yield 'no-cache-reload' => ['cache' => null, 'reload' => true, 'routesCached' => false];
+        yield 'no-cache-no-reload' => ['cache' => null, 'reload' => false, 'routesCached' => false];
+        yield 'cache-reload' => ['cache' => new Psr16Cache(new ArrayAdapter()), 'reload' => true, 'routesCached' => false];
+        yield 'cache-no-reload' => ['cache' => new Psr16Cache(new ArrayAdapter()), 'reload' => false, 'routesCached' => true];
     }
 
-    /**
-     * @dataProvider reloadTests
-     */
-    public function testReload(?CacheInterface $cache, bool $reload, bool $openapisCached): void
+    #[DataProvider('reloadTests')]
+    public function testReload(?CacheInterface $cache, bool $reload, bool $routesCached): void
     {
-        $options = [
-            OpenApiRouter::OPTION_OA_INFO_INJECT => true,
-            OpenApiRouter::OPTION_RELOAD => $reload,
-            OpenApiRouter::OPTION_CACHE => $cache,
-        ];
-
-        (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app = $this->getApp()), $options))
+        (new OpenApiRouter($this->getFixtureFinder(), new LaravelRoutingAdapter($app = $this->getApp())))
+            ->setReload($reload)
+            ->setCache($cache)
             ->registerRoutes();
 
         /** @var Router $router */
         $router = $app['router'];
-        $this->assertNotNull($router->getRoutes()->getByName('getya'));
+        $this->assertInstanceOf(Route::class, $router->getRoutes()->getByName('getya'));
 
-        $this->assertEquals($openapisCached, $cache && $cache->has(OpenApiRouter::CACHE_KEY_OPENAPI));
+        $this->assertSame($routesCached, $cache instanceof CacheInterface && $cache->has(OpenApiRouter::CACHE_KEY_ROUTES));
     }
 
     protected function getApp(): Application
