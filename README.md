@@ -37,6 +37,11 @@ Supported frameworks:
 composer require radebatz/openapi-router
 ```
 
+> [!NOTE]
+> Composer reports `radebatz/openapi-extras` as abandoned when installing this package. That is
+> expected: 4.x depends on it, and nothing needs doing on your side. The upcoming
+> openapi-router 5.0 is built on swagger-php's spec attributes and drops the dependency.
+
 ## Basic usage
 
 **Controller**
