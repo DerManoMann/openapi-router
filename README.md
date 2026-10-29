@@ -14,8 +14,8 @@ apart.
 spec pipeline. In swagger-php 6.x and 7.x, the classic `OpenApi\Attributes` namespace and
 docblock annotations are not read at all, so a codebase on classic needs converting first; see
 the [upgrade guide](docs/UpgradingTo5.md) if you are coming from 4.x. The spec attribute API is
-frozen since swagger-php 6.18.0, and spec mode is
-[marked beta upstream](https://zircote.github.io/swagger-php/guide/modes) until v7.
+frozen since swagger-php 6.18.0, and spec mode is no longer
+[marked beta upstream](https://zircote.github.io/swagger-php/guide/modes) since 7.0.
 
 swagger-php v8 moves the spec attributes to `OpenApi\Attributes`, and this package follows
 with a 6.0 release. [What v7 and v8 change](docs/UpgradingTo5.md#swagger-php-v7-and-v8) is in
@@ -36,11 +36,6 @@ Supported frameworks:
 ```sh
 composer require radebatz/openapi-router
 ```
-
-> [!NOTE]
-> Composer reports `radebatz/openapi-extras` as abandoned when installing this package. That is
-> expected: 4.x depends on it, and nothing needs doing on your side. The upcoming
-> openapi-router 5.0 is built on swagger-php's spec attributes and drops the dependency.
 
 ## Basic usage
 
