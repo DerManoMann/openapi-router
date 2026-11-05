@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
-use Psr\Log\LoggerInterface;
 use Radebatz\OpenApi\Routing\OpenApiRouter;
 use Radebatz\OpenApi\Routing\RouteRegistration;
 use Radebatz\OpenApi\Routing\RoutingAdapterInterface;
@@ -197,19 +196,16 @@ final class RouterTest extends TestCase
             }
         };
 
-        $seen = null;
-
         (new OpenApiRouter($this->reflect(NamedRouteController::class), new RecordingAdapter()))
             ->setLogger($logger)
-            ->withBuilder(function (Builder $builder) use (&$seen): void {
+            ->withBuilder(function (Builder $builder): void {
                 // `Builder::getLogger()` is protected; the point here is that the router set
-                // it before handing the builder over, so read it where the hook would care
-                $seen = (new \ReflectionProperty(Builder::class, 'logger'))->getValue($builder);
+                // the logger before handing the builder over, so log where the hook would
+                (new \ReflectionMethod(Builder::class, 'getLogger'))->invoke($builder)->info('from the hook');
             })
             ->registerRoutes();
 
-        $this->assertInstanceOf(LoggerInterface::class, $seen);
-        $this->assertSame($logger, $seen, 'setLogger() applies before the withBuilder() hook runs');
+        $this->assertContains('from the hook', $logger->records, 'setLogger() applies before the withBuilder() hook runs');
     }
 
     #[Test]
