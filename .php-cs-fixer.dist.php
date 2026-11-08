@@ -11,7 +11,7 @@ return (new PhpCsFixer\Config())
         '@PSR12' => true,
         'blank_line_after_opening_tag' => false,
         'array_syntax' => ['syntax' => 'short'],
-        'ordered_imports' => true,
+        'ordered_imports' => ['imports_order' => ['class', 'function', 'const']],
         'no_unused_imports' => true,
         'blank_line_before_statement' => ['statements' => ['return']],
         'modifier_keywords' => true,
